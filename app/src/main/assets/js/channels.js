@@ -18,7 +18,7 @@
     let best=await getJSON('channels.json');
     const cache=LS.get('m3u_chcache',null);
     if(ok(cache)&&newer(cache,best))best=cache;
-    if(CHANNELS_URL){
+    if(CHANNELS_URL&&!(window.Android&&Android.edition&&Android.edition()==='personal')){
       const rem=await getJSON(CHANNELS_URL);
       if(ok(rem)&&newer(rem,best)){best=rem;LS.set('m3u_chcache',rem)}
     }
@@ -162,13 +162,26 @@
       clearInterval(w);
       base=await load();
       if(base){
-        // قائمة مدمجة جديدة: تعديلات الأرقام القديمة لا تنطبق عليها، فتُصفَّر مرة واحدة (قنوات المستخدم المضافة تبقى)
-        const sg=String(base.version)+'|'+String(base.updated);
-        if(LS.get('m3u_chsig','')!==sg){LS.del('m3u_chov');LS.set('m3u_chsig',sg)}
-        apply(true);
+        if(base.channels.length){
+          // قائمة مدمجة جديدة: تعديلات الأرقام القديمة لا تنطبق عليها، فتُصفَّر مرة واحدة (قنوات المستخدم المضافة تبقى)
+          const sg=String(base.version)+'|'+String(base.updated);
+          if(LS.get('m3u_chsig','')!==sg){LS.del('m3u_chov');LS.set('m3u_chsig',sg)}
+          apply(true);
+        }else{
+          lists=lists.filter(l=>l.id!=='builtin');
+          if(active==='builtin')active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
+          fillLists();
+          if(active)openList(active);
+          else showWelcome();
+          saveLists();
+        }
       }
       // البدء من آخر قناة، وإلا من أول قناة
-      setTimeout(()=>{if(!curUrl&&shown.length&&document.body.classList.contains('rcv'))play(shown[0])},900);
+      setTimeout(()=>{
+        if(!curUrl&&shown.length&&document.body.classList.contains('rcv')){
+          play(shown.find(it=>detectKind(it)==='live')||shown[0]);
+        }
+      },900);
     }
   },300);
 })();

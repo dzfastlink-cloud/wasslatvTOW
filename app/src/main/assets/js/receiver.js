@@ -71,7 +71,10 @@
     if(level==='sources'){
       if(p.t==='set'){openSettings();return}
       if(p.t==='vod'){closeL();if(window.__openVod)__openVod(p.id);return}
-      openList(p.id);
+      if(p.id===FAV_LIST_ID){
+        $('grp').value='__fav';render();level='rows';build();sel=0;setZone('rows');return;
+      }
+      if(p.id!==active){openSettings('sources');return}
       nav.push('sources');
       if(p.k&&p.k.groups.size>1){showCats();sel=0;setZone('rows')}
       else{$('grp').value=(p.k&&p.k.vod>0)?'__k_live':'';render();level='rows';build();sel=0;setZone('rows')}
@@ -206,7 +209,7 @@
         e.animate([{opacity:.3,transform:'translateY(-4px) scale(.96)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'})});
     }catch(e){}
   }
-  function openSettings(){closeL();if(window.__openSettings)window.__openSettings()}
+  function openSettings(section){closeL();if(window.__openSettings)window.__openSettings(section)}
   function seekBy(sec){const sk=v.seekable;if(!sk||!sk.length){if(noSeekUrl!==curUrl){noSeekUrl=curUrl;toast('هذه القناة لا تدعم التقديم والتأخير')}return}const a=sk.start(0),b=sk.end(sk.length-1),t=Math.min(b,Math.max(a,v.currentTime+sec)),behind=Math.round(b-t);v.currentTime=t;toast(behind>3?'⏪ متأخر '+behind+' ث عن المباشر':'● مباشر')}
 
   function menuKey(k,repeat){

@@ -16,9 +16,9 @@
     say('جارٍ التحديث…');
     try{
       if(active==='builtin'&&window.__chReload)await window.__chReload();
-      else $('upd').click();
-      say('تم التحديث ✓');
+      else if(window.__openSourceUpdateReview)await window.__openSourceUpdateReview(active);
+      else await updateList(active);
     }catch(e){say('تعذّر التحديث')}
-    setTimeout(()=>say(''),2500);
+    setTimeout(()=>say(''),4000);
   };
 })();

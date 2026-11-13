@@ -102,16 +102,26 @@
     try{acc=parse(text)}catch(e){}
     if(!acc.length)return origAdd(text,name,url);
 
-    let ok=0;
+    const valid=[],failed=[];
     for(let i=0;i<acc.length;i++){
       const a=acc[i];
       let nm=a.name||name||a.host.replace(/^https?:\/\//,'');
       if(acc.length>1&&!a.name)nm=(name||'Xtream')+' '+(i+1);
-      try{if(await window.xtAdd(a.host,a.user,a.pass,nm))ok++}catch(e){}
+      try{
+        const prepared=await window.xtPrepare(a.host,a.user,a.pass);
+        valid.push({name:nm,prepared});
+      }catch(e){failed.push({name:nm,reason:'فشل الاتصال أو لا يوجد محتوى صالح'})}
     }
-    if(ok)return true;
-    // ملف روابط بث عادية (بلا #EXTM3U) فشل اتصاله بالـAPI: يُعامل كقائمة روابط كما كان
-    if(acc.every(a=>a.src==='stream'))return origAdd(text,name,url);
+    if(valid.length&&window.__reviewXtreamAccounts)return window.__reviewXtreamAccounts(valid,failed);
+    if(valid.length){
+      let ok=0;
+      for(const account of valid){
+        try{if(await window.xtAddPrepared(account.prepared,account.name))ok++}
+        catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
+      }
+      if(failed.length&&typeof setMsg==='function')setMsg('تم التحقق من الحسابات؛ تعذّرت إضافة بعض الحسابات.',true);
+      return ok>0;
+    }
     if(typeof setMsg==='function')setMsg('تعذّر الاتصال بسيرفر Xtream الموجود في الملف. تحقق من العنوان واسم المستخدم وكلمة السر.',true);
     return false;
   };

@@ -205,9 +205,17 @@ class WebActivity : Activity() {
 
         @JavascriptInterface
         fun readAsset(name: String): String = try {
-            if (name != "channels.json") "" else assets.open(name).bufferedReader().use { it.readText() }
+            if (name != "channels.json" && name != "source-config.json") "" else assets.open(name).bufferedReader().use { it.readText() }
         } catch (e: Exception) {
             ""
+        }
+
+        @JavascriptInterface
+        fun edition(): String = try {
+            val cfg = org.json.JSONObject(assets.open("source-config.json").bufferedReader().use { it.readText() })
+            if (cfg.optString("edition") == "personal") "personal" else "open"
+        } catch (e: Exception) {
+            "open"
         }
 
         @JavascriptInterface

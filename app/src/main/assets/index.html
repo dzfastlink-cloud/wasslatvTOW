@@ -55,6 +55,7 @@
   <section style="position:relative;">
     <!-- شاشة الريسيفر OSD -->
     <div id="ldg"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="lgm" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#lgg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg><b class="lgx">!</b></div><img id="ldgl" alt=""><div class="ldn" id="ldgn"></div><div class="lds" id="ldgs"></div><div class="ldh">OK القنوات · ↑ ↓ قناة أخرى</div><div class="ldb"><button type="button" class="alt" id="ldgr">↻ إعادة المحاولة</button><button type="button" class="alt" id="ldgx">⏭ القناة التالية</button></div></div>
+    <button id="ldgb" type="button">↩ رجوع للقنوات</button>
     <div id="osd" class="osd-overlay">القناة: 1</div>
     <div id="rbanner"><div class="b1"><div class="rn"></div><img alt=""><div class="ri"><b></b><small></small></div></div><div class="b2"><span class="bg"></span><span class="dt"></span><span class="rc"></span></div></div>
     <div id="rnum"></div>
@@ -88,7 +89,14 @@
         <button class="alt" id="pf" style="color:white; border-color:#555;">☆ أضف للمفضلة</button>
       </div>
       <video id="v" controls playsinline></video>
+      <div id="vodnext" class="vod-next hide">
+        <span id="vodnexttext"></span>
+        <button type="button" id="vodnextnow">التشغيل الآن</button>
+        <button type="button" class="alt" id="vodnextcancel">إلغاء</button>
+      </div>
       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
+        <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
+        <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
         <button class="alt" id="prev" style="color:white; border-color:#555;" title="القناة السابقة (↑)">⏮ السابقة</button>
         <button class="alt" id="nextb" style="color:white; border-color:#555;" title="القناة التالية (↓)">التالية ⏭</button>
         <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶ ملء الشاشة</button>
@@ -106,7 +114,7 @@
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
 <div id="vod">
-  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
+  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
   <div class="vhero" id="vodh"><img id="vpimg" alt=""><div><b id="vpt"></b><small id="vps"></small></div></div>
   <div class="vbody" id="vodb"></div>
 </div>
@@ -164,9 +172,9 @@
   <div class="sec" style="border-top:1px dashed var(--line); padding-top:10px;">
     <h4>🔗 إضافة سيرفر Extreme (Xtream Codes)</h4>
     <div class="lrow">
-      <input id="xt_host" type="text" value="http://live.lynxiptv.xyz" placeholder="رابط السيرفر (مثال: http://domain.com:8080)" dir="ltr">
-      <input id="xt_user" type="text" value="781150196435" placeholder="اسم المستخدم" dir="ltr">
-      <input id="xt_pass" type="text" value="pBixhRPeaU" placeholder="كلمة المرور" dir="ltr">
+      <input id="xt_host" type="text" placeholder="رابط السيرفر (مثال: http://domain.com:8080)" dir="ltr">
+      <input id="xt_user" type="text" placeholder="اسم المستخدم" dir="ltr">
+      <input id="xt_pass" type="password" placeholder="كلمة المرور" dir="ltr">
       <button class="btn" id="xt_add">إضافة السيرفر</button>
     </div>
   </div>
@@ -212,6 +220,7 @@
 
 <script src="js/boot.js"></script>
 <script src="js/libs.js"></script>
+<script src="js/source-model.js"></script>
 <script src="js/app.js"></script>
 <script src="js/remote.js"></script>
 <script src="js/receiver.js?v=catfx-20261112"></script>
@@ -226,6 +235,7 @@
 <script src="js/settings.js"></script>
 <script src="js/xtream.js"></script>
 <script src="js/xtream-txt.js"></script>
+<script src="js/vod-model.js"></script>
 <script src="js/vod.js"></script>
 <script src="js/newfiles.js"></script>
 <script src="js/idle.js"></script>

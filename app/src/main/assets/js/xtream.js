@@ -33,26 +33,37 @@
     return{text:out.join('\n')+'\n',count:n,host};
   }
 
-  /* إضافة سيرفر جديد: يعيد true عند النجاح */
-  window.xtAdd=async function(host,u,p,name){
+  window.xtPrepare=async function(host,u,p){
     const r=await build(host,u,p);
-    if(!r.count)return false;
-    const ok=await addList(r.text,name||'Xtream','');
+    if(!r.count)throw new Error('لم يُرجع الحساب محتوى صالحًا');
+    return{xt:{host:r.host,u,p},text:r.text,count:r.count};
+  };
+  window.xtAddPrepared=async function(prepared,name){
+    if(!prepared||!prepared.xt||!prepared.text)return false;
+    const existing=new Set(lists.map(l=>l.id));
+    const ok=await addList(prepared.text,name||'Xtream','');
     if(ok){
-      const l=lists.find(x=>x.id===active);
-      if(l){l.xt={host:r.host,u,p};await saveLists()}
+      const l=lists.find(x=>!existing.has(x.id));
+      if(l){l.xt=prepared.xt;l.remoteText=prepared.text;await saveLists()}
     }
     return ok;
+  };
+  /* إضافة سيرفر جديد: يعيد true عند النجاح */
+  window.xtAdd=async function(host,u,p,name){
+    const prepared=await window.xtPrepare(host,u,p);
+    return await window.xtAddPrepared(prepared,name);
+  };
+  window.xtPreview=async function(id){
+    const l=lists.find(x=>x.id===id);
+    if(!l||!l.xt)throw new Error('حساب Xtream غير متاح');
+    const r=await build(l.xt.host,l.xt.u,l.xt.p);
+    if(!r.count)throw new Error('لم يُرجع حساب Xtream أي محتوى');
+    return{id,kind:'xtream',sourceKey:JSON.stringify(l.xt),items:parseM3U(r.text),remoteText:r.text};
   };
   /* تحديث مصدر Xtream موجود */
   window.xtRefresh=async function(l){
     if(!l||!l.xt)return false;
-    const r=await build(l.xt.host,l.xt.u,l.xt.p);
-    if(!r.count)return false;
-    const its=parseM3U(r.text);
-    l.text=ser(its);l.n=its.length;l.upd=Date.now();
-    await saveLists();
-    if(active===l.id)openList(l.id);
-    return true;
+    const proposal=await window.xtPreview(l.id);
+    return await window.__applyListUpdate(proposal,'merge');
   };
 })();
