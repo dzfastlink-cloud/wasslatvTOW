@@ -1,0 +1,1576 @@
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/css/idle.css wasslatvTOW/app/src/main/assets/css/idle.css
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/css/idle.css	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/css/idle.css	2026-11-13 22:30:42.842701739 +0000
+@@ -22,5 +22,7 @@
+ #ldg.bad .ldr::after{content:"!";position:absolute;inset:0;display:grid;place-items:center;font-size:26px;font-weight:800;color:#e5484d}
+ #ldg.bad .lds{color:#ffd1d1}
+ #ldg.bad .ldh{display:none}
++#ldgb{display:none;position:absolute;inset-inline-start:50%;bottom:calc(var(--w-safe) + 10px);transform:translateX(-50%);z-index:38;min-width:170px;min-height:48px;padding:8px 18px;border:1px solid #3dc9ae;border-radius:999px;background:#04201b;color:#fff;font-size:17px}
++#ldg.bad~#ldgb{display:block}
+ @keyframes ldspin{to{transform:rotate(360deg)}}
+ @media (prefers-reduced-motion:reduce){#ldg .ldr{animation:none}}
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/css/vod.css wasslatvTOW/app/src/main/assets/css/vod.css
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/css/vod.css	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/css/vod.css	2026-11-13 22:30:42.843711315 +0000
+@@ -3,11 +3,16 @@
+ #vod.on{display:flex}
+ body.cine-play #vod{display:none!important}
+ #vod .vtop{display:flex;align-items:center;gap:18px;padding:12px 28px;background:linear-gradient(90deg,#0a5448,#0e7c6b)}
++#vod .vsource-label{display:flex;align-items:center;gap:8px;color:#d2efe9;font-size:14px}
++#vodsource{max-width:220px;padding:7px 12px;border:2px solid transparent;border-radius:8px;background:#ffffff1f;color:#fff;font:inherit}
++#vodsource option{background:#06352d;color:#fff}
++#vodsource.sel{border-color:#f5b04c}
+ #vod .vlogo{font-size:22px;font-weight:800;color:#f5b04c;white-space:nowrap}
+ #vod .vtabs{display:flex;gap:8px}
+ #vod .vt{padding:7px 18px;border-radius:999px;border:2px solid transparent;font-size:16px;background:#ffffff1f;cursor:pointer;white-space:nowrap}
+ #vod .vt.on{background:#f5b04c;color:#04201b;font-weight:700}
+ #vod .vt.sel{border-color:#fff;box-shadow:0 0 0 4px rgba(245,176,76,.4)}
++#vodsearch{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+ #vod .vsp{flex:1}
+ #vod .vhint{font-size:13px;color:#d2efe9}
+ #vod .vhero{display:flex;gap:18px;align-items:center;padding:14px 28px;min-height:158px;background:radial-gradient(circle at 80% 0,#0e6b5b66,transparent 60%)}
+@@ -23,7 +28,19 @@
+ #vod .vc.noimg::before{content:attr(data-i);position:absolute;inset:0;display:grid;place-items:center;font-size:46px;color:#ffffff66}
+ #vod .vc .vn{position:absolute;inset-inline:0;bottom:0;padding:18px 6px 6px;font-size:12px;line-height:1.3;background:linear-gradient(transparent,#000d);max-height:62px;overflow:hidden}
+ #vod .vc i{position:absolute;top:6px;inset-inline-start:6px;font-style:normal;font-size:10px;background:#f5b04c;color:#04201b;border-radius:4px;padding:1px 6px}
++#vod .vc .vbadge{position:absolute;top:6px;inset-inline-end:6px;max-width:75%;padding:2px 6px;border-radius:5px;background:#001d18bb;color:#fff;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++#vod .vc .vprogress{position:absolute;inset-inline:0;bottom:0;height:4px;background:linear-gradient(to right,#f5b04c var(--progress),#ffffff55 var(--progress));z-index:2}
+ #vod .vc.sel{transform:scale(1.1);border-color:#f5b04c;z-index:2;box-shadow:0 8px 24px #000a}
++#vod .vdetails{display:flex;align-items:flex-start;gap:28px;max-width:1100px;margin:5vh auto;padding:24px;width:calc(100% - 48px);max-height:80%;overflow:auto;background:#ffffff0b;border:1px solid #ffffff20;border-radius:18px}
++#vod .vdetail-cover{flex:0 0 auto;width:210px;max-height:315px;object-fit:cover;border-radius:12px;background:#ffffff1f}
++#vod .vdetail-info{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0}
++#vod .vdetail-info h2{margin:0;font-size:30px}
++#vod .vdetail-info p{margin:0 0 8px;color:#a8d1c9}
++#vod .vdetail-info h3{margin:16px 0 4px;color:#f5b04c}
++#vod .vdetail-info button{min-width:260px;max-width:100%;text-align:start}
++#vod .vdetail-info button.sel,#vod .vdetail-info button:focus-visible{outline:2px solid #f5b04c;outline-offset:2px}
++#vod .vprogress{color:#f5b04c}
++#vod .vdetail-progress{height:5px;max-width:360px;width:100%;border-radius:8px;background:linear-gradient(to right,#f5b04c var(--progress),#ffffff33 var(--progress))}
+ #vod .vseas{display:flex;gap:8px;padding:10px 28px;flex-wrap:wrap}
+ #vod .vs{padding:7px 16px;border-radius:999px;background:#ffffff1f;font-size:16px;cursor:pointer;border:2px solid transparent}
+ #vod .vs.on{background:#0a5448;font-weight:700}
+@@ -33,3 +50,18 @@
+ #vod .ve .n{min-width:90px;color:#f5b04c}
+ #vod .ve.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);border-color:#f5b04c}
+ #vod .vempty{padding:60px 28px;text-align:center;color:#d2efe9;font-size:20px;line-height:1.8;white-space:pre-line}
++body:not(.cine-play) #vodbackdetails,body:not(.cine-play) #vodwatched,#vodnext{display:none}
++body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
++#vodnext.vod-next:not(.hide){display:flex}
++.vod-next{position:absolute;z-index:5;top:18%;inset-inline:10%;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:16px;border:1px solid #ffffff55;border-radius:14px;background:#061b18ee;color:#fff}
++.vod-next span{flex-basis:100%;text-align:center;font-size:20px}
++@media(max-width:700px){
++  #vod .vtop{gap:8px;padding:8px 12px;flex-wrap:wrap}
++  #vod .vsource-label{font-size:12px}
++  #vodsource{max-width:145px}
++  #vod .vhint{display:none}
++  #vod .vdetails{margin:16px auto;padding:16px;gap:16px;width:calc(100% - 24px)}
++  #vod .vdetail-cover{width:110px;max-height:165px}
++  #vod .vdetail-info h2{font-size:22px}
++  #vod .vdetail-info button{min-width:180px}
++}
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/index.html wasslatvTOW/app/src/main/assets/index.html
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/index.html	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/index.html	2026-11-13 22:30:42.841608215 +0000
+@@ -55,6 +55,7 @@
+   <section style="position:relative;">
+     <!-- شاشة الريسيفر OSD -->
+     <div id="ldg"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="lgm" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#lgg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg><b class="lgx">!</b></div><img id="ldgl" alt=""><div class="ldn" id="ldgn"></div><div class="lds" id="ldgs"></div><div class="ldh">OK القنوات · ↑ ↓ قناة أخرى</div><div class="ldb"><button type="button" class="alt" id="ldgr">↻ إعادة المحاولة</button><button type="button" class="alt" id="ldgx">⏭ القناة التالية</button></div></div>
++    <button id="ldgb" type="button">↩ رجوع للقنوات</button>
+     <div id="osd" class="osd-overlay">القناة: 1</div>
+     <div id="rbanner"><div class="b1"><div class="rn"></div><img alt=""><div class="ri"><b></b><small></small></div></div><div class="b2"><span class="bg"></span><span class="dt"></span><span class="rc"></span></div></div>
+     <div id="rnum"></div>
+@@ -88,7 +89,14 @@
+         <button class="alt" id="pf" style="color:white; border-color:#555;">☆ أضف للمفضلة</button>
+       </div>
+       <video id="v" controls playsinline></video>
++      <div id="vodnext" class="vod-next hide">
++        <span id="vodnexttext"></span>
++        <button type="button" id="vodnextnow">التشغيل الآن</button>
++        <button type="button" class="alt" id="vodnextcancel">إلغاء</button>
++      </div>
+       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
++        <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
++        <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
+         <button class="alt" id="prev" style="color:white; border-color:#555;" title="القناة السابقة (↑)">⏮ السابقة</button>
+         <button class="alt" id="nextb" style="color:white; border-color:#555;" title="القناة التالية (↓)">التالية ⏭</button>
+         <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶ ملء الشاشة</button>
+@@ -106,7 +114,7 @@
+   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
+ </div>
+ <div id="vod">
+-  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
++  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
+   <div class="vhero" id="vodh"><img id="vpimg" alt=""><div><b id="vpt"></b><small id="vps"></small></div></div>
+   <div class="vbody" id="vodb"></div>
+ </div>
+@@ -164,9 +172,9 @@
+   <div class="sec" style="border-top:1px dashed var(--line); padding-top:10px;">
+     <h4>🔗 إضافة سيرفر Extreme (Xtream Codes)</h4>
+     <div class="lrow">
+-      <input id="xt_host" type="text" value="http://live.lynxiptv.xyz" placeholder="رابط السيرفر (مثال: http://domain.com:8080)" dir="ltr">
+-      <input id="xt_user" type="text" value="781150196435" placeholder="اسم المستخدم" dir="ltr">
+-      <input id="xt_pass" type="text" value="pBixhRPeaU" placeholder="كلمة المرور" dir="ltr">
++      <input id="xt_host" type="text" placeholder="رابط السيرفر (مثال: http://domain.com:8080)" dir="ltr">
++      <input id="xt_user" type="text" placeholder="اسم المستخدم" dir="ltr">
++      <input id="xt_pass" type="password" placeholder="كلمة المرور" dir="ltr">
+       <button class="btn" id="xt_add">إضافة السيرفر</button>
+     </div>
+   </div>
+@@ -212,6 +220,7 @@
+ 
+ <script src="js/boot.js"></script>
+ <script src="js/libs.js"></script>
++<script src="js/source-model.js"></script>
+ <script src="js/app.js"></script>
+ <script src="js/remote.js"></script>
+ <script src="js/receiver.js?v=catfx-20261112"></script>
+@@ -226,6 +235,7 @@
+ <script src="js/settings.js"></script>
+ <script src="js/xtream.js"></script>
+ <script src="js/xtream-txt.js"></script>
++<script src="js/vod-model.js"></script>
+ <script src="js/vod.js"></script>
+ <script src="js/newfiles.js"></script>
+ <script src="js/idle.js"></script>
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/app.js wasslatvTOW/app/src/main/assets/js/app.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/app.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/app.js	2026-11-13 22:30:42.844720585 +0000
+@@ -1,22 +1,36 @@
+ const $=id=>document.getElementById(id);
++const EDITION=window.Android&&Android.edition?Android.edition():'open';
++const STORAGE_PREFIX='wassla:'+EDITION+':';
+ const DB={
+-  open(){return this._p||(this._p=new Promise((ok,no)=>{const r=indexedDB.open('m3u-viewer',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>{this._p=null;no(r.error)}}))},
++  open(){return this._p||(this._p=new Promise((ok,no)=>{
++    const r=indexedDB.open('m3u-viewer-'+EDITION,1);
++    r.onupgradeneeded=()=>r.result.createObjectStore('kv');
++    r.onsuccess=()=>{
++      const db=r.result;
++      if(EDITION!=='open'||localStorage.getItem(STORAGE_PREFIX+'db-migrated')){ok(db);return}
++      const old=indexedDB.open('m3u-viewer',1);
++      old.onerror=()=>{console.warn('Could not inspect legacy local database',old.error);localStorage.setItem(STORAGE_PREFIX+'db-migrated','1');ok(db)};
++      old.onsuccess=()=>{
++        const legacy=old.result;
++        if(!legacy.objectStoreNames.contains('kv')){
++          legacy.close();localStorage.setItem(STORAGE_PREFIX+'db-migrated','1');ok(db);return;
++        }
++        const tx=db.transaction('kv','readwrite'),read=legacy.transaction('kv').objectStore('kv').openCursor();
++        read.onsuccess=()=>{
++          const cursor=read.result;
++          if(cursor){tx.objectStore('kv').put(cursor.value,cursor.key);cursor.continue()}
++        };
++        tx.oncomplete=()=>{legacy.close();localStorage.setItem(STORAGE_PREFIX+'db-migrated','1');ok(db)};
++        tx.onerror=()=>{legacy.close();this._p=null;no(tx.error)};
++      };
++    };
++    r.onerror=()=>{this._p=null;no(r.error)};
++  }))},
+   async get(k){const d=await this.open();return new Promise(ok=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})},
+   async set(k,v){const d=await this.open();return new Promise((ok,no)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=ok;t.onerror=()=>no(t.error)})},
+   async del(k){const d=await this.open();return new Promise(ok=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=ok;t.onerror=ok})}
+ };
+ 
+-// ================== القنوات المدمجة (يمكنك تعديلها هنا) ==================
+-const BUILT_IN_M3U = `#EXTM3U
+-#EXTINF:-1 group-title="قنوات جزائرية",الجزائرية 1
+-https://example.com/algerie1.m3u8
+-#EXTINF:-1 group-title="قنوات رياضية",الهداف TV
+-https://example.com/elheddaf.m3u8
+-#EXTINF:-1 group-title="قنوات إخبارية",الجزيرة
+-https://example.com/aljazeera.m3u8
+-`;
+-// ==========================================================================
+-
+ function parseM3U(text){
+   const out=[],lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
+   let meta=null;
+@@ -59,7 +73,20 @@
+ const KIND_ICON={live:'📺',movie:'🎬',series:'🎞️',radio:'📻'};
+ const KIND_NAME={live:'قنوات',movie:'أفلام',series:'مسلسلات',radio:'راديو'};
+ 
+-const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
++const LS={
++  get(k,d){
++    try{
++      let v=localStorage.getItem(STORAGE_PREFIX+k);
++      if(v==null&&EDITION==='open'){
++        v=localStorage.getItem(k);
++        if(v!=null)localStorage.setItem(STORAGE_PREFIX+k,v);
++      }
++      return v==null?d:JSON.parse(v);
++    }catch(e){return d}
++  },
++  set(k,v){try{localStorage.setItem(STORAGE_PREFIX+k,JSON.stringify(v))}catch(e){}},
++  del(k){try{localStorage.removeItem(STORAGE_PREFIX+k)}catch(e){}}
++};
+ let lists=[],active='',items=[],shown=[],hls=null,mp=null,curUrl='',tok=0,mergeTarget='';
+ let favs=new Set(LS.get('m3u_favs',[])),recs=LS.get('m3u_recs',[]);
+ const FAV_LIST_ID='__fav_list__';
+@@ -108,10 +135,17 @@
+ function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);$('theme').textContent=MTXT[theme]}
+ function cycleTheme(){theme=MODES[(MODES.indexOf(theme)+1)%3];LS.set('m3u_theme',theme);applyTheme()}
+ $('theme').onclick=cycleTheme;applyTheme();
++const DENSITIES=['large','medium','small'],DENSITY_LABEL={large:'كبير',medium:'متوسط',small:'صغير'},DENSITY_ZOOM={large:'1.08',medium:'1',small:'0.92'};
++let density=LS.get('m3u_density','large');
++if(!DENSITIES.includes(density))density='large';
++function applyDensity(){document.documentElement.style.zoom=DENSITY_ZOOM[density]}
++function cycleDensity(){density=DENSITIES[(DENSITIES.indexOf(density)+1)%DENSITIES.length];LS.set('m3u_density',density);applyDensity()}
++window.cycleDensity=cycleDensity;window.densityLabel=()=>DENSITY_LABEL[density];
++applyDensity();
+ 
+ function fillLists(){
+   const visible=lists.filter(l=>l.id!==FAV_LIST_ID||l.n>0);
+-  const s=$('lists');s.classList.toggle('hide',!visible.length);
++  const s=$('lists');s.classList.add('hide');
+   s.innerHTML=visible.map(l=>'<option value="'+l.id+'"'+(l.id===active?' selected':'')+'>'+esc(l.name)+'</option>').join('');
+ }
+ function fillGroups(keep){
+@@ -138,10 +172,13 @@
+ async function addList(text,name,url){
+   const n=parseM3U(text);
+   if(!n.length){setMsg('لم يتم العثور على قنوات. تأكد أن الملف بصيغة M3U، أو ملف txt فيه بيانات Xtream (السيرفر والمستخدم وكلمة السر).',true);return false}
++  const hadUserSource=lists.some(x=>x.id!==FAV_LIST_ID&&x.id!=='builtin');
+   let l=url?lists.find(x=>x.url===url):null;
+-  if(l){const out=merge(parseM3U(l.text),n,false);l.text=ser(out);l.n=out.length;l.upd=Date.now()}
+-  else{l={id:'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:name||('قائمة '+(lists.filter(x=>x.id!==FAV_LIST_ID).length+1)),text:ser(n),url:url||'',n:n.length,upd:Date.now()};lists.push(l)}
+-  openList(l.id);mgr();setMsg('تمت إضافة «'+l.name+'» ('+l.n+' قناة).');return true;
++  if(l){const out=merge(parseM3U(l.text),n,false);l.text=ser(out);l.remoteText=ser(n);l.n=out.length;l.upd=Date.now()}
++  else{l={id:'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:name||('قائمة '+(lists.filter(x=>x.id!==FAV_LIST_ID).length+1)),text:ser(n),remoteText:url?ser(n):'',url:url||'',n:n.length,upd:Date.now()};lists.push(l)}
++  if(!hadUserSource||l.id===active)openList(l.id);
++  else{fillLists();await saveLists()}
++  mgr();setMsg('تمت إضافة «'+l.name+'» ('+l.n+' قناة).');return true;
+ }
+ 
+ // دالة لجلب قنوات Xtream Codes (Extreme)
+@@ -194,20 +231,41 @@
+ }
+ 
+ async function updateList(id){
+-  if(id===FAV_LIST_ID){setMsg('قائمة المفضلة لا تُحدَّث من رابط.',true);return}
++  if(window.__openSourceUpdateReview){
++    if($('dlg').open)$('dlg').close();
++    return window.__openSourceUpdateReview(id);
++  }
++  const proposal=await fetchListUpdate(id);
++  await applyListUpdate(proposal,'merge');
++  return true;
++}
++async function fetchListUpdate(id){
++  if(id===FAV_LIST_ID)throw new Error('قائمة المفضلة لا تُحدَّث من رابط');
+   const l=lists.find(x=>x.id===id);
+-  if(!l){setMsg('لا توجد قائمة لتحديثها.',true);return}
+-  if(!l.url){setMsg('«'+l.name+'» بلا رابط تحديث.',true);return}
++  if(!l)throw new Error('لا توجد قائمة لتحديثها');
++  if(!l.url)throw new Error('«'+l.name+'» بلا رابط تحديث');
+   setMsg('جارٍ تحديث «'+l.name+'»...');
+-  try{
+-    const n=parseM3U(await getText(l.url));if(!n.length)throw 1;
+-    const old=parseM3U(l.text),had=new Set(old.map(i=>i.url));
+-    const out=merge(old,n,false);
+-    l.text=ser(out);l.n=out.length;l.upd=Date.now();await saveLists();
+-    if(id===active)openList(id);mgr();
+-    setMsg('تم التحديث: '+n.filter(i=>!had.has(i.url)).length+' قناة جديدة، المجموع '+out.length+'.');
+-  }catch(e){setMsg('تعذر التحديث من الرابط (قد يمنعه الموقع أو يكون الملف مشفّراً).',true)}
++  const items=parseM3U(await getText(l.url));
++  if(!items.length)throw new Error('لم يحتوِ الرابط على قنوات صالحة');
++  return {id,kind:'url',sourceKey:l.url,items,remoteText:ser(items)};
++}
++async function applyListUpdate(proposal,mode){
++  const l=proposal&&lists.find(x=>x.id===proposal.id);
++  if(!l||!window.WasslaSourceModel)throw new Error('تعذّر العثور على المصدر أو أداة التحديث');
++  const sourceKey=proposal.kind==='xtream'&&l.xt?JSON.stringify(l.xt):l.url;
++  if(!proposal.sourceKey||proposal.sourceKey!==sourceKey)throw new Error('تغير المصدر أثناء المراجعة؛ أعد المحاولة');
++  const local=parseM3U(l.text||''),hasBaseline=!!l.remoteText;
++  const base=parseM3U(hasBaseline?l.remoteText:l.text||'');
++  const items=window.WasslaSourceModel.reconcileRemote(base,local,proposal.items,mode,!hasBaseline);
++  l.remoteText=proposal.remoteText;l.text=ser(items);l.n=items.length;l.upd=Date.now();
++  await saveLists();
++  if(active===l.id)openList(l.id);
++  mgr();
++  setMsg('تم التحديث: '+items.length+' قناة بعد '+(mode==='replace'?'الاستبدال':'الدمج')+'.');
++  return true;
+ }
++window.__fetchListUpdate=fetchListUpdate;
++window.__applyListUpdate=applyListUpdate;
+ async function deleteList(id){
+   if(id===FAV_LIST_ID){setMsg('لا يمكن حذف قائمة المفضلة.',true);return}
+   if(id==='builtin')LS.set('m3u_builtin_off',true);   // لا تعود القائمة المدمجة وحدها إلا بزر «استعادة»
+@@ -286,18 +344,23 @@
+ function play(it){
+   curUrl=it.url;
+   recs=[it.url].concat(recs.filter(u=>u!==it.url)).slice(0,30);LS.set('m3u_recs',recs);
+-  LS.set('m3u_last',{url:it.url,name:it.name,listId:active,ts:Date.now()});
++  if(document.body.classList.contains('cine-play')){
++    LS.set('m3u_last_was_vod',true);
++  }else{
++    LS.set('m3u_last_was_vod',false);
++    LS.set('m3u_last',{url:it.url,name:it.name,listId:active,ts:Date.now()});
++  }
+   $('now').textContent=it.name;
+   setMsg('');favBtn();
+   $('resumebar').classList.add('hide');
+   
+-  // إظهار رقم القناة في شاشة OSD
+-  const channelIndex = shown.findIndex(i=>i.url===it.url) + 1;
++    // Keep the receiver OSD name-only, matching the remote-control layout.
+   const osd = $('osd');
+-  if(osd && channelIndex > 0) {
+-    osd.textContent = `القناة ${channelIndex} : ${it.name}`;
++    if(osd) {
++      osd.textContent = it.name;
+     osd.style.display = 'block';
+-    setTimeout(() => { osd.style.display = 'none'; }, 3000); // إخفاء بعد 3 ثواني
++      clearTimeout(window.__osdTimer);
++      window.__osdTimer=setTimeout(() => { osd.style.display = 'none'; }, 5000);
+   }
+ 
+   const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0;
+@@ -339,13 +402,14 @@
+ 
+ async function tryResume(){
+   if(!LS.get('m3u_resume',true))return false;
++  if(LS.get('m3u_last_was_vod',false))return false;
+   const last=LS.get('m3u_last');
+   if(!last||!last.listId||!last.url)return false;
+   const list=lists.find(l=>l.id===last.listId);
+   if(!list)return false;
+   const parsed=parseM3U(list.text);
+   const item=parsed.find(i=>i.url===last.url);
+-  if(!item)return false;
++  if(!item||detectKind(item)!=='live')return false;
+   if(active!==list.id)openList(list.id);
+   play(item);
+   const v=$('v');
+@@ -511,8 +575,8 @@
+     // المستخدم حذف القائمة المدمجة عمداً: لا تُعاد تلقائياً
+     lists=[];active='';
+   } else {
+-    // إذا كان التطبيق جديداً، أضف القائمة المدمجة تلقائياً
+-    lists=[{id:'builtin',name:'القنوات',text:window.Android?'#EXTM3U\n':BUILT_IN_M3U,url:'',n:window.Android?0:parseM3U(BUILT_IN_M3U).length,upd:Date.now()}];
++    // قائمة مؤقتة حتى تُحمّل بيانات القنوات المعبأة من الأصول.
++    lists=[{id:'builtin',name:'القنوات',text:'#EXTM3U\n',url:'',n:0,upd:Date.now()}];
+     active='builtin';saveLists();
+   }
+   if(favs.size&&!lists.find(l=>l.id===FAV_LIST_ID)){
+@@ -526,4 +590,15 @@
+   else showWelcome();
+   setTimeout(()=>tryResume(),250);
+   setTimeout(()=>checkUpdates(true),1500);
++  if(window.Android&&Android.readAsset){
++    try{
++      const config=JSON.parse(Android.readAsset('source-config.json')||'{}');
++      const done=LS.get('m3u_packaged_sources',[]);
++      for(const account of (Array.isArray(config.accounts)?config.accounts:[])){
++        if(!account||!account.id||done.includes(account.id))continue;
++        const imported=await addList(account.content,account.name||'Xtream','');
++        if(imported){done.push(account.id);LS.set('m3u_packaged_sources',done)}
++      }
++    }catch(e){setMsg('تعذّر تحميل إعدادات المصادر المضمّنة.',true)}
++  }
+ })();
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/boot.js wasslatvTOW/app/src/main/assets/js/boot.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/boot.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/boot.js	2026-11-13 22:30:42.845719199 +0000
+@@ -1,4 +1,4 @@
+-(function(){var k='m3u_bgphoto',h=document.documentElement,c=document.getElementById('bgphoto'),v=null;
+-try{v=localStorage.getItem(k)}catch(e){}
++(function(){var edition=window.Android&&Android.edition?Android.edition():'open',k='wassla:'+edition+':m3u_bgphoto',h=document.documentElement,c=document.getElementById('bgphoto'),v=null;
++try{v=localStorage.getItem(k);if(v==null&&edition==='open'){v=localStorage.getItem('m3u_bgphoto');if(v!=null)localStorage.setItem(k,v)}}catch(e){}
+ var on=v!=='0';h.classList.toggle('nophoto',!on);c.checked=on;
+ c.onchange=function(){h.classList.toggle('nophoto',!c.checked);try{localStorage.setItem(k,c.checked?'1':'0')}catch(e){}};})();
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/channels.js wasslatvTOW/app/src/main/assets/js/channels.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/channels.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/channels.js	2026-11-13 22:30:42.846763651 +0000
+@@ -18,7 +18,7 @@
+     let best=await getJSON('channels.json');
+     const cache=LS.get('m3u_chcache',null);
+     if(ok(cache)&&newer(cache,best))best=cache;
+-    if(CHANNELS_URL){
++    if(CHANNELS_URL&&!(window.Android&&Android.edition&&Android.edition()==='personal')){
+       const rem=await getJSON(CHANNELS_URL);
+       if(ok(rem)&&newer(rem,best)){best=rem;LS.set('m3u_chcache',rem)}
+     }
+@@ -162,13 +162,26 @@
+       clearInterval(w);
+       base=await load();
+       if(base){
+-        // قائمة مدمجة جديدة: تعديلات الأرقام القديمة لا تنطبق عليها، فتُصفَّر مرة واحدة (قنوات المستخدم المضافة تبقى)
+-        const sg=String(base.version)+'|'+String(base.updated);
+-        if(LS.get('m3u_chsig','')!==sg){LS.del('m3u_chov');LS.set('m3u_chsig',sg)}
+-        apply(true);
++        if(base.channels.length){
++          // قائمة مدمجة جديدة: تعديلات الأرقام القديمة لا تنطبق عليها، فتُصفَّر مرة واحدة (قنوات المستخدم المضافة تبقى)
++          const sg=String(base.version)+'|'+String(base.updated);
++          if(LS.get('m3u_chsig','')!==sg){LS.del('m3u_chov');LS.set('m3u_chsig',sg)}
++          apply(true);
++        }else{
++          lists=lists.filter(l=>l.id!=='builtin');
++          if(active==='builtin')active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
++          fillLists();
++          if(active)openList(active);
++          else showWelcome();
++          saveLists();
++        }
+       }
+       // البدء من آخر قناة، وإلا من أول قناة
+-      setTimeout(()=>{if(!curUrl&&shown.length&&document.body.classList.contains('rcv'))play(shown[0])},900);
++      setTimeout(()=>{
++        if(!curUrl&&shown.length&&document.body.classList.contains('rcv')){
++          play(shown.find(it=>detectKind(it)==='live')||shown[0]);
++        }
++      },900);
+     }
+   },300);
+ })();
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/loading.js wasslatvTOW/app/src/main/assets/js/loading.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/loading.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/loading.js	2026-11-13 22:30:42.847722163 +0000
+@@ -1,8 +1,8 @@
+ /* ===== حالة انتظار البث والتوقف: لا نغيّر القناة تلقائياً ===== */
+ (function(){
+   const box=$('ldg'),v=$('v'),nm=$('ldgn'),st=$('ldgs'),lg=$('ldgl');
+-  let cur=null,slow=null,gone=null,stallTimer=null,watchdog=null,lastTime=0,lastAdvance=0,hasPlayed=false;
+-  const clearWait=()=>{clearTimeout(slow);clearTimeout(gone);clearTimeout(stallTimer)};
++  let cur=null,slow=null,gone=null,stallTimer=null,watchdog=null,lastTime=0,lastAdvance=0,hasPlayed=false,autoReconnectUsed=false;
++  const clearWait=()=>{clearTimeout(slow);clearTimeout(gone);clearTimeout(stallTimer);slow=gone=stallTimer=null};
+   const hide=()=>{
+     box.classList.remove('on','bad');
+     clearWait();
+@@ -12,7 +12,17 @@
+     st.textContent=msg;
+     box.classList.add('on','bad');
+   }
++  function failed(msg){
++    if(!cur)return;
++    if(autoReconnectUsed){if(!gone)bad(msg);return}
++    autoReconnectUsed=true;
++    st.textContent='جارٍ إعادة الاتصال تلقائيًا…';
++    const it=cur;
++    show(it);
++    play(it);
++  }
+   function show(it){
++    if(!cur||cur.url!==it.url)autoReconnectUsed=false;
+     cur=it;hasPlayed=false;lastTime=0;lastAdvance=Date.now();
+     nm.textContent=it.name;
+     if(it.logo){lg.src=it.logo;lg.style.display=''}else lg.style.display='none';
+@@ -20,7 +30,7 @@
+     box.classList.remove('bad');box.classList.add('on');
+     clearWait();
+     slow=setTimeout(()=>{if(box.classList.contains('on')&&!box.classList.contains('bad'))st.textContent='الاتصال بطيء';},12000);
+-    gone=setTimeout(()=>bad('تعذّر تشغيل القناة'),30000);
++    gone=setTimeout(()=>{gone=null;failed('تعذّر تشغيل القناة')},autoReconnectUsed?12000:8000);
+   }
+   lg.onerror=()=>{lg.style.display='none'};
+   v.addEventListener('playing',()=>{
+@@ -30,20 +40,20 @@
+     if(!cur||v.paused||v.ended)return;
+     clearTimeout(stallTimer);
+     stallTimer=setTimeout(()=>{
+-      if(cur&&!v.paused&&!v.ended&&v.readyState<3)bad('توقف البث');
++      if(cur&&!v.paused&&!v.ended&&v.readyState<3)failed('توقف البث');
+     },10000);
+   }
+   v.addEventListener('waiting',buffering);
+   v.addEventListener('stalled',buffering);
+-  v.addEventListener('error',()=>{if(cur)bad('تعذّر تشغيل القناة')});
+-  v.addEventListener('ended',()=>{if(cur)bad('انتهى البث')});
++  v.addEventListener('error',()=>{if(cur)failed('تعذّر تشغيل القناة')});
++  v.addEventListener('ended',()=>{if(cur)failed('انتهى البث')});
+   v.addEventListener('timeupdate',()=>{
+     if(!cur||v.paused||v.ended)return;
+     if(v.currentTime!==lastTime){lastTime=v.currentTime;lastAdvance=Date.now();}
+   });
+   watchdog=setInterval(()=>{
+     if(!cur||!hasPlayed||v.paused||v.ended||box.classList.contains('bad'))return;
+-    if(Date.now()-lastAdvance>15000)bad('توقف البث');
++    if(Date.now()-lastAdvance>15000)failed('توقف البث');
+   },3000);
+   const _p=play;
+   play=function(it){
+@@ -56,7 +66,12 @@
+     if(err&&box.classList.contains('on'))bad('تعذّر تشغيل القناة');
+   };
+   // تبقى القناة الحالية محددة؛ المستخدم هو من يقرر إعادة المحاولة أو الانتقال.
+-  $('ldgr').onclick=()=>{if(cur)play(cur)};
++  $('ldgr').onclick=()=>{if(cur){autoReconnectUsed=false;show(cur);play(cur)}};
++  $('ldgb').onclick=()=>{
++    hide();
++    if(window.__rcvOpen)window.__rcvOpen();
++    else if(window.__openQuick)window.__openQuick();
++  };
+   window.__ldgBad=()=>box.classList.contains('bad');
+   window.__ldgRetry=()=>{if(cur)play(cur)};
+   $('ldgx').onclick=()=>{if(typeof window.step==='function')step(1)};
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/receiver.js wasslatvTOW/app/src/main/assets/js/receiver.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/receiver.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/receiver.js	2026-11-13 22:30:42.848678202 +0000
+@@ -71,7 +71,10 @@
+     if(level==='sources'){
+       if(p.t==='set'){openSettings();return}
+       if(p.t==='vod'){closeL();if(window.__openVod)__openVod(p.id);return}
+-      openList(p.id);
++      if(p.id===FAV_LIST_ID){
++        $('grp').value='__fav';render();level='rows';build();sel=0;setZone('rows');return;
++      }
++      if(p.id!==active){openSettings('sources');return}
+       nav.push('sources');
+       if(p.k&&p.k.groups.size>1){showCats();sel=0;setZone('rows')}
+       else{$('grp').value=(p.k&&p.k.vod>0)?'__k_live':'';render();level='rows';build();sel=0;setZone('rows')}
+@@ -206,7 +209,7 @@
+         e.animate([{opacity:.3,transform:'translateY(-4px) scale(.96)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'})});
+     }catch(e){}
+   }
+-  function openSettings(){closeL();if(window.__openSettings)window.__openSettings()}
++  function openSettings(section){closeL();if(window.__openSettings)window.__openSettings(section)}
+   function seekBy(sec){const sk=v.seekable;if(!sk||!sk.length){if(noSeekUrl!==curUrl){noSeekUrl=curUrl;toast('هذه القناة لا تدعم التقديم والتأخير')}return}const a=sk.start(0),b=sk.end(sk.length-1),t=Math.min(b,Math.max(a,v.currentTime+sec)),behind=Math.round(b-t);v.currentTime=t;toast(behind>3?'⏪ متأخر '+behind+' ث عن المباشر':'● مباشر')}
+ 
+   function menuKey(k,repeat){
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/settings.js wasslatvTOW/app/src/main/assets/js/settings.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/settings.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/settings.js	2026-11-13 22:30:42.849639038 +0000
+@@ -2,7 +2,7 @@
+    المصادر · إضافة مصدر · تعديل القنوات · البحث عن ملفات جديدة · مكتبة الأفلام · حول */
+ (function(){
+   const st=$('st'),body=$('stb'),title=$('stt'),msg=$('stm'),A=window.Android;
+-  let stack=[],tt;
++  let stack=[],tt,pendingReviewCancel=null;
+   const toast=t=>{msg.textContent=t||'';clearTimeout(tt);tt=setTimeout(()=>{msg.textContent=''},4000)};
+   const user=()=>lists.filter(l=>l.id!==FAV_LIST_ID);
+   const rowsEls=()=>[...body.querySelectorAll('.srow')];
+@@ -69,6 +69,8 @@
+   }
+   const SECS=[
+     {id:'general',icon:'⚙',t:'عام',fn:general},
++    {id:'playback',icon:'▶',t:'التشغيل',fn:playbackSec},
++    {id:'appearance',icon:'🎨',t:'المظهر',fn:appearanceSec},
+     {id:'sources',icon:'📂',t:'المصادر',fn:sources},
+     {id:'channels',icon:'✎',t:'القنوات',fn:channelsSec},
+     {id:'library',icon:'🎬',t:'المكتبة',fn:librarySec},
+@@ -91,13 +93,21 @@
+     stack.push(fn);fn();
+   }
+   function back(){
++    if(pendingReviewCancel){
++      const cancel=pendingReviewCancel;
++      if(!cancel())return;
++      pendingReviewCancel=null;
++    }
+     stack.pop();
+     const f=stack[stack.length-1];
+     if(f)f(f.keep);else close();
+   }
+   function rerender(){const f=stack[stack.length-1];if(f){f.keep=focusIdx();f(f.keep)}}
+   function setTop(fn,keep){stack[stack.length-1]=fn;fn(keep)}
+-  function open(which){st.classList.add('on');sec=which==='sources'?'sources':'general';stack=[home];home()}
++  function open(which){
++    st.classList.add('on');sec=which==='sources'?'sources':'general';stack=[home];home();
++    if(!LS.get('m3u_tip_settings',false)){LS.set('m3u_tip_settings',true);toast('استخدم قسم المصادر لإدارة القوائم، وقسم التشغيل لضبط تجربة المشاهدة.')}
++  }
+   function close(){pvStop();st.classList.remove('on');stack=[];if(document.activeElement)document.activeElement.blur()}
+   window.__openSettings=open;
+   window.__stOn=()=>st.classList.contains('on');
+@@ -108,16 +118,27 @@
+   /* ---------------- الرئيسية ---------------- */
+   function home(keep){(SECS.find(x=>x.id===sec)||SECS[0]).fn(keep)}
+   function general(keep){
+-    const auto=LS.get('m3u_autoscan',true),zap=$('zapsnd').checked;
++    const auto=LS.get('m3u_autoscan',true);
+     show('عام',[
+-      {icon:'🎨',label:'السمة البصرية',sub:'تلقائي · نهاري · ليلي',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>{cycleTheme();rerender()}},
+-      {icon:'🔊',label:'صوت التنقل بين القنوات',sub:'نغمة قصيرة عند تغيير القناة',on:zap,run:()=>{$('zapsnd').checked=!zap;LS.set('m3u_zap',!zap);rerender()}},
+       {icon:'🔎',label:'البحث التلقائي عن الملفات',sub:'عند فتح التطبيق: التنزيلات · الوثائق · USB',on:auto,run:()=>{LS.set('m3u_autoscan',!auto);rerender()}},
+       {icon:'📂',label:'اختيار مجلد للبحث فيه',sub:'للأجهزة التي تمنع الوصول المباشر',run:()=>{
+         if(A&&A.pickFolder){window.__onFolder=ok=>{window.__onFolder=null;toast(ok?'تم حفظ المجلد':'')};A.pickFolder()}else toast('غير متاح على هذا الجهاز');
+       }}
+     ],keep);
+   }
++  function playbackSec(keep){
++    const zap=$('zapsnd').checked,autoNext=LS.get('m3u_vod_autonext',true);
++    show('التشغيل',[
++      {icon:'🔊',label:'صوت التنقل بين القنوات',sub:'نغمة قصيرة عند تغيير القناة',on:zap,run:()=>{$('zapsnd').checked=!zap;LS.set('m3u_zap',!zap);rerender()}},
++      {icon:'⏭',label:'تشغيل الحلقة التالية تلقائياً',sub:'بعد عدّ تنازلي 10 ثوانٍ',on:autoNext,run:()=>{LS.set('m3u_vod_autonext',!autoNext);rerender()}}
++    ],keep);
++  }
++  function appearanceSec(keep){
++    show('المظهر',[
++      {icon:'🌗',label:'السمة البصرية',sub:'تلقائي · نهاري · ليلي',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>{cycleTheme();rerender()}},
++      {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}}
++    ],keep);
++  }
+   function channelsSec(keep){
+     show('القنوات',[
+       {icon:'✎',label:'تعديل القنوات',sub:'الاسم · الرابط · المجموعة · الرقم · الترتيب · الحذف',run:()=>push(editorPick)},
+@@ -188,8 +209,16 @@
+         if(v&&v.trim()){l.name=v.trim();await saveLists();fillLists();rerender()}
+       }}
+     ];
+-    if(l.xt)rows.push({icon:'⟳',label:'تحديث من Xtream',sub:l.xt.host,run:async()=>{toast('جارٍ التحديث…');const ok=await window.xtRefresh(l);toast(ok?'تم التحديث':'تعذّر التحديث');rerender()}});
+-    if(l.url)rows.push({icon:'⟳',label:'تحديث من الرابط',sub:l.url,run:async()=>{toast('جارٍ التحديث…');await updateList(id);toast('انتهى التحديث');rerender()}});
++    if(l.xt)rows.push({icon:'⟳',label:'مراجعة تحديث Xtream',sub:l.xt.host,run:()=>reviewSourceUpdate(id)});
++    if(l.url)rows.push({icon:'⟳',label:'مراجعة تحديث الرابط',sub:l.url,run:()=>reviewSourceUpdate(id)});
++    if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة حالة المصدر السابقة',run:async()=>{await undoSource(id);rerender()}});
++    if(l.xt)rows.push({icon:'📄',label:'تصدير حساب Xtream إلى TXT',sub:'يتضمن بيانات تسجيل الدخول لهذا المصدر',run:()=>{
++      if(!confirm('سيحتوي الملف على كلمة مرور هذا الحساب. احفظه في مكان آمن؟'))return;
++      const text='host='+l.xt.host+'\nusername='+l.xt.u+'\npassword='+l.xt.p+'\nname='+l.name+'\n';
++      const p=(A&&A.saveFile)?A.saveFile('wassla-xtream-'+id+'.txt',text):'';
++      toast(p?'تم حفظ ملف الحساب: '+p:'تعذّر حفظ الملف');
++    }});
++    if(l.remoteText)rows.push({icon:'↩',label:'استعادة نسخة الخادم الأخيرة',sub:'إلغاء التعديلات المحلية لهذا المصدر فقط',run:()=>push(k=>confirmRestoreSource(id,k))});
+     rows.push({icon:'✎',label:'تعديل قنوات هذا المصدر',sub:'بالمجموعات أو البحث',run:()=>push(k=>groupsScreen(id,k))});
+     rows.push({sep:'الحذف'},{icon:'🗑',label:'حذف هذا المصدر',sub:id==='builtin'?'يمكن استعادته لاحقًا من «المصادر»':'',danger:true,run:()=>push(k=>confirmDel(id,k))});
+     show('المصدر: '+l.name,rows,keep);
+@@ -201,6 +230,60 @@
+       {icon:'↩',label:'إلغاء',run:()=>back()}
+     ],1);
+   }
++  function confirmRestoreSource(id,keep){
++    const l=lists.find(x=>x.id===id);if(!l){back();return}
++    show('استعادة نسخة الخادم؟',[
++      {icon:'↩',label:'نعم، استعد آخر نسخة من الخادم',sub:'لن يتغير سجل المشاهدة أو المفضلة',danger:true,run:async()=>{
++        const items=parseM3U(l.remoteText||'');
++        if(!items.length){toast('لا توجد نسخة خادم صالحة للاستعادة');return}
++        rememberSource(id,l.text);
++        l.text=ser(items);l.n=items.length;l.upd=Date.now();
++        await saveLists();
++        if(active===id)openList(id);
++        toast('تمت استعادة نسخة الخادم');back();
++      }},
++      {icon:'↩',label:'إلغاء',run:()=>back()}
++    ],keep||0);
++  }
++  async function reviewSourceUpdate(id){
++    const l=lists.find(x=>x.id===id);if(!l){toast('المصدر غير موجود');return false}
++    toast('جارٍ جلب تحديث «'+l.name+'»…');
++    let proposal;
++    try{
++      proposal=l.xt?await window.xtPreview(id):await window.__fetchListUpdate(id);
++    }catch(e){toast(e&&e.message?e.message:'تعذّر جلب التحديث');return false}
++    const existing=new Set(parseM3U(l.text||'').map(it=>it.url));
++    const incoming=new Set(proposal.items.map(it=>it.url));
++    const added=proposal.items.filter(it=>!existing.has(it.url)).length;
++    const removed=[...existing].filter(url=>!incoming.has(url)).length;
++    const localSnapshot=l.text;
++    if(!st.classList.contains('on'))open('sources');
++    return new Promise(resolve=>{
++      let settled=false,applying=false;
++      const finish=value=>{
++        if(settled)return;
++        settled=true;pendingReviewCancel=null;resolve(value);
++      };
++      pendingReviewCancel=()=>{if(applying)return false;finish(false);return true};
++      const apply=async mode=>{
++        if(applying)return;
++        applying=true;
++        try{
++          await window.__applyListUpdate(proposal,mode);
++          rememberSource(id,localSnapshot);
++          toast(mode==='replace'?'تم استبدال محتوى المصدر مع إبقاء تعديلاتك':'تم دمج تحديث المصدر مع إبقاء تعديلاتك');
++          finish(true);back();
++        }catch(e){applying=false;toast(e&&e.message?e.message:'تعذّر تطبيق التحديث')}
++      };
++      push(keep=>show('مراجعة التحديث · '+l.name,[
++        {sep:'الحالي: '+existing.size+' · من الخادم: '+proposal.items.length+' · جديدة: '+added+' · غير موجودة بالخادم: '+removed},
++        {icon:'🔀',label:'دمج التحديث',sub:'تحديث العناصر المتطابقة وإبقاء العناصر القديمة غير الموجودة بالخادم',run:()=>apply('merge')},
++        {icon:'📥',label:'استبدال بالمحتوى الجديد',sub:'إزالة العناصر القديمة غير الموجودة بالخادم مع إبقاء التعديلات اليدوية',run:()=>apply('replace')},
++        {icon:'↩',label:'إلغاء',run:()=>back()}
++      ],keep));
++    });
++  }
++  window.__openSourceUpdateReview=reviewSourceUpdate;
+ 
+   /* ---------------- إضافة مصدر ---------------- */
+   function addScreen(keep){
+@@ -240,15 +323,73 @@
+     if(ok){stack=[home];home()}
+   }
+   async function addXtream(){
+-    const host=((await kbPrompt('عنوان السيرفر','http://live.lynxiptv.xyz','en'))||'').trim();if(!host)return;
+-    const user_=await kbPrompt('اسم المستخدم','781150196435','en');if(user_===null)return;
+-    const pass=await kbPrompt('كلمة السر','pBixhRPeaU','en');if(pass===null)return;
++    const host=((await kbPrompt('عنوان السيرفر','http://','en'))||'').trim();if(!host)return;
++    const user_=await kbPrompt('اسم المستخدم','','en');if(user_===null)return;
++    const pass=await kbPrompt('كلمة السر','','en');if(pass===null)return;
+     const nm=await kbPrompt('اسم هذا المصدر','Xtream');if(nm===null)return;
+     toast('جارٍ الاتصال بالسيرفر… (قد يستغرق لحظات)');
+-    const ok=await window.xtAdd(host,user_.trim(),pass.trim(),nm.trim()||'Xtream');
+-    toast(ok?'تمت إضافة المصدر: قنوات وأفلام ومسلسلات':'تعذّر الاتصال أو لا توجد قنوات — تحقق من العنوان والبيانات');
+-    if(ok){stack=[home];home()}
++    try{
++      const prepared=await window.xtPrepare(host,user_.trim(),pass.trim());
++      await reviewXtreamAccounts([{name:nm.trim()||'Xtream',prepared}],[]);
++    }catch(e){toast(e&&e.message?e.message:'تعذّر الاتصال أو لا يوجد محتوى صالح')}
++  }
++  function reviewXtreamAccounts(accounts,failures){
++    const pending=accounts.slice(),failed=failures.slice();
++    if(!st.classList.contains('on')){
++      if($('dlg').open)$('dlg').close();
++      open('sources');
++    }
++    return new Promise(resolve=>{
++      let settled=false,applying=false,addedCount=0;
++      const finish=value=>{
++        if(settled)return;
++        settled=true;pendingReviewCancel=null;resolve(value);
++      };
++      pendingReviewCancel=()=>{if(applying)return false;finish(addedCount>0);return true};
++      const addOne=async account=>{
++        if(applying)return;
++        applying=true;
++        try{
++          const ok=await window.xtAddPrepared(account.prepared,account.name);
++          if(!ok){applying=false;toast('تعذّرت إضافة الحساب؛ يمكنك إعادة المحاولة');return}
++          pending.splice(pending.indexOf(account),1);addedCount++;applying=false;
++          toast('تمت إضافة «'+account.name+'»');
++          if(!pending.length){finish(true);back()}else rerender();
++        }catch(e){applying=false;toast('تعذّرت إضافة الحساب؛ يمكنك إعادة المحاولة')}
++      };
++      const addAll=async()=>{
++        if(applying)return;
++        applying=true;
++        for(const account of pending.slice()){
++          try{
++            const ok=await window.xtAddPrepared(account.prepared,account.name);
++            if(ok){pending.splice(pending.indexOf(account),1);addedCount++}
++            else failed.push({name:account.name,reason:'تعذّرت الإضافة'});
++          }catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
++        }
++        applying=false;
++        if(!pending.length){finish(addedCount>0);back()}
++        else{toast('أُضيفت الحسابات الناجحة فقط؛ بقيت حسابات غير مضافة');rerender()}
++      };
++      const render=keep=>{
++        const rows=[{sep:'حسابات صالحة: '+pending.length+' · أضيفت: '+addedCount}];
++        if(pending.length>1)rows.push({icon:'➕',label:'إضافة كل الحسابات الصالحة',sub:'لن تُضاف الحسابات التي فشل التحقق منها',run:addAll});
++        pending.forEach(account=>rows.push({
++          icon:'🔑',label:'إضافة «'+account.name+'»',
++          sub:account.prepared.xt.host+' · '+account.prepared.count+' عنصر',
++          run:()=>addOne(account)
++        }));
++        if(failed.length){
++          rows.push({sep:'لم تنجح — لم تُضف'});
++          failed.forEach(account=>rows.push({icon:'⚠',label:account.name,sub:account.reason}));
++        }
++        rows.push({icon:'↩',label:'إلغاء',run:()=>back()});
++        show('مراجعة حسابات Xtream',rows,keep);
++      };
++      push(render);
++    });
+   }
++  window.__reviewXtreamAccounts=reviewXtreamAccounts;
+ 
+   /* ---------------- البحث عن ملفات جديدة ---------------- */
+   function scanScreen(keep){
+@@ -288,6 +429,35 @@
+   const numOfRaw=(it,i)=>{const m=it.raw&&/channel-number="(\d+)"/.exec(it.raw);return m?+m[1]:i+1};
+   const itemsOf=id=>{const l=lists.find(x=>x.id===id);return l?parseM3U(l.text):[]};
+   const isBuiltin=id=>id==='builtin'&&!!window.__chKey&&!!window.__chSetMany;
++  const sourceUndo=new Map();
++  function rememberSource(id,text){
++    const history=sourceUndo.get(id)||[];
++    if(history.length&&history[history.length-1].value===text)return;
++    history.push({type:'text',value:text});
++    if(history.length>20)history.shift();
++    sourceUndo.set(id,history);
++  }
++  function rememberBuiltin(){
++    const history=sourceUndo.get('builtin')||[];
++    history.push({type:'builtin',value:LS.get('m3u_chov',{})});
++    if(history.length>20)history.shift();
++    sourceUndo.set('builtin',history);
++  }
++  async function undoSource(id){
++    const l=lists.find(x=>x.id===id),history=sourceUndo.get(id)||[];
++    if(!l||!history.length)return false;
++    const entry=history.pop();
++    if(entry.type==='builtin'){
++      LS.set('m3u_chov',entry.value);
++      if(window.__chReload)await window.__chReload();
++    }else{
++      l.text=entry.value;l.n=parseM3U(l.text).length;l.upd=Date.now();
++      await saveLists();
++      if(active===id)openList(id);
++    }
++    toast('تم التراجع عن آخر تعديل');
++    return true;
++  }
+   function editorPick(keep){
+     show('تعديل القنوات — اختر المصدر',user().map(l=>({
+       icon:l.id===active?'✔':'📄',label:l.name,sub:(l.n||0)+' قناة',run:()=>push(k=>groupsScreen(l.id,k))
+@@ -322,6 +492,7 @@
+     const its=itemsOf(id);
+     if(isBuiltin(id)){
+       const p=[];its.forEach(it=>{if((it.group||'')===g){const k=window.__chKey(it);if(k!=null)p.push([k,{group:nv}])}});
++      rememberBuiltin();
+       if(!window.__chSetMany(p)){toast('تعذّر التعديل');return}
+     }else{
+       its.forEach(it=>{if((it.group||'')===g)setGroup(it,nv)});
+@@ -336,6 +507,7 @@
+         const its=itemsOf(id);
+         if(isBuiltin(id)){
+           const p=[];its.forEach(it=>{if((it.group||'')===g){const k=window.__chKey(it);if(k!=null)p.push([k,{deleted:true}])}});
++          rememberBuiltin();
+           if(!window.__chSetMany(p)){toast('تعذّر الحذف');return}
+         }else{
+           await saveItems(id,its.filter(it=>(it.group||'')!==g));
+@@ -356,6 +528,7 @@
+       const p=(A&&A.saveFile)?A.saveFile(nm,ser(its)):'';
+       toast(p?'حُفظت النسخة: '+p:'تعذّر الحفظ');
+     }}];
++    if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة حالة المصدر السابقة',run:async()=>{await undoSource(id);setTop(k=>editor(id,page,k,flt),keep||0)}});
+     if(page>0)rows.push({icon:'◀',label:'الصفحة السابقة',sub:(page)+' / '+pages,run:()=>setTop(k=>editor(id,page-1,k,flt),1)});
+     if(!ents.length)rows.push({sep:'لا توجد قنوات مطابقة'});
+     const first=rows.length;
+@@ -397,6 +570,7 @@
+   }
+   async function saveItems(id,its){
+     const l=lists.find(x=>x.id===id);
++    rememberSource(id,l.text);
+     l.text=ser(its);l.n=its.length;l.upd=Date.now();
+     await saveLists();
+     if(active===id)openList(id);
+@@ -412,11 +586,13 @@
+       const n=parseInt(val,10);
+       if(!(n>=1&&n<=9999)){toast('الرقم غير صالح');return}
+       if(its.some((x,j)=>j!==idx&&numOfRaw(x,j)===n)){toast('هذا الرقم مستخدم لقناة أخرى');return}
++      rememberBuiltin();
+       window.__chSet(window.__chKey(it),{n});toast('تم تغيير الرقم');back();return;
+     }
+     if(field==='url'&&!/^https?:\/\//i.test(val)){toast('الرابط يجب أن يبدأ بـ http أو https');return}
+     if(!val&&field!=='group'){toast('لا يمكن ترك هذا الحقل فارغاً');return}
+     if(id==='builtin'&&window.__chKey&&window.__chKey(it)!=null){
++      rememberBuiltin();
+       window.__chSet(window.__chKey(it),{[field]:val});
+     }else{
+       if(field==='name')setName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
+@@ -435,7 +611,7 @@
+     const its=itemsOf(id),it=its[idx];if(!it){back();return}
+     show('حذف «'+it.name+'»؟',[
+       {icon:'🗑',label:'نعم، احذف القناة',danger:true,run:async()=>{
+-        if(id==='builtin'&&window.__chKey&&window.__chKey(it)!=null){window.__chSet(window.__chKey(it),{deleted:true})}
++        if(id==='builtin'&&window.__chKey&&window.__chKey(it)!=null){rememberBuiltin();window.__chSet(window.__chKey(it),{deleted:true})}
+         else{its.splice(idx,1);await saveItems(id,its)}
+         toast('تم الحذف');stack.pop();back();
+       }},
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/source-model.js wasslatvTOW/app/src/main/assets/js/source-model.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/source-model.js	1970-01-01 00:00:00.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/source-model.js	2026-11-13 22:30:42.854565976 +0000
+@@ -0,0 +1,42 @@
++(function(root,factory){
++  const model=factory();
++  if(typeof module==='object'&&module.exports)module.exports=model;
++  if(root)root.WasslaSourceModel=model;
++})(typeof window==='undefined'?globalThis:window,function(){
++  const fields=['name','logo','group','raw','extra'];
++  const equal=(a,b)=>JSON.stringify(a===undefined?null:a)===JSON.stringify(b===undefined?null:b);
++  const keyed=items=>{
++    const map=new Map();
++    items.forEach(item=>{if(item&&item.url)map.set(item.url,item)});
++    return map;
++  };
++  function reconcileRemote(baseItems,localItems,fetchedItems,mode,preserveLegacyOverrides){
++    if(mode!=='merge'&&mode!=='replace')throw new Error('Unknown source update mode');
++    const base=keyed(baseItems),local=keyed(localItems),fetched=keyed(fetchedItems);
++    const output=[],emitted=new Set();
++    localItems.forEach(item=>{
++      if(!item||!item.url||emitted.has(item.url))return;
++      const baseItem=base.get(item.url),latest=fetched.get(item.url);
++      if(latest){
++        if(!baseItem){output.push(item);emitted.add(item.url);return}
++        const merged=Object.assign({},latest);
++        fields.forEach(field=>{
++          const changed=preserveLegacyOverrides
++            ? !equal(item[field],latest[field])
++            : !equal(item[field],baseItem[field]);
++          if(changed)merged[field]=item[field];
++        });
++        output.push(merged);emitted.add(item.url);
++      }else if(!baseItem||mode==='merge'){
++        output.push(item);emitted.add(item.url);
++      }
++    });
++    fetched.forEach((item,url)=>{
++      if(emitted.has(url))return;
++      if(base.has(url)&&!local.has(url))return;
++      output.push(item);emitted.add(url);
++    });
++    return output;
++  }
++  return {reconcileRemote};
++});
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/topbar.js wasslatvTOW/app/src/main/assets/js/topbar.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/topbar.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/topbar.js	2026-11-13 22:30:42.850650537 +0000
+@@ -16,9 +16,9 @@
+     say('جارٍ التحديث…');
+     try{
+       if(active==='builtin'&&window.__chReload)await window.__chReload();
+-      else $('upd').click();
+-      say('تم التحديث ✓');
++      else if(window.__openSourceUpdateReview)await window.__openSourceUpdateReview(active);
++      else await updateList(active);
+     }catch(e){say('تعذّر التحديث')}
+-    setTimeout(()=>say(''),2500);
++    setTimeout(()=>say(''),4000);
+   };
+ })();
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/vod-model.js wasslatvTOW/app/src/main/assets/js/vod-model.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/vod-model.js	1970-01-01 00:00:00.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/vod-model.js	2026-11-13 22:30:42.855451677 +0000
+@@ -0,0 +1,33 @@
++(function(root,factory){
++  const model=factory();
++  if(typeof module==='object'&&module.exports)module.exports=model;
++  if(root)root.WasslaVodModel=model;
++})(typeof window==='undefined'?globalThis:window,function(){
++  function normalizeSearch(value){
++    return String(value||'').normalize('NFKC').toLowerCase().replace(/\p{M}/gu,'')
++      .replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
++  }
++  function normalizeTitle(title){
++    return normalizeSearch(title).replace(/\b(?:19|20)\d{2}\b/g,' ').trim().replace(/\s+/g,' ');
++  }
++  function yearOf(title){
++    const m=String(title||'').match(/\b((?:19|20)\d{2})\b|\(\s*((?:19|20)\d{2})\s*\)/);
++    return m?Number(m[1]||m[2]):null;
++  }
++  function sameTitle(a,b){
++    if(!a||!b||a.kind!==b.kind)return false;
++    const an=normalizeTitle(a.title),bn=normalizeTitle(b.title);
++    if(!an||an!==bn)return false;
++    const ay=yearOf(a.title),by=yearOf(b.title);
++    return ay==null||by==null||ay===by;
++  }
++  function progressPercent(record){
++    if(!record||record.watched||!Number.isFinite(record.position)||!Number.isFinite(record.duration)||record.duration<=0)return 0;
++    return Math.max(0,Math.min(100,Math.floor(record.position/record.duration*100)));
++  }
++  function shouldResume(record){
++    return !!record&&!record.watched&&Number.isFinite(record.position)&&record.position>=30&&
++      Number.isFinite(record.duration)&&record.duration>0&&record.position<record.duration*0.95;
++  }
++  return {normalizeSearch,normalizeTitle,yearOf,sameTitle,progressPercent,shouldResume};
++});
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/vod.js wasslatvTOW/app/src/main/assets/js/vod.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/vod.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/vod.js	2026-11-13 22:30:42.851619595 +0000
+@@ -5,9 +5,13 @@
+    التنقل: ↑ ↓ بين الصفوف · ← → داخل الصف · OK فتح · رجوع خطوة للخلف. */
+ (function(){
+   const el=$('vod'),bodyEl=$('vodb'),tabsEl=$('vtabs'),B=document.body;
+-  let srcId='',on=false,idx=null,idxSig='',filter='all',rowsData=[],rIdx=0,cols=[],zone='rows',tIdx=0;
+-  let screen='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null;
++  let srcId='',query='',on=false,idx=null,idxSig='',filter='all',rowsData=[],rIdx=0,cols=[],zone='rows',tIdx=0;
++  let screen='home',detailReturn='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null;
++  let nextTimer=null,nextCard=null,nextEpisode=null,progressTimer=null,detailScrollTop=0,detailRowScroll=[],detailIndex=0;
+   const FILTERS=['all','movies','series'];
++  const Model=window.WasslaVodModel;
++  const progress=()=>LS.get('m3u_vod_progress',{});
++  const watched=()=>LS.get('m3u_vod_watched',{});
+   const rtl=()=>getComputedStyle(document.documentElement).direction==='rtl';
+   const toast=t=>{if(window.__rcvToast)window.__rcvToast(t)};
+   window.__vodOn=()=>on;
+@@ -22,6 +26,16 @@
+     m=EP3.exec(name);if(m)return{title:m[1].trim(),s:1,e:+m[2]};
+     return null;
+   }
++  function detailKey(k){
++    const buttons=[...bodyEl.querySelectorAll('.vdetails button')];
++    if(!buttons.length)return;
++    if(k==='ArrowDown'||k==='ArrowRight')detailIndex=Math.min(buttons.length-1,detailIndex+1);
++    else if(k==='ArrowUp'||k==='ArrowLeft')detailIndex=Math.max(0,detailIndex-1);
++    else if(k==='Enter'){buttons[detailIndex].click();return}
++    buttons.forEach((button,i)=>button.classList.toggle('sel',i===detailIndex));
++    buttons[detailIndex].focus({preventScroll:true});
++    buttons[detailIndex].scrollIntoView({block:'nearest'});
++  }
+   /* المكتبة تعتمد على التصنيف المشترك detectKind (يعتمد على نوع الرابط): الأفلام والمسلسلات فقط،
+      أما /live/ والبث المباشر والقوائم المدمجة فلا تدخل المكتبة أبداً. */
+   function libKind(it){const k=detectKind(it);return(k==='movie'||k==='series')?k:null}
+@@ -29,25 +43,25 @@
+   const tick=()=>new Promise(r=>setTimeout(r,0));
+ 
+   async function build(){
+-    const s=sig()+'|'+srcId;if(idx&&s===idxSig)return;
++    const s=sig();if(idx&&s===idxSig)return;
+     const movies=[],series=new Map();
+     for(const l of lists){
+       if(l.id===FAV_LIST_ID||l.id==='builtin')continue;
+-      if(srcId&&l.id!==srcId)continue;
+       const its=parseM3U(l.text);
+       for(let i=0;i<its.length;i++){
+         const it=its[i],k=libKind(it);
+         if(k!=='movie'&&k!=='series')continue;
+         if(k==='series'&&/action=get_series_info/.test(it.url)){
+-          series.set('xt:'+it.url,{kind:'series',title:it.name,logo:it.logo||'',group:it.group||'مسلسلات',eps:[],lazy:it.url});
++          series.set('xt:'+it.url,{kind:'series',title:it.name,logo:it.logo||'',group:it.group||'مسلسلات',eps:[],lazy:it.url,sourceId:l.id,sourceName:l.name});
+         }else if(k==='series'){
+           const ei=epInfo(it.name)||{title:it.name,s:1,e:1};
+           const t=(ei.title||it.name).replace(/[._]+/g,' ').trim(),key=t.toLowerCase();
+-          let sr=series.get(key);
+-          if(!sr){sr={kind:'series',title:t,logo:it.logo||'',group:it.group||'مسلسلات',eps:[]};series.set(key,sr)}
++          const seriesKey=l.id+':'+key;
++          let sr=series.get(seriesKey);
++          if(!sr){sr={kind:'series',title:t,logo:it.logo||'',group:it.group||'مسلسلات',eps:[],sourceId:l.id,sourceName:l.name};series.set(l.id+':'+key,sr)}
+           if(!sr.logo&&it.logo)sr.logo=it.logo;
+-          sr.eps.push({s:ei.s,e:ei.e,name:it.name,url:it.url,item:it});
+-        }else movies.push({kind:'movie',title:it.name,logo:it.logo||'',group:it.group||'أفلام',item:it});
++          sr.eps.push({s:ei.s,e:ei.e,name:it.name,url:it.url,item:it,sourceId:l.id});
++        }else movies.push({kind:'movie',title:it.name,logo:it.logo||'',group:it.group||'أفلام',item:it,sourceId:l.id,sourceName:l.name});
+         if(i%1500===1499)await tick();
+       }
+       await tick();
+@@ -56,16 +70,34 @@
+     idx={movies,series:[...series.values()]};idxSig=s;
+   }
+   function makeRows(){
+-    const all=[];
+-    if(filter!=='series')all.push(...idx.movies);
+-    if(filter!=='movies')all.push(...idx.series);
++    const candidates=[];
++    if(filter!=='series')candidates.push(...idx.movies);
++    if(filter!=='movies')candidates.push(...idx.series);
++    const q=Model.normalizeSearch(query);
++    const all=candidates.filter(c=>(!srcId||c.sourceId===srcId)&&(!q||[
++      c.title,c.group,c.sourceName
++    ].some(value=>Model.normalizeSearch(value).includes(q))));
+     const rows=[];
+     if(!all.length)return rows;
++    const records=progress(),seen=watched();
++    const resume=all.map(card=>{
++      let record=null;
++      if(card.kind==='movie')record=records[card.item.url];
++      else record=cardRecord(card);
++      const cardId=card.kind==='movie'?card.item.url:(card.lazy||card.sourceId+':'+card.title);
++      if(seen[cardId])return null;
++      return record&&Model&&Model.shouldResume(record)?Object.assign({},card,{resumeRecord:record}):null;
++    }).filter(Boolean).sort((a,b)=>(b.resumeRecord.updated||0)-(a.resumeRecord.updated||0));
++    if(resume.length)rows.push({title:'متابعة المشاهدة',cards:resume.slice(0,40)});
+     rows.push({title:'أُضيفت حديثاً',cards:all.slice(-40).reverse()});
+     const by=new Map();
+-    all.forEach(c=>{const g=c.group||'أخرى';if(!by.has(g))by.set(g,[]);by.get(g).push(c)});
+-    [...by.entries()].sort((a,b)=>b[1].length-a[1].length).slice(0,40)
+-      .forEach(([g,cs])=>rows.push({title:g+' ('+cs.length+')',cards:cs.slice(0,60)}));
++    all.forEach(c=>{
++      const group=c.group||'أخرى',key=Model.normalizeSearch(group)||group;
++      if(!by.has(key))by.set(key,{title:group,cards:[]});
++      by.get(key).cards.push(c);
++    });
++    [...by.values()].sort((a,b)=>b.cards.length-a.cards.length).slice(0,40)
++      .forEach(row=>rows.push({title:row.title+' ('+row.cards.length+')',cards:row.cards.slice(0,60)}));
+     return rows;
+   }
+ 
+@@ -75,7 +107,18 @@
+     const img=$('vpimg');
+     if(c.logo){img.src=c.logo;img.style.display=''}else img.style.display='none';
+     $('vpt').textContent=c.title;
+-    $('vps').textContent=(c.kind==='series'?'مسلسل'+(c.eps.length?' · '+c.eps.length+' حلقة':''):'فيلم')+(c.group?' · '+c.group:'');
++    const record=c.resumeRecord||(c.kind==='movie'?progress()[c.item.url]:c.lazy?progress()[c.lazy]:null);
++    $('vps').textContent=(c.kind==='series'?'مسلسل'+(c.eps.length?' · '+c.eps.length+' حلقة':''):'فيلم')+
++      (c.group?' · '+c.group:'')+(c.sourceName?' · '+c.sourceName:'')+
++      (record&&Model&&Model.shouldResume(record)?' · متابعة عند '+fmt(record.position):'');
++  }
++  function sourceOptions(){
++    const select=$('vodsource'),sources=lists.filter(l=>l.id!==FAV_LIST_ID&&l.id!=='builtin');
++    if(srcId&&!sources.some(l=>l.id===srcId))srcId='';
++    select.textContent='';
++    const all=document.createElement('option');all.value='';all.textContent='كل المصادر';select.appendChild(all);
++    sources.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.name;select.appendChild(o)});
++    select.value=srcId;select.classList.toggle('sel',zone==='source');
+   }
+   function paintTabs(){
+     tabsEl.textContent='';
+@@ -86,6 +129,14 @@
+       b.onclick=()=>{filter=k;zone='rows';idxRows();paintHome()};
+       tabsEl.appendChild(b);
+     });
++    const search=$('vodsearch');
++    search.textContent=query?'🔎 '+query:'🔎 بحث';
++    search.classList.toggle('sel',zone==='search');
++  }
++  async function searchPrompt(){
++    const value=await kbPrompt('بحث في العناوين والتصنيفات والمصادر',query);
++    if(value===null)return;
++    query=value.trim();idxRows();paintHome();
+   }
+   function msgBody(t){
+     bodyEl.textContent='';
+@@ -94,8 +145,10 @@
+   function idxRows(){rowsData=makeRows();rIdx=0;cols=[]}
+   function paintHome(){
+     screen='home';paintTabs();bodyEl.textContent='';
++    $('vodh').classList.remove('hide');
++    sourceOptions();
+     if(!rowsData.length){
+-      msgBody('لا توجد أفلام أو مسلسلات في مصادرك بعد.\nأضف مصدراً فيه مكتبة (ملف أو رابط أو Xtream) من الإعدادات ← إضافة مصدر، وستظهر هنا تلقائياً.');
++      msgBody(query?'لا توجد نتائج مطابقة في المصدر والنوع المحددين.':'لا توجد أفلام أو مسلسلات في مصادرك بعد.\nأضف مصدراً فيه مكتبة (ملف أو رابط أو Xtream) من الإعدادات ← إضافة مصدر، وستظهر هنا تلقائياً.');
+       return;
+     }
+     rowsData.forEach((r,ri)=>{
+@@ -111,7 +164,12 @@
+         }else d.classList.add('noimg');
+         const nm=document.createElement('span');nm.className='vn';nm.textContent=c.title;d.appendChild(nm);
+         if(c.kind==='series'){const b=document.createElement('i');b.textContent='مسلسل';d.appendChild(b)}
+-        d.onclick=()=>{rIdx=ri;cols[ri]=ci;zone='rows';markCards();activate(c)};
++        if(c.sourceName){const source=document.createElement('small');source.className='vbadge';source.textContent=c.sourceName;d.appendChild(source)}
++        const rec=c.resumeRecord||(c.kind==='movie'?progress()[c.item.url]:null);
++        if(rec&&Model&&Model.shouldResume(rec)){
++          const bar=document.createElement('span');bar.className='vprogress';bar.style.setProperty('--progress',Model.progressPercent(rec)+'%');d.appendChild(bar);
++        }
++        d.onclick=()=>{rIdx=ri;cols[ri]=ci;zone='rows';markCards();showDetails(c,'home')};
+         cs.appendChild(d);
+       });
+       row.appendChild(cs);bodyEl.appendChild(row);
+@@ -127,6 +185,102 @@
+     row.scrollIntoView({block:'nearest'});
+     if(c){c.classList.add('sel');c.scrollIntoView({block:'nearest',inline:'nearest'});updateHero(rowsData[rIdx].cards[cols[rIdx]||0])}
+   }
++  function cardId(c){return c.kind==='movie'?c.item.url:(c.lazy||c.sourceId+':'+c.title)}
++  function cardRecord(c){
++    const p=progress();
++    if(c.kind==='movie')return p[c.item.url]||null;
++    const records=Object.values(p).filter(x=>x&&x.seriesTitle===c.title&&x.sourceId===c.sourceId)
++      .sort((a,b)=>(b.updated||0)-(a.updated||0));
++    return records.find(x=>Model&&Model.shouldResume(x))||records[0]||(c.lazy?p[c.lazy]:null)||null;
++  }
++  function addAction(label,run,cls){
++    const button=document.createElement('button');button.type='button';button.className=cls||'';
++    button.textContent=label;button.onclick=run;return button;
++  }
++  function showDetails(card,returnTo){
++    cur=card;detailReturn=returnTo||'home';screen='details';zone='details';
++    detailScrollTop=bodyEl.scrollTop;
++    detailRowScroll=[...bodyEl.querySelectorAll('.vcs')].map(row=>row.scrollLeft);
++    bodyEl.textContent='';$('vodh').classList.add('hide');
++    const panel=document.createElement('section');panel.className='vdetails';
++    const cover=document.createElement('img');cover.className='vdetail-cover';cover.alt='';if(card.logo)cover.src=card.logo;
++    cover.onerror=()=>{cover.remove()};
++    const info=document.createElement('div');info.className='vdetail-info';
++    const title=document.createElement('h2');title.textContent=card.title;info.appendChild(title);
++    const meta=document.createElement('p');meta.textContent=(card.kind==='series'?'مسلسل':'فيلم')+' · '+(card.group||'بدون تصنيف')+' · '+(card.sourceName||'مصدر');info.appendChild(meta);
++    const alternatives=idx?[...idx.movies,...idx.series].filter(other=>other!==card&&Model.sameTitle(card,other)):[];
++    const key=Model.normalizeTitle(card.title),remembered=LS.get('m3u_vod_provider',{})[key];
++    alternatives.sort((a,b)=>(a.sourceId===remembered?-1:0)-(b.sourceId===remembered?-1:0));
++    const rec=cardRecord(card),canResume=rec&&Model.shouldResume(rec);
++    if(card.kind==='series'){
++      info.appendChild(addAction('اختيار الموسم والحلقة',()=>{detailReturn='home';activate(card)}));
++      if(canResume)info.appendChild(addAction('▶ متابعة من '+fmt(rec.position),()=>playCard(card,rec.position),'alt'));
++    }else{
++      info.appendChild(addAction(canResume?'▶ متابعة من '+fmt(rec.position):'▶ تشغيل',()=>playCard(card,canResume?rec.position:0)));
++      if(canResume)info.appendChild(addAction('↺ البدء من البداية',()=>playCard(card,0),'alt'));
++    }
++    const cardWatched=!!watched()[cardId(card)];
++    info.appendChild(addAction(cardWatched?'✓ تمت المشاهدة':'○ تحديد كمشاهد',()=>setWatched(card,!cardWatched),'alt'));
++    info.appendChild(addAction('← العودة إلى القائمة',()=>returnFromDetails(),'alt'));
++    if(alternatives.length){
++      const heading=document.createElement('h3');heading.textContent='مصادر بديلة';info.appendChild(heading);
++      alternatives.forEach(other=>info.appendChild(addAction(other.sourceName+' · '+other.title,()=>{
++        const providers=LS.get('m3u_vod_provider',{});providers[key]=other.sourceId;LS.set('m3u_vod_provider',providers);
++        cur=other;showDetails(other,detailReturn);
++      },'alt')));
++    }
++    panel.append(cover,info);bodyEl.appendChild(panel);
++    detailIndex=0;
++    const first=panel.querySelector('button');if(first)first.focus({preventScroll:true});
++  }
++  function returnFromDetails(){
++    if(detailReturn==='series'&&cur){screen='series';zone='eps';paintSeries();return}
++    $('vodh').classList.remove('hide');
++    const selected=rowsData[rIdx]&&rowsData[rIdx].cards[cols[rIdx]||0];
++    idxRows();
++    if(selected){
++      const rowIndex=rowsData.findIndex(row=>row.cards.some(card=>cardId(card)===cardId(selected)));
++      if(rowIndex>=0){rIdx=rowIndex;cols[rowIndex]=rowsData[rowIndex].cards.findIndex(card=>cardId(card)===cardId(selected))}
++    }
++    screen='home';zone='rows';paintHome();
++    requestAnimationFrame(()=>{
++      bodyEl.scrollTop=detailScrollTop;
++      [...bodyEl.querySelectorAll('.vcs')].forEach((row,i)=>{row.scrollLeft=detailRowScroll[i]||0});
++      markCards();
++    });
++  }
++  function setWatched(card,value){
++    const map=watched(),id=cardId(card);
++    if(value)map[id]=Date.now();else delete map[id];
++    LS.set('m3u_vod_watched',map);
++    const records=progress();
++    if(card.kind==='movie'&&records[card.item.url])records[card.item.url].watched=!!value;
++    if(card.lazy&&records[card.lazy])records[card.lazy].watched=!!value;
++    if(card.kind==='series')Object.keys(records).forEach(url=>{if(records[url]&&records[url].seriesTitle===card.title&&records[url].sourceId===card.sourceId)records[url].watched=!!value});
++    LS.set('m3u_vod_progress',records);
++    if(screen==='details')showDetails(card,detailReturn);else paintHome();
++  }
++  async function playCard(card,position){
++    const record=cardRecord(card);
++    const ep=card.kind==='series'&&record&&record.url?card.eps.findIndex(e=>e.url===record.url):0;
++    if(card.kind==='series'&&card.lazy&&!card.eps.length){
++      const ok=await loadLazy(card);
++      if(!ok){toast('تعذّر تحميل حلقات هذا المسلسل');return}
++      playCard(card,position);return;
++    }
++    if(card.kind==='series'){
++      const episode=card.eps[Math.max(0,ep)]||card.eps[0];
++      if(!episode){toast('لا توجد حلقات لهذا المسلسل');return}
++      cur=card;curEps=card.eps.filter(e=>e.s===episode.s);eIdx=Math.max(0,curEps.findIndex(e=>e.url===episode.url));
++      detailReturn='details';playItem(episode.item,curEps,eIdx,card,position);
++    }else{
++      if(position===0){
++        const marks=watched();delete marks[cardId(card)];LS.set('m3u_vod_watched',marks);
++        const records=progress();if(records[card.item.url])records[card.item.url].watched=false;LS.set('m3u_vod_progress',records);
++      }
++      playItem(card.item,null,0,card,position);
++    }
++  }
+   /* حلقات مسلسلات Xtream: تُحمَّل عند الفتح فقط */
+   async function loadLazy(c){
+     toast('جارٍ تحميل الحلقات…');
+@@ -152,7 +306,7 @@
+       return;
+     }
+     if(c.kind==='series'){cur=c;sIdx=0;eIdx=0;zone='eps';paintSeries()}
+-    else playItem(c.item,null,0);
++    else showDetails(c,'home');
+   }
+ 
+   /* ---------- شاشة المسلسل ---------- */
+@@ -160,6 +314,9 @@
+     screen='series';bodyEl.textContent='';
+     const seasons=[...new Set(cur.eps.map(e=>e.s))].sort((a,b)=>a-b);
+     if(sIdx>=seasons.length)sIdx=0;
++    const details=addAction('تفاصيل المسلسل',()=>showDetails(cur,'series'),'alt');
++    details.classList.toggle('sel',zone==='seriesInfo');
++    bodyEl.appendChild(details);
+     const bar=document.createElement('div');bar.className='vseas';
+     seasons.forEach((s,i)=>{
+       const b=document.createElement('span');b.className='vs'+(i===sIdx?' on':'')+(zone==='seasons'&&i===sIdx?' sel':'');
+@@ -172,7 +329,7 @@
+       const r=document.createElement('div');r.className='ve'+(zone==='eps'&&i===eIdx?' sel':'');
+       r.innerHTML='<span class="n"></span><span class="t"></span>';
+       r.children[0].textContent='الحلقة '+e.e;r.children[1].textContent=e.name;
+-      r.onclick=()=>{eIdx=i;zone='eps';playItem(e.item,curEps,i)};
++      r.onclick=()=>{eIdx=i;zone='eps';detailReturn='series';playItem(e.item,curEps,i,cur,0)};
+       list.appendChild(r);
+     });
+     bodyEl.appendChild(bar);bodyEl.appendChild(list);
+@@ -182,10 +339,16 @@
+   function seriesKey(k){
+     const r=rtl(),fwd=r?'ArrowLeft':'ArrowRight',bwd=r?'ArrowRight':'ArrowLeft';
+     const nSeasons=bodyEl.querySelectorAll('.vs').length;
++    if(zone==='seriesInfo'){
++      if(k==='ArrowDown'){zone=nSeasons?'seasons':'eps';paintSeries()}
++      else if(k==='Enter')showDetails(cur,'series');
++      return;
++    }
+     if(zone==='seasons'){
+       if(k===fwd&&sIdx<nSeasons-1){sIdx++;eIdx=0;paintSeries()}
+       else if(k===bwd&&sIdx>0){sIdx--;eIdx=0;paintSeries()}
+       else if(k==='ArrowDown'||k==='Enter'){zone='eps';paintSeries()}
++      else if(k==='ArrowUp'){zone='seriesInfo';paintSeries()}
+     }else{
+       if(k==='ArrowUp'){if(eIdx>0)eIdx--;else zone='seasons';paintSeries()}
+       else if(k==='ArrowDown'){eIdx=Math.min(curEps.length-1,eIdx+1);paintSeries()}
+@@ -196,9 +359,24 @@
+   /* ---------- الرئيسية ---------- */
+   function homeKey(k){
+     const r=rtl(),fwd=r?'ArrowLeft':'ArrowRight',bwd=r?'ArrowRight':'ArrowLeft';
++    if(zone==='search'){
++      if(k==='Enter'){searchPrompt();return}
++      else if(k==='ArrowUp'){zone='tabs';tIdx=FILTERS.indexOf(filter)}
++      else if(k==='ArrowDown'){zone='source'}
++      paintTabs();sourceOptions();return;
++    }
++    if(zone==='source'){
++      const source=$('vodsource'),step=k===fwd?1:k===bwd?-1:0;
++      if(step){source.selectedIndex=Math.max(0,Math.min(source.options.length-1,source.selectedIndex+step))}
++      else if(k==='Enter'){source.dispatchEvent(new Event('change'));zone='rows';return}
++      else if(k==='ArrowDown'){zone='rows'}
++      else if(k==='ArrowUp'){zone='search'}
++      source.classList.toggle('sel',zone==='source');paintTabs();return;
++    }
+     if(zone==='tabs'){
+       if(k===fwd)tIdx=Math.min(FILTERS.length-1,tIdx+1);
+       else if(k===bwd)tIdx=Math.max(0,tIdx-1);
++      else if(k==='ArrowUp'){zone='search';$('vodsource').classList.remove('sel')}
+       else if(k==='ArrowDown'){zone='rows'}
+       else if(k==='Enter'){filter=FILTERS[tIdx];zone='rows';idxRows();paintHome();return}
+       markCards();return;
+@@ -215,12 +393,87 @@
+ 
+   /* ---------- التشغيل ---------- */
+   const fmt=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')};
+-  function playItem(it,eps,i){
+-    playing=eps?{eps,i}:null;
++  function playItem(it,eps,i,card,position){
++    if(playing){
++      saveProgress();
++      clearInterval(progressTimer);progressTimer=null;
++      stopAll();
++    }
++    playing={eps:eps||null,i:i||0,card:card||cur,item:it};
++    screen='player';
++    clearNext();
+     B.classList.add('cine-play');
++    const v=$('v');
++    const seekTo=()=>{if(position>0&&Number.isFinite(v.duration)&&v.duration>position){v.currentTime=position}v.removeEventListener('loadedmetadata',seekTo)};
++    if(position>0)v.addEventListener('loadedmetadata',seekTo);
+     play(it);
++    updatePlaybackActions();
++    progressTimer=setInterval(saveProgress,15000);
+   }
+-  function stopPlay(){tok++;stopAll();B.classList.remove('cine-play');playing=null}
++  function activeRecordKey(){
++    return playing&&playing.item?playing.item.url:'';
++  }
++  function saveProgress(){
++    if(!playing)return;
++    const v=$('v'),url=activeRecordKey();
++    if(!url||!Number.isFinite(v.duration)||v.duration<=0||!Number.isFinite(v.currentTime))return;
++    const records=progress(),old=records[url]||{};
++    const complete=old.watched||v.ended||v.currentTime>=v.duration*0.95;
++    records[url]={
++      url,title:playing.item.name||playing.card.title,seriesTitle:playing.card.kind==='series'?playing.card.title:'',
++      sourceId:playing.card.sourceId||active,position:v.currentTime,duration:v.duration,
++      watched:!!complete,updated:Date.now()
++    };
++    LS.set('m3u_vod_progress',records);
++    if(playing.card.kind==='movie'&&complete){
++      const marks=watched();marks[cardId(playing.card)]=Date.now();LS.set('m3u_vod_watched',marks);
++    }
++  }
++  function clearNext(){
++    clearTimeout(nextTimer);nextTimer=null;nextCard=null;nextEpisode=null;
++    $('vodnext').classList.add('hide');
++  }
++  function stopPlay(){saveProgress();clearInterval(progressTimer);progressTimer=null;clearNext();tok++;stopAll();B.classList.remove('cine-play');playing=null;screen='details'}
++  function updatePlaybackActions(){
++    const c=playing&&playing.card;
++    $('vodwatched').style.display=c?'':'none';
++    $('vodbackdetails').style.display=c?'':'none';
++    if(c)$('vodwatched').textContent=c.kind==='series'?'✓ تمت مشاهدة الحلقة':'✓ تمت المشاهدة';
++  }
++  function setCurrentWatched(){
++    if(!playing)return;
++    if(playing.card.kind==='series'){
++      const v=$('v');if(Number.isFinite(v.duration)&&v.duration>0)v.currentTime=v.duration;
++      saveProgress();
++    }else setWatched(playing.card,true);
++    updatePlaybackActions();
++  }
++  function offerNext(){
++    if(!playing||!playing.eps||playing.i+1>=playing.eps.length)return;
++    nextCard=playing.card;nextEpisode=playing.eps[playing.i+1];
++    let remaining=10;
++    const auto=LS.get('m3u_vod_autonext',true);
++    $('vodnexttext').textContent=auto?'الحلقة التالية خلال '+remaining+' ثوانٍ':'انتهت الحلقة · اختر تشغيل الحلقة التالية';
++    $('vodnext').classList.remove('hide');
++    if(!auto)return;
++    const tick=()=>{remaining--;if(remaining<=0){playNext();return} $('vodnexttext').textContent='الحلقة التالية خلال '+remaining+' ثوانٍ';nextTimer=setTimeout(tick,1000)};
++    nextTimer=setTimeout(tick,1000);
++  }
++  function playNext(){
++    if(!nextEpisode||!nextCard)return;
++    const card=nextCard,episode=nextEpisode,eps=playing.eps,index=eps.findIndex(e=>e.url===episode.url);
++    clearNext();playItem(episode.item,eps,index,card,0);eIdx=index;
++  }
++  $('vodnextnow').onclick=playNext;
++  $('vodnextcancel').onclick=clearNext;
++  $('vodbackdetails').onclick=()=>{
++    if(!playing)return;
++    const card=playing.card,backTo=detailReturn;
++    stopPlay();detailReturn=backTo;showDetails(card,backTo);
++  };
++  $('vodwatched').onclick=setCurrentWatched;
++  $('v').addEventListener('pause',saveProgress);
++  document.addEventListener('visibilitychange',()=>{if(document.hidden)saveProgress()});
+   function seek(sec){
+     const v=$('v');
+     if(!isFinite(v.duration)||!v.duration){toast('لا يمكن التقديم في هذا المحتوى');return}
+@@ -229,24 +482,31 @@
+   }
+   function playKey(k){
+     const v=$('v');
+-    if(k==='Enter'){if(v.paused)v.play();else v.pause();toast(v.paused?'⏸ متوقف':'▶ تشغيل')}
++    if(k==='Escape'&&nextCard)clearNext();
++    else if(k==='Enter'){if(v.paused)v.play();else v.pause();toast(v.paused?'⏸ متوقف':'▶ تشغيل')}
+     else if(k==='ArrowRight'||k==='ArrowLeft')seek(k==='ArrowRight'?10:-10);
+     else if(k==='ArrowUp'||k==='ArrowDown')seek(k==='ArrowUp'?60:-60);
+-    else if((k==='PageDown'||k==='PageUp')&&playing){
++    else if((k==='PageDown'||k==='PageUp')&&playing&&playing.eps){
+       const n=playing.i+(k==='PageDown'?1:-1);
+-      if(n>=0&&n<playing.eps.length){playing.i=n;eIdx=n;play(playing.eps[n].item)}
++      if(n>=0&&n<playing.eps.length){const episode=playing.eps[n];eIdx=n;playItem(episode.item,playing.eps,n,playing.card,0)}
+     }
+   }
+   $('v').addEventListener('ended',()=>{
+     if(!on||!B.classList.contains('cine-play')||!playing)return;
+-    const n=playing.i+1;
+-    if(n<playing.eps.length){playing.i=n;eIdx=n;play(playing.eps[n].item)}
++    saveProgress();
++    if(playing.eps)offerNext();
++  });
++  $('vodsource').addEventListener('change',()=>{
++    srcId=$('vodsource').value;idxRows();screen='home';zone='rows';paintHome();
+   });
++  $('vodsearch').onclick=searchPrompt;
+ 
+   /* ---------- فتح وإغلاق ---------- */
+   function open(){
+     if(on)return;
+     on=true;
++    LS.set('m3u_last_was_vod',true);
++    if(!LS.get('m3u_tip_vod',false)){LS.set('m3u_tip_vod',true);toast('اضغط OK لفتح التفاصيل، واختر المصدر لتصفية المكتبة دون تغيير مصدر البث الحي.')}
+     lastLive=shown.find(i=>i.url===curUrl)||null;
+     tok++;stopAll();
+     el.classList.add('on');B.classList.add('vod');
+@@ -255,13 +515,20 @@
+     build().then(()=>{idxRows();paintHome()}).catch(()=>msgBody('تعذّر تحليل المكتبة'));
+   }
+   function close(){
++    if(playing)stopPlay();
+     on=false;el.classList.remove('on');B.classList.remove('vod');B.classList.remove('cine-play');
+     if(lastLive){const it=lastLive;lastLive=null;play(it)}
+   }
+   window.__openVod=function(id){srcId=(typeof id==='string')?id:'';open()};
+   window.__vodBack=function(){
+     if(!on)return false;
+-    if(B.classList.contains('cine-play')){stopPlay();return true}
++    if(B.classList.contains('cine-play')){
++      const card=playing&&playing.card,backTo=detailReturn;
++      stopPlay();
++      if(card)showDetails(card,backTo);
++      return true;
++    }
++    if(screen==='details'){returnFromDetails();return true}
+     if(screen==='series'){zone='rows';paintHome();return true}
+     close();return true;
+   };
+@@ -272,6 +539,7 @@
+     const k=e.key;
+     if(B.classList.contains('cine-play'))playKey(k);
+     else if(screen==='series')seriesKey(k);
+-    else homeKey(k);
++    else if(screen==='home')homeKey(k);
++    else if(screen==='details')detailKey(k);
+   },true);
+ })();
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/xtream-txt.js wasslatvTOW/app/src/main/assets/js/xtream-txt.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/xtream-txt.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/xtream-txt.js	2026-11-13 22:30:42.852591144 +0000
+@@ -102,16 +102,26 @@
+     try{acc=parse(text)}catch(e){}
+     if(!acc.length)return origAdd(text,name,url);
+ 
+-    let ok=0;
++    const valid=[],failed=[];
+     for(let i=0;i<acc.length;i++){
+       const a=acc[i];
+       let nm=a.name||name||a.host.replace(/^https?:\/\//,'');
+       if(acc.length>1&&!a.name)nm=(name||'Xtream')+' '+(i+1);
+-      try{if(await window.xtAdd(a.host,a.user,a.pass,nm))ok++}catch(e){}
++      try{
++        const prepared=await window.xtPrepare(a.host,a.user,a.pass);
++        valid.push({name:nm,prepared});
++      }catch(e){failed.push({name:nm,reason:'فشل الاتصال أو لا يوجد محتوى صالح'})}
++    }
++    if(valid.length&&window.__reviewXtreamAccounts)return window.__reviewXtreamAccounts(valid,failed);
++    if(valid.length){
++      let ok=0;
++      for(const account of valid){
++        try{if(await window.xtAddPrepared(account.prepared,account.name))ok++}
++        catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
++      }
++      if(failed.length&&typeof setMsg==='function')setMsg('تم التحقق من الحسابات؛ تعذّرت إضافة بعض الحسابات.',true);
++      return ok>0;
+     }
+-    if(ok)return true;
+-    // ملف روابط بث عادية (بلا #EXTM3U) فشل اتصاله بالـAPI: يُعامل كقائمة روابط كما كان
+-    if(acc.every(a=>a.src==='stream'))return origAdd(text,name,url);
+     if(typeof setMsg==='function')setMsg('تعذّر الاتصال بسيرفر Xtream الموجود في الملف. تحقق من العنوان واسم المستخدم وكلمة السر.',true);
+     return false;
+   };
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/xtream.js wasslatvTOW/app/src/main/assets/js/xtream.js
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/js/xtream.js	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/js/xtream.js	2026-11-13 22:30:42.853560582 +0000
+@@ -33,26 +33,37 @@
+     return{text:out.join('\n')+'\n',count:n,host};
+   }
+ 
+-  /* إضافة سيرفر جديد: يعيد true عند النجاح */
+-  window.xtAdd=async function(host,u,p,name){
++  window.xtPrepare=async function(host,u,p){
+     const r=await build(host,u,p);
+-    if(!r.count)return false;
+-    const ok=await addList(r.text,name||'Xtream','');
++    if(!r.count)throw new Error('لم يُرجع الحساب محتوى صالحًا');
++    return{xt:{host:r.host,u,p},text:r.text,count:r.count};
++  };
++  window.xtAddPrepared=async function(prepared,name){
++    if(!prepared||!prepared.xt||!prepared.text)return false;
++    const existing=new Set(lists.map(l=>l.id));
++    const ok=await addList(prepared.text,name||'Xtream','');
+     if(ok){
+-      const l=lists.find(x=>x.id===active);
+-      if(l){l.xt={host:r.host,u,p};await saveLists()}
++      const l=lists.find(x=>!existing.has(x.id));
++      if(l){l.xt=prepared.xt;l.remoteText=prepared.text;await saveLists()}
+     }
+     return ok;
+   };
++  /* إضافة سيرفر جديد: يعيد true عند النجاح */
++  window.xtAdd=async function(host,u,p,name){
++    const prepared=await window.xtPrepare(host,u,p);
++    return await window.xtAddPrepared(prepared,name);
++  };
++  window.xtPreview=async function(id){
++    const l=lists.find(x=>x.id===id);
++    if(!l||!l.xt)throw new Error('حساب Xtream غير متاح');
++    const r=await build(l.xt.host,l.xt.u,l.xt.p);
++    if(!r.count)throw new Error('لم يُرجع حساب Xtream أي محتوى');
++    return{id,kind:'xtream',sourceKey:JSON.stringify(l.xt),items:parseM3U(r.text),remoteText:r.text};
++  };
+   /* تحديث مصدر Xtream موجود */
+   window.xtRefresh=async function(l){
+     if(!l||!l.xt)return false;
+-    const r=await build(l.xt.host,l.xt.u,l.xt.p);
+-    if(!r.count)return false;
+-    const its=parseM3U(r.text);
+-    l.text=ser(its);l.n=its.length;l.upd=Date.now();
+-    await saveLists();
+-    if(active===l.id)openList(l.id);
+-    return true;
++    const proposal=await window.xtPreview(l.id);
++    return await window.__applyListUpdate(proposal,'merge');
+   };
+ })();
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/assets/source-config.json wasslatvTOW/app/src/main/assets/source-config.json
+--- /tmp/repo/wasslatvTOW-main/app/src/main/assets/source-config.json	1970-01-01 00:00:00.000000000 +0000
++++ wasslatvTOW/app/src/main/assets/source-config.json	2026-11-13 22:30:42.856335594 +0000
+@@ -0,0 +1 @@
++{"edition":"open","accounts":[]}
+\ No newline at end of file
+diff -ruN --strip-trailing-cr /tmp/repo/wasslatvTOW-main/app/src/main/java/dz/wassla/tv/WebActivity.kt wasslatvTOW/app/src/main/java/dz/wassla/tv/WebActivity.kt
+--- /tmp/repo/wasslatvTOW-main/app/src/main/java/dz/wassla/tv/WebActivity.kt	2026-11-13 21:25:42.000000000 +0000
++++ wasslatvTOW/app/src/main/java/dz/wassla/tv/WebActivity.kt	2026-11-13 22:30:42.866286389 +0000
+@@ -205,12 +205,20 @@
+ 
+         @JavascriptInterface
+         fun readAsset(name: String): String = try {
+-            if (name != "channels.json") "" else assets.open(name).bufferedReader().use { it.readText() }
++            if (name != "channels.json" && name != "source-config.json") "" else assets.open(name).bufferedReader().use { it.readText() }
+         } catch (e: Exception) {
+             ""
+         }
+ 
+         @JavascriptInterface
++        fun edition(): String = try {
++            val cfg = org.json.JSONObject(assets.open("source-config.json").bufferedReader().use { it.readText() })
++            if (cfg.optString("edition") == "personal") "personal" else "open"
++        } catch (e: Exception) {
++            "open"
++        }
++
++        @JavascriptInterface
+         fun exitApp() {
+             runOnUiThread { finish() }
+         }
