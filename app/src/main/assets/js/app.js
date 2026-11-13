@@ -169,6 +169,12 @@ function openList(id){
   $('upd').style.display=(active===FAV_LIST_ID||!l.url)?'none':'';
   fillLists();render();saveLists();
 }
+function kindSummary(arr){
+  const c={live:0,movie:0,series:0};
+  arr.forEach(i=>{const k=detectKind(i);if(k==='movie'||k==='series')c[k]++;else c.live++});
+  const p=[];if(c.live)p.push(c.live+' قناة');if(c.movie)p.push(c.movie+' فيلم');if(c.series)p.push(c.series+' مسلسل');
+  return p.join('، ');
+}
 async function addList(text,name,url){
   const n=parseM3U(text);
   if(!n.length){setMsg('لم يتم العثور على قنوات. تأكد أن الملف بصيغة M3U، أو ملف txt فيه بيانات Xtream (السيرفر والمستخدم وكلمة السر).',true);return false}
@@ -176,9 +182,10 @@ async function addList(text,name,url){
   let l=url?lists.find(x=>x.url===url):null;
   if(l){const out=merge(parseM3U(l.text),n,false);l.text=ser(out);l.remoteText=ser(n);l.n=out.length;l.upd=Date.now()}
   else{l={id:'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:name||('قائمة '+(lists.filter(x=>x.id!==FAV_LIST_ID).length+1)),text:ser(n),remoteText:url?ser(n):'',url:url||'',n:n.length,upd:Date.now()};lists.push(l)}
-  if(!hadUserSource||l.id===active)openList(l.id);
-  else{fillLists();await saveLists()}
-  mgr();setMsg('تمت إضافة «'+l.name+'» ('+l.n+' قناة).');return true;
+  openList(l.id);
+  mgr();setMsg('تمت إضافة «'+l.name+'» ('+l.n+' قناة).');
+  if(window.WasslaNotify)WasslaNotify('تمت إضافة «'+l.name+'» وتفعيلها — '+kindSummary(n));
+  return true;
 }
 
 // دالة لجلب قنوات Xtream Codes (Extreme)
@@ -301,6 +308,8 @@ function render(){
   else if(g==='__avail')base=items.filter(i=>i.url&&i.url.trim());
   else if(g.startsWith('__k_')){const k=g.slice(4);base=items.filter(i=>detectKind(i)===k)}
   else if(g)base=items.filter(i=>(i.group||'بدون مجموعة')===g);
+  // واجهة القنوات للبث المباشر فقط: الأفلام والمسلسلات تُعرض في المكتبة
+  if(document.body.classList.contains('rcv')&&!g.startsWith('__k_'))base=base.filter(i=>{const k=detectKind(i);return k!=='movie'&&k!=='series'});
   shown=base.filter(i=>!q||i.name.toLowerCase().includes(q));
   $('count').textContent='يعرض '+shown.length+' من '+items.length;
   const box=$('list');box.textContent='';

@@ -7,7 +7,8 @@
     const wait=Math.max(0,1200-(performance.now()-t0));
     setTimeout(()=>{
       sp.classList.add('gone');
-      setTimeout(()=>{sp.style.display='none';if(window.__hintLive)window.__hintLive()},520);
+      if(window.WasslaHome&&WasslaHome.shouldShow())WasslaHome.open(true);
+      setTimeout(()=>{sp.style.display='none';if(!(window.WasslaHome&&WasslaHome.isOn())&&window.__hintLive)window.__hintLive()},520);
     },wait);
   }
   $('v').addEventListener('playing',finish);

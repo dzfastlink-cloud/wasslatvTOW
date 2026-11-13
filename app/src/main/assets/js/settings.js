@@ -245,43 +245,26 @@
       {icon:'↩',label:'إلغاء',run:()=>back()}
     ],keep||0);
   }
+  const wnote=(t,err)=>window.WasslaNotify?WasslaNotify(t,{err:!!err}):toast(t);
+  /* تحديث المصدر: دمج مباشر يحفظ تعديلاتك، ثم إشعار بالنتيجة (بلا شاشة مراجعة) */
   async function reviewSourceUpdate(id){
-    const l=lists.find(x=>x.id===id);if(!l){toast('المصدر غير موجود');return false}
-    toast('جارٍ جلب تحديث «'+l.name+'»…');
+    const l=lists.find(x=>x.id===id);if(!l){wnote('المصدر غير موجود',1);return false}
+    wnote('جارٍ تحديث «'+l.name+'»…');
     let proposal;
     try{
       proposal=l.xt?await window.xtPreview(id):await window.__fetchListUpdate(id);
-    }catch(e){toast(e&&e.message?e.message:'تعذّر جلب التحديث');return false}
+    }catch(e){wnote(e&&e.message?e.message:'تعذّر جلب التحديث',1);return false}
     const existing=new Set(parseM3U(l.text||'').map(it=>it.url));
-    const incoming=new Set(proposal.items.map(it=>it.url));
     const added=proposal.items.filter(it=>!existing.has(it.url)).length;
-    const removed=[...existing].filter(url=>!incoming.has(url)).length;
     const localSnapshot=l.text;
-    if(!st.classList.contains('on'))open('sources');
-    return new Promise(resolve=>{
-      let settled=false,applying=false;
-      const finish=value=>{
-        if(settled)return;
-        settled=true;pendingReviewCancel=null;resolve(value);
-      };
-      pendingReviewCancel=()=>{if(applying)return false;finish(false);return true};
-      const apply=async mode=>{
-        if(applying)return;
-        applying=true;
-        try{
-          await window.__applyListUpdate(proposal,mode);
-          rememberSource(id,localSnapshot);
-          toast(mode==='replace'?'تم استبدال محتوى المصدر مع إبقاء تعديلاتك':'تم دمج تحديث المصدر مع إبقاء تعديلاتك');
-          finish(true);back();
-        }catch(e){applying=false;toast(e&&e.message?e.message:'تعذّر تطبيق التحديث')}
-      };
-      push(keep=>show('مراجعة التحديث · '+l.name,[
-        {sep:'الحالي: '+existing.size+' · من الخادم: '+proposal.items.length+' · جديدة: '+added+' · غير موجودة بالخادم: '+removed},
-        {icon:'🔀',label:'دمج التحديث',sub:'تحديث العناصر المتطابقة وإبقاء العناصر القديمة غير الموجودة بالخادم',run:()=>apply('merge')},
-        {icon:'📥',label:'استبدال بالمحتوى الجديد',sub:'إزالة العناصر القديمة غير الموجودة بالخادم مع إبقاء التعديلات اليدوية',run:()=>apply('replace')},
-        {icon:'↩',label:'إلغاء',run:()=>back()}
-      ],keep));
-    });
+    try{
+      await window.__applyListUpdate(proposal,'merge');
+      rememberSource(id,localSnapshot);
+      const now=lists.find(x=>x.id===id)||l;
+      wnote('تم تحديث «'+l.name+'»: '+added+' جديد، المجموع '+(now.n||0));
+      if(st.classList.contains('on'))rerender();
+      return true;
+    }catch(e){wnote(e&&e.message?e.message:'تعذّر تطبيق التحديث',1);return false}
   }
   window.__openSourceUpdateReview=reviewSourceUpdate;
 
@@ -333,61 +316,19 @@
       await reviewXtreamAccounts([{name:nm.trim()||'Xtream',prepared}],[]);
     }catch(e){toast(e&&e.message?e.message:'تعذّر الاتصال أو لا يوجد محتوى صالح')}
   }
-  function reviewXtreamAccounts(accounts,failures){
-    const pending=accounts.slice(),failed=failures.slice();
-    if(!st.classList.contains('on')){
-      if($('dlg').open)$('dlg').close();
-      open('sources');
+  /* حسابات Xtream: تُضاف وتُفعَّل مباشرة، والفاشل يُذكر في الإشعار */
+  async function reviewXtreamAccounts(accounts,failures){
+    const failed=(failures||[]).slice(),names=[];
+    for(const account of accounts){
+      try{
+        if(await window.xtAddPrepared(account.prepared,account.name))names.push(account.name);
+        else failed.push({name:account.name,reason:'تعذّرت الإضافة'});
+      }catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
     }
-    return new Promise(resolve=>{
-      let settled=false,applying=false,addedCount=0;
-      const finish=value=>{
-        if(settled)return;
-        settled=true;pendingReviewCancel=null;resolve(value);
-      };
-      pendingReviewCancel=()=>{if(applying)return false;finish(addedCount>0);return true};
-      const addOne=async account=>{
-        if(applying)return;
-        applying=true;
-        try{
-          const ok=await window.xtAddPrepared(account.prepared,account.name);
-          if(!ok){applying=false;toast('تعذّرت إضافة الحساب؛ يمكنك إعادة المحاولة');return}
-          pending.splice(pending.indexOf(account),1);addedCount++;applying=false;
-          toast('تمت إضافة «'+account.name+'»');
-          if(!pending.length){finish(true);back()}else rerender();
-        }catch(e){applying=false;toast('تعذّرت إضافة الحساب؛ يمكنك إعادة المحاولة')}
-      };
-      const addAll=async()=>{
-        if(applying)return;
-        applying=true;
-        for(const account of pending.slice()){
-          try{
-            const ok=await window.xtAddPrepared(account.prepared,account.name);
-            if(ok){pending.splice(pending.indexOf(account),1);addedCount++}
-            else failed.push({name:account.name,reason:'تعذّرت الإضافة'});
-          }catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
-        }
-        applying=false;
-        if(!pending.length){finish(addedCount>0);back()}
-        else{toast('أُضيفت الحسابات الناجحة فقط؛ بقيت حسابات غير مضافة');rerender()}
-      };
-      const render=keep=>{
-        const rows=[{sep:'حسابات صالحة: '+pending.length+' · أضيفت: '+addedCount}];
-        if(pending.length>1)rows.push({icon:'➕',label:'إضافة كل الحسابات الصالحة',sub:'لن تُضاف الحسابات التي فشل التحقق منها',run:addAll});
-        pending.forEach(account=>rows.push({
-          icon:'🔑',label:'إضافة «'+account.name+'»',
-          sub:account.prepared.xt.host+' · '+account.prepared.count+' عنصر',
-          run:()=>addOne(account)
-        }));
-        if(failed.length){
-          rows.push({sep:'لم تنجح — لم تُضف'});
-          failed.forEach(account=>rows.push({icon:'⚠',label:account.name,sub:account.reason}));
-        }
-        rows.push({icon:'↩',label:'إلغاء',run:()=>back()});
-        show('مراجعة حسابات Xtream',rows,keep);
-      };
-      push(render);
-    });
+    if(names.length>1)wnote('تمت إضافة '+names.length+' حسابات، وفُعِّل آخرها');
+    if(failed.length)wnote((names.length?'أُضيف '+names.length+' · ':'')+'تعذّر '+failed.length+': '+failed.map(f=>f.name).join('، '),!names.length);
+    if(st.classList.contains('on')){stack=[home];home()}
+    return names.length>0;
   }
   window.__reviewXtreamAccounts=reviewXtreamAccounts;
 

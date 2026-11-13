@@ -1,0 +1,43 @@
+/* ===== الشاشة الرئيسية (بعد الشعار) + إشعارات التطبيق ===== */
+#home{--acc:#3dc9ae;display:none;position:fixed;inset:0;z-index:60;flex-direction:column;align-items:center;justify-content:center;gap:5vh;padding:3vh 3vw;color:#fff;
+  background:radial-gradient(ellipse at 50% 115%,#12806dcc 0,#06231ee6 52%,#030d0bf5 100%);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#home.on{display:flex;animation:hmfade .45s ease-out both}
+#home.enter{animation:hmreveal 1.05s cubic-bezier(.2,.8,.2,1) both}
+.hm-glow{position:absolute;inset:-20%;pointer-events:none;background:conic-gradient(from 0deg at 50% 45%,#3dc9ae00,#3dc9ae22,#f5b04c18,#3dc9ae00 60%);animation:hmspin 22s linear infinite}
+.hm-head{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hm-mark{position:relative;width:clamp(64px,9vw,104px);aspect-ratio:1;animation:hmpop .9s .2s cubic-bezier(.2,1.4,.4,1) backwards}
+.hm-mark svg{width:100%;height:100%;display:block;filter:drop-shadow(0 6px 22px #17b79c88)}
+.hm-mark::after{content:"";position:absolute;inset:-12%;border-radius:30%;border:2px solid #7ff3dc55;animation:hmring 2.6s ease-out infinite}
+.hm-title{font-size:clamp(24px,3.4vw,42px);font-weight:800;letter-spacing:1px}
+.hm-title b{color:#f5b04c}
+.hm-clock{font-size:clamp(14px,1.6vw,20px);color:#9fcfc6;min-height:1.2em}
+.hm-tiles{position:relative;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:clamp(12px,2vw,28px);max-width:96%}
+.hm-tile{--acc:#3dc9ae;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  width:clamp(130px,17vw,220px);aspect-ratio:1/1.08;padding:12px;border:2px solid #ffffff22;border-radius:22px;color:#fff;font:inherit;cursor:pointer;text-align:center;
+  background:linear-gradient(160deg,#ffffff14,#ffffff06);transition:transform .22s,border-color .22s,box-shadow .22s,background .22s;
+  animation:hmrise .7s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(.5s + var(--i,0) * .1s)}
+.hm-tile.vod{--acc:#e8b34a}
+.hm-tile.src{--acc:#6aa8ff}
+.hm-tile.set{--acc:#b8c4cc}
+.hm-tile .hm-ic{font-size:clamp(34px,5vw,60px);line-height:1;filter:drop-shadow(0 4px 12px #0008)}
+.hm-tile .hm-lb{font-size:clamp(16px,1.9vw,24px);font-weight:700}
+.hm-tile .hm-sub{font-size:clamp(11px,1.15vw,15px);color:#a8d1c9;min-height:1.2em}
+.hm-tile.dim{opacity:.6}
+.hm-tile.sel,.hm-tile:focus-visible{outline:none;transform:scale(1.09);border-color:var(--acc);background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 38%,transparent),#ffffff0d);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 35%,transparent),0 18px 40px #000b}
+.hm-tile.sel::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,#ffffff2e 50%,transparent 65%);transform:translateX(-120%);animation:hmsweep 1.6s ease-in-out .15s infinite}
+.hm-hint{position:relative;font-size:clamp(11px,1.2vw,15px);color:#9fcfc6}
+#wnotify{position:fixed;z-index:500;top:max(16px,env(safe-area-inset-top,0px));inset-inline-start:50%;transform:translate(50%,-24px);max-width:86%;padding:12px 24px;border-radius:12px;border:2px solid #3dc9ae;background:#04201bf2;color:#fff;font-size:clamp(14px,1.6vw,20px);text-align:center;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#wnotify.on{opacity:1;transform:translate(50%,0)}
+#wnotify.err{border-color:#e0674f;background:#2b0f0af2}
+html[dir=ltr] #wnotify{transform:translate(-50%,-24px)}
+html[dir=ltr] #wnotify.on{transform:translate(-50%,0)}
+@keyframes hmfade{from{opacity:0}to{opacity:1}}
+@keyframes hmreveal{from{clip-path:circle(0% at 50% 40%);opacity:.4}to{clip-path:circle(150% at 50% 40%);opacity:1}}
+@keyframes hmrise{from{opacity:0;transform:translateY(46px) scale(.88)}to{opacity:1;transform:none}}
+@keyframes hmpop{from{opacity:0;transform:scale(.4) rotate(-12deg)}to{opacity:1;transform:none}}
+@keyframes hmring{0%{opacity:.8;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
+@keyframes hmspin{to{transform:rotate(360deg)}}
+@keyframes hmsweep{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
+@media (prefers-reduced-motion:reduce){#home.on,#home.enter,.hm-glow,.hm-mark,.hm-mark::after,.hm-tile,.hm-tile.sel::after{animation:none!important}}
+/* خلف الرئيسية: لا شريط قناة ولا رسائل تحميل ولا تلميحات */
+body.home #rbanner,body.home #rnum,body.home #rtoast,body.home #ldg,body.home #ldgb,body.home #lhint,body.home #resumebar{visibility:hidden}

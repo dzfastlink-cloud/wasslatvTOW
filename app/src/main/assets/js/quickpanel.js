@@ -14,10 +14,11 @@
   }
   const items=[
     {i:'📺',l:'القنوات',run:()=>{close();if(window.__rcvOpen)__rcvOpen()}},
-    {i:'🛰',l:'المصادر',run:()=>{close();if(window.__rcvOpenSources)__rcvOpenSources()}},
+    {i:'🗂',l:'التصنيفات',run:()=>{close();if(window.__rcvOpenCats)__rcvOpenCats()}},
     {i:'🔢',l:'رقم القناة',run:()=>{close();if(window.__rcvNumpad)__rcvNumpad()}},
     {i:'☆',l:'المفضلة',dyn:()=>curUrl&&favs.has(curUrl)?{i:'★',l:'إزالة من المفضلة'}:{i:'☆',l:'أضف للمفضلة'},run:()=>{close();if(curUrl){toggleFav(curUrl);if(window.__rcvToast)__rcvToast(favs.has(curUrl)?'أُضيفت إلى المفضلة':'أُزيلت من المفضلة')}}},
     {i:'🎬',l:'المكتبة',run:()=>{close();if(window.__openVod)__openVod()}},
+    {i:'🏠',l:'الرئيسية',run:()=>{close();if(window.WasslaHome)WasslaHome.open()}},
     {i:'⚙',l:'الإعدادات',run:()=>{close();if(window.__openSettings)__openSettings()}},
     {i:'⏻',l:'خروج',run:()=>{if(window.Android&&Android.exitApp)Android.exitApp()}}
   ];
