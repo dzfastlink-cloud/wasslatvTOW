@@ -88,3 +88,18 @@ body.rcv #msg{position:absolute;bottom:150px;inset-inline:0;text-align:center;z-
 #rmenu .r.sel .t.mqc{text-overflow:clip}
 #rmenu .r.sel .t>span.mq{animation:rmq 6s linear 0.8s infinite alternate}
 @keyframes rmq{to{transform:translateX(var(--mq))}}
+
+/* ===== بطاقات التصنيفات (شريط أفقي يبدأ من اليمين) + وضع المفضلة ===== */
+#rmenu .rhead{flex:none;display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-block:10px}
+#rmenu .rhead::-webkit-scrollbar{display:none}
+#rmenu .rhead .h.card{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:112px;max-width:190px;padding:8px 16px;border-radius:16px;border:2px solid #1f8f7c66;background:linear-gradient(160deg,#0a544866,#04201bcc);color:#d2efe9;transition:transform .18s ease,border-color .18s ease,box-shadow .25s ease}
+#rmenu .rhead .h.card i{font-style:normal;font-size:22px;line-height:1}
+#rmenu .rhead .h.card b{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#rmenu .rhead .h.card small{font-size:11px;color:#8ec7b8}
+#rmenu .rhead .h.card.cur{border-color:#3dc9ae;background:linear-gradient(160deg,#0f9c85aa,#0a5448cc);color:#fff}
+#rmenu .rhead .h.card.sel{transform:scale(1.07);border-color:#f5b04c;box-shadow:0 0 0 4px rgba(245,176,76,.3)}
+#rmenu .rhead .h.card.glow{animation:cardglow 1.05s ease-out}
+@keyframes cardglow{0%{box-shadow:0 0 0 0 rgba(127,243,220,0);border-color:#1f8f7c66}30%{box-shadow:0 0 14px 3px rgba(127,243,220,.55);border-color:#7ff3dc}100%{box-shadow:0 0 0 0 rgba(127,243,220,0)}}
+#favbadge{display:none;position:fixed;top:max(14px,env(safe-area-inset-top,0px));inset-inline-end:var(--w-safe,24px);z-index:60;padding:5px 14px;border-radius:999px;background:rgba(40,22,4,.82);border:1px solid rgba(241,166,92,.6);color:#f5c98a;font-size:clamp(12px,1.3vw,16px);font-weight:700;pointer-events:none}
+body.rcv.favmode:not(.menu) #favbadge{display:block}
+@media (prefers-reduced-motion:reduce){#rmenu .rhead .h.card.glow{animation:none}}

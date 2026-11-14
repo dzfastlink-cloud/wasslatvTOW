@@ -105,7 +105,8 @@
   function rerender(){const f=stack[stack.length-1];if(f){f.keep=focusIdx();f(f.keep)}}
   function setTop(fn,keep){stack[stack.length-1]=fn;fn(keep)}
   function open(which){
-    st.classList.add('on');sec=which==='sources'?'sources':'general';stack=[home];home();
+    st.classList.add('on');sec=(which==='sources'||which==='addsource')?'sources':'general';stack=[home];home();
+    if(which==='addsource')push(addScreen);
     if(!LS.get('m3u_tip_settings',false)){LS.set('m3u_tip_settings',true);toast('استخدم قسم المصادر لإدارة القوائم، وقسم التشغيل لضبط تجربة المشاهدة.')}
   }
   function close(){pvStop();st.classList.remove('on');stack=[];if(document.activeElement)document.activeElement.blur()}
@@ -411,6 +412,7 @@
     its.forEach(it=>{const g=it.group||'';m.set(g,(m.get(g)||0)+1)});
     const rows=[
       {icon:'🔎',label:'بحث عن قناة',sub:'بالاسم',run:async()=>{const v=await kbPrompt('اسم القناة','');if(v&&v.trim())push(k=>editor(id,0,k,{q:v.trim()}))}},
+      {icon:'☑',label:'تحديد جماعي',sub:'حذف · نقل · مفضلة · ترتيب',run:()=>{bsel.clear();push(k=>bulk(id,0,k))}},
       {icon:'📋',label:'كل القنوات',sub:its.length+' قناة',run:()=>push(k=>editor(id,0,k))},
       {sep:'المجموعات ('+m.size+')'}
     ];
@@ -420,6 +422,7 @@
   function groupMenu(id,g,keep){
     const nm=g||'بدون مجموعة';
     show('المجموعة: '+nm,[
+      {icon:'☑',label:'تحديد جماعي لقنوات المجموعة',sub:'حذف · نقل · مفضلة',run:()=>{bsel.clear();push(k=>bulk(id,0,k,{g}))}},
       {icon:'✎',label:'عرض وتعديل قنوات المجموعة',run:()=>push(k=>editor(id,0,k,{g}))},
       {icon:'🏷',label:'إعادة تسمية المجموعة',sub:nm,run:()=>renameGroup(id,g)},
       {sep:'الحذف'},
@@ -464,7 +467,7 @@
     const ents=its.map((it,i)=>({it,i})).filter(e=>!flt||(flt.g!==undefined?(e.it.group||'')===flt.g:(e.it.name||'').toLowerCase().includes(q)));
     const pages=Math.max(1,Math.ceil(ents.length/PAGE));
     page=Math.min(Math.max(0,page),pages-1);
-    const rows=[{icon:'💾',label:'حفظ نسخة احتياطية بهذا الترتيب',sub:'ملف M3U في مجلد التطبيق',run:()=>{
+    const rows=[{icon:'☑',label:'تحديد جماعي',sub:'حذف · نقل · مفضلة · ترتيب',run:()=>{bsel.clear();push(k=>bulk(id,0,k,flt))}},{icon:'💾',label:'حفظ نسخة احتياطية بهذا الترتيب',sub:'ملف M3U في مجلد التطبيق',run:()=>{
       const nm='wassla-backup-'+l.name+'-'+new Date().toISOString().slice(0,10)+'.m3u';
       const p=(A&&A.saveFile)?A.saveFile(nm,ser(its)):'';
       toast(p?'حُفظت النسخة: '+p:'تعذّر الحفظ');
@@ -480,6 +483,98 @@
     wantPv=true;
     const fl=flt?(flt.g!==undefined?' · '+(flt.g||'بدون مجموعة'):' · بحث: '+flt.q):'';
     show(l.name+fl+' — '+ents.length+' قناة'+(pages>1?' (صفحة '+(page+1)+'/'+pages+')':''),rows,keep!=null?keep:first);
+  }
+  /* ---------------- تحديد جماعي: حذف · نقل لمجموعة · مفضلة · ترتيب ----------------
+     يُؤشَّر على القنوات (☑/☐) ثم يُنفَّذ الإجراء على كل المحدد دفعة واحدة، والتراجع متاح بعد أي حذف أو نقل. */
+  const bsel=new Set();let bfocus=null;   /* بعد التأشير يبقى التركيز على القناة نفسها مهما تغيّر عدد صفوف الإجراءات */
+  function bsl(id){const its=itemsOf(id),idxs=[...bsel].filter(i=>i<its.length).sort((a,b)=>a-b);return {its,idxs}}
+  function bulk(id,page,keep,flt){
+    const l=lists.find(x=>x.id===id);if(!l){back();return}
+    const its=itemsOf(id),q=flt&&flt.q!==undefined?String(flt.q).toLowerCase():'';
+    const ents=its.map((it,i)=>({it,i})).filter(e=>!flt||(flt.g!==undefined?(e.it.group||'')===flt.g:(e.it.name||'').toLowerCase().includes(q)));
+    const pages=Math.max(1,Math.ceil(ents.length/PAGE));
+    page=Math.min(Math.max(0,page),pages-1);
+    const n=[...bsel].filter(i=>i<its.length).length,pageEnts=ents.slice(page*PAGE,page*PAGE+PAGE),isB=isBuiltin(id);
+    const rows=[];
+    if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة الحالة السابقة (حذف أو نقل)',run:async()=>{await undoSource(id);bsel.clear();rerender()}});
+    rows.push({icon:'☑',label:'تحديد كل القنوات المعروضة',sub:ents.length+' قناة',run:()=>{ents.forEach(e=>bsel.add(e.i));rerender()}});
+    if(pages>1)rows.push({icon:'☑',label:'تحديد قنوات هذه الصفحة فقط',sub:pageEnts.length+' قناة',run:()=>{pageEnts.forEach(e=>bsel.add(e.i));rerender()}});
+    if(n)rows.push({icon:'☐',label:'إلغاء التحديد',sub:n+' محددة',run:()=>{bsel.clear();rerender()}});
+    if(n){
+      rows.push({sep:'إجراءات على المحدد ('+n+')'});
+      rows.push({icon:'🗑',label:'حذف المحدد',sub:n+' قناة — يمكن التراجع بعدها',danger:true,run:async()=>{await bulkDelete(id);rerender()}});
+      rows.push({icon:'📁',label:'نقل المحدد إلى مجموعة',run:()=>push(k=>bulkMove(id,k))});
+      rows.push({icon:'★',label:'إضافة المحدد إلى المفضلة',run:()=>{bulkFav(id,true);rerender()}});
+      rows.push({icon:'☆',label:'إزالة المحدد من المفضلة',run:()=>{bulkFav(id,false);rerender()}});
+      if(!isB){
+        rows.push({icon:'⤒',label:'نقل المحدد إلى أول القائمة',run:async()=>{await bulkOrder(id,true);rerender()}});
+        rows.push({icon:'⤓',label:'نقل المحدد إلى آخر القائمة',run:async()=>{await bulkOrder(id,false);rerender()}});
+      }
+    }
+    rows.push({sep:'القنوات — OK للتأشير'});
+    if(page>0)rows.push({icon:'◀',label:'الصفحة السابقة',sub:page+' / '+pages,run:()=>setTop(k=>bulk(id,page-1,k,flt),1)});
+    if(!ents.length)rows.push({sep:'لا توجد قنوات مطابقة'});
+    pageEnts.forEach(({it,i})=>{
+      rows.push({_i:i,icon:bsel.has(i)?'☑':'☐',label:it.name,sub:(it.group||'—')+(favs.has(it.url)?' · ★':''),run:()=>{if(bsel.has(i))bsel.delete(i);else bsel.add(i);bfocus=i;rerender()}});
+    });
+    if(page<pages-1)rows.push({icon:'▶',label:'الصفحة التالية',sub:(page+2)+' / '+pages,run:()=>setTop(k=>bulk(id,page+1,k,flt),1)});
+    const fl=flt?(flt.g!==undefined?' · '+(flt.g||'بدون مجموعة'):' · بحث: '+flt.q):'';
+    let pos=-1,cnt=0;
+    rows.forEach(r=>{if(r.sep!==undefined)return;if(bfocus!==null&&bfocus!=='top'&&r._i===bfocus&&pos<0)pos=cnt;cnt++});
+    let k=pos>=0?pos:(bfocus==='top'?0:(keep!=null?keep:0));
+    bfocus=null;k=Math.max(0,Math.min(k,cnt-1));
+    show('تحديد جماعي — '+n+' من '+ents.length+fl,rows,k);
+  }
+  async function bulkDelete(id){
+    const {its,idxs}=bsl(id);if(!idxs.length)return;
+    if(isBuiltin(id)){
+      const p=[];idxs.forEach(i=>{const k=window.__chKey(its[i]);if(k!=null)p.push([k,{deleted:true}])});
+      if(!p.length||!window.__chSetMany){toast('تعذّر الحذف');return}
+      rememberBuiltin();window.__chSetMany(p);
+    }else{
+      const del=new Set(idxs);
+      await saveItems(id,its.filter((_,i)=>!del.has(i)));
+    }
+    toast('تم حذف '+idxs.length+' قناة — «تراجع» في أول القائمة');
+    bsel.clear();bfocus='top';
+  }
+  function bulkMove(id,keep){
+    const its=itemsOf(id),m=new Map();
+    its.forEach(it=>{const g=it.group||'';m.set(g,(m.get(g)||0)+1)});
+    const rows=[{icon:'＋',label:'مجموعة جديدة…',sub:'اكتب الاسم',run:async()=>{
+      const v=await kbPrompt('اسم المجموعة الجديدة','');
+      if(v===null)return;
+      const nv=v.trim().replace(/"/g,'');
+      if(!nv){toast('اكتب اسمًا للمجموعة');return}
+      await bulkSetGroup(id,nv);
+    }},{sep:'أو اختر مجموعة موجودة'}];
+    [...m.entries()].forEach(([g,c])=>rows.push({icon:'📁',label:g||'بدون مجموعة',sub:c+' قناة',run:()=>bulkSetGroup(id,g)}));
+    show('نقل المحدد إلى…',rows,keep);
+  }
+  async function bulkSetGroup(id,g){
+    const {its,idxs}=bsl(id);if(!idxs.length){back();return}
+    if(isBuiltin(id)){
+      const p=[];idxs.forEach(i=>{const k=window.__chKey(its[i]);if(k!=null)p.push([k,{group:g}])});
+      if(!p.length||!window.__chSetMany){toast('تعذّر النقل');return}
+      rememberBuiltin();window.__chSetMany(p);
+    }else{
+      idxs.forEach(i=>setGroup(its[i],g));
+      await saveItems(id,its);
+    }
+    toast('تم نقل '+idxs.length+' قناة إلى «'+(g||'بدون مجموعة')+'»');
+    back();
+  }
+  function bulkFav(id,add){
+    const {its,idxs}=bsl(id);let c=0;
+    idxs.forEach(i=>{const u=its[i].url;if(add&&!favs.has(u)){favs.add(u);c++}else if(!add&&favs.has(u)){favs.delete(u);c++}});
+    LS.set('m3u_favs',[...favs]);syncFavList();render();
+    toast(c?(add?'أُضيفت '+c+' قناة إلى المفضلة':'أُزيلت '+c+' قناة من المفضلة'):'لا تغيير');
+  }
+  async function bulkOrder(id,top){
+    const {its,idxs}=bsl(id);if(!idxs.length)return;
+    const set=new Set(idxs),pick=idxs.map(i=>its[i]),rest=its.filter((_,i)=>!set.has(i));
+    await saveItems(id,top?pick.concat(rest):rest.concat(pick));
+    bsel.clear();bfocus='top';toast(top?'نُقلت القنوات المحددة إلى أول القائمة':'نُقلت القنوات المحددة إلى آخر القائمة');
   }
   function chan(id,idx,keep){
     const l=lists.find(x=>x.id===id);if(!l){back();return}
