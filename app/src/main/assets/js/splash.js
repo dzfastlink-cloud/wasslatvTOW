@@ -1,4 +1,4 @@
-/* ===== الشاشة الافتتاحية: تبقى حتى يبدأ البث (أو 6 ثوانٍ كحد أقصى) ===== */
+/* ===== الشاشة الافتتاحية: تبقى حتى يبدأ البث (أو 6 ثوانٍ كحد أقصى) ثم تُفتح القائمة السريعة كواجهة أولى ===== */
 (function(){
   const sp=$('splash');if(!sp)return;
   const t0=performance.now();let done=false;
@@ -7,8 +7,9 @@
     const wait=Math.max(0,1200-(performance.now()-t0));
     setTimeout(()=>{
       sp.classList.add('gone');
-      if(window.WasslaHome&&WasslaHome.shouldShow())WasslaHome.open(true);
-      setTimeout(()=>{sp.style.display='none';if(!(window.WasslaHome&&WasslaHome.isOn())&&window.__hintLive)window.__hintLive()},520);
+      if(window.__rcv&&!document.body.classList.contains('rcv'))window.__rcv.set(true,true);
+      if(window.__openQuick)window.__openQuick();
+      setTimeout(()=>{sp.style.display='none';if(!(window.__qpOn&&window.__qpOn())&&!(window.WasslaHome&&WasslaHome.isOn())&&window.__hintLive)window.__hintLive()},520);
     },wait);
   }
   $('v').addEventListener('playing',finish);
