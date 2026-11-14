@@ -90,12 +90,12 @@ body.rcv #msg{position:absolute;bottom:150px;inset-inline:0;text-align:center;z-
 @keyframes rmq{to{transform:translateX(var(--mq))}}
 
 /* ===== بطاقات التصنيفات (شريط أفقي يبدأ من اليمين) + وضع المفضلة ===== */
-#rmenu .rhead{flex:none;display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-block:10px}
+#rmenu .rhead{flex:none;display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-block:6px}
 #rmenu .rhead::-webkit-scrollbar{display:none}
-#rmenu .rhead .h.card{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:112px;max-width:190px;padding:8px 16px;border-radius:16px;border:2px solid #1f8f7c66;background:linear-gradient(160deg,#0a544866,#04201bcc);color:#d2efe9;transition:transform .18s ease,border-color .18s ease,box-shadow .25s ease}
-#rmenu .rhead .h.card i{font-style:normal;font-size:22px;line-height:1}
-#rmenu .rhead .h.card b{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-#rmenu .rhead .h.card small{font-size:11px;color:#8ec7b8}
+#rmenu .rhead .h.card{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:88px;max-width:160px;padding:5px 12px;border-radius:13px;border:2px solid #1f8f7c66;background:linear-gradient(160deg,#0a544866,#04201bcc);color:#d2efe9;transition:transform .18s ease,border-color .18s ease,box-shadow .25s ease}
+#rmenu .rhead .h.card i{font-style:normal;font-size:16px;line-height:1}
+#rmenu .rhead .h.card b{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#rmenu .rhead .h.card small{font-size:10px;color:#8ec7b8}
 #rmenu .rhead .h.card.cur{border-color:#3dc9ae;background:linear-gradient(160deg,#0f9c85aa,#0a5448cc);color:#fff}
 #rmenu .rhead .h.card.sel{transform:scale(1.07);border-color:#f5b04c;box-shadow:0 0 0 4px rgba(245,176,76,.3)}
 #rmenu .rhead .h.card.glow{animation:cardglow 1.05s ease-out}
@@ -103,3 +103,18 @@ body.rcv #msg{position:absolute;bottom:150px;inset-inline:0;text-align:center;z-
 #favbadge{display:none;position:fixed;top:max(14px,env(safe-area-inset-top,0px));inset-inline-end:var(--w-safe,24px);z-index:60;padding:5px 14px;border-radius:999px;background:rgba(40,22,4,.82);border:1px solid rgba(241,166,92,.6);color:#f5c98a;font-size:clamp(12px,1.3vw,16px);font-weight:700;pointer-events:none}
 body.rcv.favmode:not(.menu) #favbadge{display:block}
 @media (prefers-reduced-motion:reduce){#rmenu .rhead .h.card.glow{animation:none}}
+
+/* ===== شريط علوي مبسّط: الشعار والاسم والمصدر يميناً، الساعة والتاريخ يساراً ===== */
+#rmenu .mh{display:flex;align-items:center;gap:12px}
+#rmenu .mh .app-name{font-size:clamp(17px,2vw,24px);font-weight:800;color:#fff;letter-spacing:.3px}
+#rmenu .mh .source-name{max-width:34vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:3px 14px;border-radius:999px;background:rgba(61,201,174,.14);border:1px solid rgba(61,201,174,.4);color:#7ff3dc;font-size:clamp(12px,1.3vw,16px);font-weight:700}
+#rmenu .mh .mdt{margin-inline-start:auto;display:flex;align-items:baseline;gap:12px;direction:ltr;white-space:nowrap}
+#rmenu .mh .mdt .mc{font-size:clamp(18px,2vw,26px);font-weight:800;color:#fff}
+#rmenu .mh .mdt .md{direction:rtl;font-size:clamp(11px,1.2vw,15px);color:#9fcfc6}
+/* أرقام القنوات أصغر + خيار شكل الصف (رقم / شعار / معاً) */
+#rmenu .r:not(.pn) .n{min-width:50px;font-size:14px;padding:0 5px}
+#rmenu[data-rs="logo"] .r:not(.pn) .n{display:none}
+#rmenu[data-rs="num"] .r:not(.pn) .t img{display:none}
+/* شريط الشرح السفلي أصغر */
+#rmenu #rhint{padding-block:4px;gap:4px 10px;font-size:12px;min-height:0}
+#rmenu #rhint span{padding:2px 9px;font-size:12px}

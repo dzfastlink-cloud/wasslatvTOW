@@ -52,3 +52,11 @@ body.stprev #player{background:transparent!important}
 #st .srow.para{align-items:flex-start}
 #st .srow.para.small{justify-content:center}
 #st .srow.para.small .sl{font-size:14px;font-weight:600;color:#9fcfc6;text-align:center;text-decoration:underline}
+
+/* حول التطبيق: كل المحتوى ظاهر بلا تحريك */
+#st .stb.about{overflow-y:hidden;gap:0}
+#st .stb.about .srow{padding-block:8px}
+#st .stb.about .srow .sl{font-size:18px}
+#st .stb.about .srow.para .sl{font-size:14px;line-height:1.6}
+#st .stb.about .srow.para.small .sl{font-size:13px}
+#st .stb.about .sep{padding:8px 8px 2px;font-size:14px}

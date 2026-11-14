@@ -309,9 +309,10 @@ function render(){
   else if(g.startsWith('__k_')){const k=g.slice(4);base=items.filter(i=>detectKind(i)===k)}
   else if(g)base=items.filter(i=>(i.group||'بدون مجموعة')===g);
   // واجهة القنوات للبث المباشر فقط: الأفلام والمسلسلات تُعرض في المكتبة
-  if(document.body.classList.contains('rcv')&&!g.startsWith('__k_'))base=base.filter(i=>{const k=detectKind(i);return k!=='movie'&&k!=='series'});
+  if(document.body.classList.contains('rcv')&&!g.startsWith('__k_'))base=base.filter(i=>{const k=i._k||(i._k=detectKind(i));return k!=='movie'&&k!=='series'});
   shown=base.filter(i=>!q||i.name.toLowerCase().includes(q));
   $('count').textContent='يعرض '+shown.length+' من '+items.length;
+  if(document.body.classList.contains('rcv')){favBtn();return}   // قائمة الصفحة مخفية في وضع الريسيفر: لا حاجة لبناء مئات العناصر عند كل تبديل
   const box=$('list');box.textContent='';
   const frag=document.createDocumentFragment();
   shown.slice(0,1500).forEach(it=>{

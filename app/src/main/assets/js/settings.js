@@ -46,7 +46,7 @@
   let sec='general',nf=false;
   function show(t,rows,keep){
     if(!wantPv)pvStop();wantPv=false;
-    title.textContent=t;body.textContent='';
+    title.textContent=t;body.textContent='';body.classList.remove('about');
     rows.forEach(r=>{
       if(r.sep!==undefined){const d=document.createElement('div');d.className='sep';d.textContent=r.sep;body.appendChild(d);return}
       if(r.para!==undefined){const b=document.createElement('button');b.type='button';b.className='srow para'+(r.small?' small':'');b.innerHTML='<span class="sx"><b class="sl"></b></span>';b.querySelector('.sl').textContent=r.para;b.onclick=()=>{if(r.run)r.run()};body.appendChild(b);return}
@@ -74,6 +74,7 @@
     {id:'sources',icon:'📂',t:'المصادر',fn:sources},
     {id:'channels',icon:'✎',t:'القنوات',fn:channelsSec},
     {id:'library',icon:'🎬',t:'المكتبة',fn:librarySec},
+    {id:'storage',icon:'💾',t:'التخزين',fn:storageSec},
     {id:'backup',icon:'☁',t:'نسخ احتياطي',fn:backupSec},
     {id:'reset',icon:'↺',t:'إعادة تعيين',fn:resetSec},
     {id:'about',icon:'ℹ',t:'حول',fn:about}
@@ -141,9 +142,19 @@
     ],keep);
   }
   function channelsSec(keep){
+    const RS=[['both','الاسم + الرقم + الشعار'],['num','الاسم + الرقم'],['logo','الاسم + الشعار']],rcur=LS.get('m3u_rowstyle','both'),ri=Math.max(0,RS.findIndex(x=>x[0]===rcur));
     show('القنوات',[
+      {icon:'🔤',label:'شكل صف القناة في القائمة',sub:'الاسم مع الرقم، أو مع الشعار، أو معاً',val:RS[ri][1],run:()=>{LS.set('m3u_rowstyle',RS[(ri+1)%RS.length][0]);rerender()}},
       {icon:'✎',label:'تعديل القنوات',sub:'الاسم · الرابط · المجموعة · الرقم · الترتيب · الحذف',run:()=>push(editorPick)},
       {icon:'🔎',label:'البحث عن ملفات جديدة',sub:'قوائم M3U جديدة على الجهاز',run:()=>push(scanScreen)}
+    ],keep);
+  }
+  /* التخزين: وجهة ملفات التطبيق تظهر أولاً */
+  function storageSec(keep){
+    show('التخزين',[
+      {sep:'وجهة الملفات'},
+      {icon:'📍',label:'مجلد الملفات',sub:(A&&A.appDir)?A.appDir():'—',run:()=>{}},
+      {para:'النسخ الاحتياطية وملفات التصدير تُحفظ في هذا المجلد.'}
     ],keep);
   }
   function librarySec(keep){
@@ -665,14 +676,13 @@
   function about(keep){
     show('حول التطبيق',[
       {icon:'▶',label:'وصلة TV',sub:'الإصدار '+((A&&A.version)?A.version():APP_VERSION),run:()=>{}},
+      {icon:'🌐',label:'زيارة موقع التطبيق',sub:SITE,run:()=>openLink(SITE)},
       {sep:'إخلاء المسؤولية'},
       {para:DISCLAIMER},
-      {sep:'موقع التطبيق'},
-      {icon:'🌐',label:'زيارة موقع التطبيق',sub:SITE,run:()=>openLink(SITE)},
-      {icon:'📍',label:'مجلد الملفات',sub:(A&&A.appDir)?A.appDir():'—',run:()=>{}},
-      {sep:'لاسترجاع نسخة احتياطية: إضافة مصدر ← من ملف، أو البحث التلقائي.'},
+      {para:'لاسترجاع نسخة احتياطية: إضافة مصدر ← من ملف، أو البحث التلقائي.'},
       {para:'جميع الحقوق محفوظة DZ-fastlink',small:true,run:()=>openLink(DZ)}
     ],keep);
+    body.classList.add('about');   /* تخطيط مضغوط: كل المحتوى ظاهر بلا تحريك */
   }
 
   /* تعديل سريع لقناة من قائمة المشاهدة (INFO أو الزر الأصفر) */
