@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="css/polish.css">
 <link rel="stylesheet" href="css/look.css">
 <link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/addsrc.css">
 <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
@@ -121,6 +122,13 @@
   <div class="vhero" id="vodh"><img id="vpimg" alt=""><div class="vhtxt"><b id="vpt"></b><small id="vps"></small></div><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
   <div class="vbody" id="vodb"></div>
 </div>
+<dialog id="addsrc" data-nav="grid">
+  <div class="as-head"><h3>إضافة القائمة</h3><p>اختر طريقة الاتصال، ويمكنك إعادة تسميتها لاحقاً.</p></div>
+  <div class="as-grid" id="asg" role="radiogroup"></div>
+  <div class="as-form" id="asf"></div>
+  <div class="as-msg" id="asm" aria-live="polite"></div>
+  <div class="as-foot"><button type="button" id="asadd" disabled>إضافة القائمة</button><button type="button" class="alt" id="ascan">إلغاء</button><span class="as-sp"></span><button type="button" class="alt" id="asclr">مسح</button></div>
+</dialog>
 <dialog id="kb" data-nav="grid">
   <h3 id="kbt"></h3>
   <div class="kbv" id="kbv"></div>
@@ -236,7 +244,9 @@
 <script src="js/loading.js"></script>
 <script src="js/quickpanel.js"></script>
 <script src="js/keyboard.js"></script>
+<script src="js/http.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/addsrc.js"></script>
 <script src="js/xtream.js"></script>
 <script src="js/xtream-txt.js"></script>
 <script src="js/vod-model.js"></script>

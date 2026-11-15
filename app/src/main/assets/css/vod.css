@@ -27,26 +27,26 @@ body.cine-play #vod{display:none!important}
 #vod .vbody.home{display:flex;overflow:hidden;padding-bottom:0}
 #vod .vmain{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:auto;overscroll-behavior:contain}
 /* عمود التصنيفات الجانبي */
-#vod .vside{flex:0 0 clamp(210px,24%,330px);overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 24px;background:#04120fd9;border-inline-end:1px solid #1f8f7c66}
-#vod .vsi{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:3px;border-radius:12px;border:2px solid transparent;font-size:17px;cursor:pointer;color:#d2efe9}
+#vod .vside{flex:0 0 clamp(190px,21%,290px);overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 24px;background:#04120fd9;border-inline-end:1px solid #1f8f7c66}
+#vod .vsi{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:2px;border-radius:11px;border:2px solid transparent;font-size:15px;cursor:pointer;color:#d2efe9}
 #vod .vsi span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#vod .vsi em{font-style:normal;flex:none;min-width:38px;text-align:center;padding:1px 8px;border-radius:999px;background:#ffffff1a;font-size:13px;color:#9fcfc6}
+#vod .vsi em{font-style:normal;flex:none;min-width:34px;text-align:center;padding:0 7px;border-radius:999px;background:#ffffff1a;font-size:12px;color:#9fcfc6}
 #vod .vsi.first{margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid #1f8f7c66;border-radius:12px 12px 0 0}
 #vod .vsi.on{background:#0a544899;color:#fff;font-weight:800}
 #vod .vsi.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);color:#04201b;border-color:#f5b04c;font-weight:800}
 #vod .vsi.sel em{background:#04201b33;color:#04201b}
 /* شبكة ملصقات 2:3 — عنوان تحت الملصق وشارة تقييم؛ بلا تمويه ولا ظلال ثقيلة (أخف على صناديق Android TV) */
-#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:24px 16px;padding:18px 24px 30px;align-content:start}
+#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:18px 12px;padding:16px 20px 28px;align-content:start}
 #vod .vc{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0;width:auto;height:auto;border:0;border-radius:0;background:none;overflow:visible;cursor:pointer}
 #vod .vp{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#0e7c6b,#0a3b34)}
 #vod .vp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .2s}
 #vod .vp img.ld{opacity:1}
-#vod .vc.noimg .vp::before{content:attr(data-i);position:absolute;inset:0;display:grid;place-items:center;font-size:46px;font-weight:800;color:#ffffff66}
-#vod .vr{position:absolute;top:8px;right:8px;z-index:2;display:inline-flex;align-items:center;gap:4px;padding:2px 9px 2px 8px;border-radius:9px;background:#081412d1;color:#fff;font-size:14px;font-weight:700;direction:ltr;line-height:1.5}
+#vod .vc.noimg .vp::before{content:attr(data-i);position:absolute;inset:0;display:grid;place-items:center;font-size:38px;font-weight:800;color:#ffffff66}
+#vod .vr{position:absolute;top:6px;right:6px;z-index:2;display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:8px;background:#081412d1;color:#fff;font-size:12.5px;font-weight:700;direction:ltr;line-height:1.5}
 #vod .vr::before{content:"★";color:#4ade80;font-size:12px}
 #vod .vp i{position:absolute;top:8px;left:8px;z-index:2;font-style:normal;font-size:11px;font-weight:800;background:#f5b04c;color:#04201b;border-radius:7px;padding:2px 8px}
 #vod .vp .vprogress{position:absolute;inset-inline:0;bottom:0;height:5px;background:linear-gradient(to right,#f5b04c var(--progress),#ffffff55 var(--progress));z-index:2}
-#vod .vc .vn{position:static;padding:0;max-height:none;background:none;font-size:15.5px;line-height:1.4;text-align:center;color:#d2efe9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em;word-break:break-word}
+#vod .vc .vn{position:static;padding:0;max-height:none;background:none;font-size:13.5px;line-height:1.4;text-align:center;color:#d2efe9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em;word-break:break-word}
 #vod .vc.sel .vp{transform:translateY(-5px);outline:3px solid #f5b04c;outline-offset:3px}
 #vod .vc.sel .vn{color:#f5b04c;font-weight:800}
 #vod .vc.sel{transform:none;border:0;box-shadow:none}

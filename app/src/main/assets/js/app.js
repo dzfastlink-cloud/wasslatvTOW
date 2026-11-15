@@ -101,7 +101,10 @@ function merge(oldI,newI,strict){
 }
 function setMsg(t,err){const m=$('msg');m.textContent=t||'';m.className=err?'err':'';m.style.color = err ? '#c4452d' : '#fff';}
 function saveLists(){return DB.set('lists',{lists,active}).catch(()=>{})}
-async function getText(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return await r.text()}
+async function getText(u,ua){
+  if(ua&&window.__httpGet){const r=await window.__httpGet(u,{'User-Agent':ua});if(!r.ok)throw 0;return r.body}
+  const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return await r.text()
+}
 
 async function syncFavList(){
   const storedMeta=LS.get('m3u_fav_meta',{});
@@ -277,7 +280,7 @@ async function fetchListUpdate(id){
   if(!l)throw new Error('لا توجد قائمة لتحديثها');
   if(!l.url)throw new Error('«'+l.name+'» بلا رابط تحديث');
   setMsg('جارٍ تحديث «'+l.name+'»...');
-  const items=parseM3U(await getText(l.url));
+  const items=parseM3U(await getText(l.url,l.ua));
   if(!items.length)throw new Error('لم يحتوِ الرابط على قنوات صالحة');
   return {id,kind:'url',sourceKey:l.url,items,remoteText:ser(items)};
 }

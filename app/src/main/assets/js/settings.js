@@ -109,11 +109,12 @@
   function setTop(fn,keep){stack[stack.length-1]=fn;fn(keep)}
   function open(which){
     st.classList.add('on');sec=(which==='sources'||which==='addsource')?'sources':'general';stack=[home];home();
-    if(which==='addsource')push(addScreen);
+    if(which==='addsource'&&window.__addSource)window.__addSource();else if(which==='addsource')push(addScreen);
     if(!LS.get('m3u_tip_settings',false)){LS.set('m3u_tip_settings',true);toast('استخدم قسم المصادر لإدارة القوائم، وقسم التشغيل لضبط تجربة المشاهدة.')}
   }
   function close(){pvStop();st.classList.remove('on');stack=[];if(document.activeElement)document.activeElement.blur()}
   window.__openSettings=open;
+  window.__stRefresh=()=>{if(st.classList.contains('on')){stack=[home];home()}};
   window.__stOn=()=>st.classList.contains('on');
   window.__stToast=toast;
   window.__stBack=function(){if(!st.classList.contains('on'))return false;back();return true};
@@ -210,7 +211,7 @@
       sub:(l.n||0)+' قناة'+(l.url?' · من رابط':''),
       run:()=>push(k=>source(l.id,k))
     }));
-    rows.push({sep:''},{icon:'➕',label:'إضافة مصدر جديد',sub:'ملف · رابط M3U · Xtream',run:()=>push(addScreen)});
+    rows.push({sep:''},{icon:'➕',label:'إضافة مصدر جديد',sub:'رابط M3U · ملف · حساب Xtream',run:()=>{if(window.__addSource)window.__addSource();else push(addScreen)}});
     if(user().length)rows.push({icon:'🗑',label:'حذف مصدر',sub:'اختر المصدر المراد حذفه (حتى المدمج)',danger:true,run:()=>push(delPick)});
     if(!lists.find(x=>x.id==='builtin')&&window.__chRestore)rows.push({icon:'↺',label:'استعادة القائمة المدمجة',sub:'القنوات المضمّنة مع التطبيق',run:async()=>{toast('جارٍ الاستعادة…');const ok=await window.__chRestore();toast(ok?'تمت الاستعادة':'تعذّر تحميل القائمة المدمجة');rerender()}});
     show('المصادر',rows,keep);
