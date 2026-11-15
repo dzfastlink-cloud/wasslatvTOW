@@ -114,3 +114,5 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 #vod .vp img{top:0;left:0;right:0;bottom:0}
 #vod .vc.noimg .vp::before{top:0;left:0;right:0;bottom:0}
 #vod .vp .vprogress{left:0;right:0}
+
+#vod .vver{font-size:11px;color:#ffffffa6;white-space:nowrap;margin-inline-start:12px}

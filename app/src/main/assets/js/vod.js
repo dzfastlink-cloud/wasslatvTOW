@@ -568,6 +568,7 @@
     tok++;stopAll();
     el.classList.add('on');B.classList.add('vod');
     zone='rows';screen='home';cat='';sideIdx=0;tabsEl.textContent='';
+    $('vver').textContent='نسخة '+(typeof APP_VERSION!=='undefined'?APP_VERSION:'')+' · شبكة';
     msgBody('جارٍ تحليل المكتبة…');
     build().then(()=>{idxRows();paintHome()}).catch(()=>msgBody('تعذّر تحليل المكتبة'));
   }
