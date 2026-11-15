@@ -106,3 +106,11 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 :root[data-eff="light"] #vod .vsi.first{border-bottom-color:rgba(14,124,107,.22)}
 :root[data-eff="light"] #vod .vcount{color:#27514b}
 @media (max-width:700px){#vod .vside{flex-basis:38%}}
+
+/* ---- توافق مع WebView قديم على صناديق Android TV (بدون aspect-ratio أو inset) ---- */
+@supports not (aspect-ratio:2/3){
+  #vod .vp{height:0;padding-top:150%}
+}
+#vod .vp img{top:0;left:0;right:0;bottom:0}
+#vod .vc.noimg .vp::before{top:0;left:0;right:0;bottom:0}
+#vod .vp .vprogress{left:0;right:0}
