@@ -14,7 +14,6 @@
     const settingsOpen=!!(window.__stOn&&__stOn());
     const qpOpen=!!(window.__qpOn&&__qpOn());
     const vodOpen=!!(window.__vodOn&&__vodOn());
-    if(window.__cmOn&&__cmOn()){lastLiveBack=0;if(window.__cmBack&&__cmBack())return true}
     // الضغط المزدوج من شاشة المشاهدة يخرج حتى لو فتحت قائمة الخيارات بالضغطة الأولى.
     if((receiver.on||settingsOpen||qpOpen)&&lastLiveBack&&now-lastLiveBack<WINDOW){lastLiveBack=0;return 'exit'}
     if(qpOpen){lastLiveBack=0;__quickClose();return true}

@@ -74,7 +74,6 @@
 
   document.addEventListener('keydown',e=>{
     if(window.__vodOn&&window.__vodOn())return;
-    if(window.__cmOn&&window.__cmOn())return;
     const r=root();
     if((B.classList.contains('rcv')&&!r)||B.classList.contains('cine-play'))return;
     if(e.ctrlKey||e.altKey||e.metaKey)return;

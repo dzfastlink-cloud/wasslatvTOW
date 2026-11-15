@@ -23,13 +23,10 @@
 <link rel="stylesheet" href="css/idle.css">
 <link rel="stylesheet" href="css/polish.css">
 <link rel="stylesheet" href="css/look.css">
-<link rel="stylesheet" href="css/addsrc.css">
-<link rel="stylesheet" href="css/chman.css">
-<link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-<script>if(window.Android)document.documentElement.classList.add('droid');(function(){var h=document.documentElement,t='auto';try{t=JSON.parse(localStorage.getItem('m3u_theme'))||'auto'}catch(e){}var e=t;if(t!=='light'&&t!=='dark'){e=(window.Android&&Android.isTv&&Android.isTv())?'dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}h.setAttribute('data-eff',e)})()</script>
-<div id="splash" aria-hidden="true"><div class="sp-glow"></div><div class="sp-grid"></div><div class="sp-stage"><div class="sp-ring r1"></div><div class="sp-ring r2"></div><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="sl-mark" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="slg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#slg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></div></div><div class="sp-bar"><i></i></div></div>
+<script>if(window.Android)document.documentElement.classList.add('droid')</script>
+<div id="splash"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="sl-mark" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="slg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#slg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></div><div class="sl-t">وصلة <b>TV</b></div><div class="sl-v" id="slv"></div></div>
 <div id="qp"><div class="qpt">القائمة السريعة</div><div class="qpr" id="qpr"></div><div class="qpi"><span id="qpsrc">المصدر</span><span id="qpchannel">القناة</span><span id="qpfav">المفضلة</span></div><div class="qph">← → تنقل · OK اختيار · رجوع: إغلاق (مرتان = خروج)</div></div>
 <div id="lhint"></div>
 
@@ -103,33 +100,15 @@
 </main>
 <footer>© 2026 DZ fastlink — جميع الحقوق محفوظة · تصميم <b>dahman atallaoui</b> · الإصدار <span id="fv"></span></footer>
 <div id="st">
-  <div class="sth"><span class="stmark"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="currentColor" opacity=".25"></rect><path d="M12 9v14l11-7z" fill="currentColor"></path></svg></span><span class="stt" id="stt">الإعدادات</span><span class="stm" id="stm"></span><button type="button" class="alt" id="stback">→ رجوع</button></div>
+  <div class="sth"><span class="stt" id="stt">الإعدادات</span><span class="stm" id="stm"></span><button type="button" class="alt" id="stback">→ رجوع</button></div>
   <div class="stw"><nav class="snv" id="stnav"></nav><div class="stb" id="stb"></div></div>
   <div class="stpv" id="stpv"><span>معاينة البث</span></div>
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
 <div id="vod">
-  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><span class="vsrc" id="vsrc"></span><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
-  <div class="vbar" id="vbar"></div>
+  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
+  <div class="vhero" id="vodh"><img id="vpimg" alt=""><div><b id="vpt"></b><small id="vps"></small></div></div>
   <div class="vbody" id="vodb"></div>
-  <div class="vinfo" id="vinfo"><b id="vit"></b><small id="vis"></small><span class="vsp"></span><span class="vhint" id="vhint"></span></div>
-  <div class="vpick" id="vpick"><div class="vpbox"><div class="vpt" id="vpt"></div><div class="vpl" id="vpl"></div></div></div>
-</div>
-<dialog id="addsrc" data-nav="grid">
-  <div class="as-head"><h3>إضافة القائمة</h3><p>اختر طريقة الاتصال، ويمكنك إعادة تسميتها لاحقاً.</p></div>
-  <div class="as-grid" id="asg" role="radiogroup"></div>
-  <div class="as-form" id="asf"></div>
-  <div class="as-msg" id="asm" aria-live="polite"></div>
-  <div class="as-foot"><button type="button" id="asadd" disabled>إضافة القائمة</button><button type="button" class="alt" id="ascan">إلغاء</button><span class="as-sp"></span><button type="button" class="alt" id="asclr">مسح</button></div>
-</dialog>
-<div id="cm">
-  <div class="cmh"><span class="cmmark"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="currentColor" opacity=".18"></rect><path d="M12 9v14l11-7z" fill="currentColor"></path></svg></span><span class="cmt" id="cmt">إدارة القنوات</span><span class="cmsub" id="cmsub"></span><span class="cmsp"></span><span class="cmst" id="cmst"></span><button type="button" class="alt" id="cmdone">✔ تم</button></div>
-  <div class="cmb">
-    <section class="cmp" id="cmgp"><div class="cmph"><b>المجموعات</b><small id="cmgc"></small></div><div class="cmlist" id="cmgl"></div></section>
-    <section class="cmp" id="cmcp"><div class="cmph"><b id="cmcn">القنوات</b><small id="cmcc"></small></div><div class="cmlist" id="cmcl"></div></section>
-  </div>
-  <div class="cmf" id="cmf"></div>
-  <div class="cmenu" id="cmenu"><div class="cmbox"><div class="cmmt" id="cmmt"></div><div class="cmml" id="cmml"></div></div></div>
 </div>
 <dialog id="kb" data-nav="grid">
   <h3 id="kbt"></h3>
@@ -185,9 +164,9 @@
   <div class="sec" style="border-top:1px dashed var(--line); padding-top:10px;">
     <h4>🔗 إضافة سيرفر Extreme (Xtream Codes)</h4>
     <div class="lrow">
-      <input id="xt_host" type="text" value="" placeholder="رابط السيرفر (مثال: http://domain.com:8080)" dir="ltr">
-      <input id="xt_user" type="text" value="" placeholder="اسم المستخدم" dir="ltr">
-      <input id="xt_pass" type="text" value="" placeholder="كلمة المرور" dir="ltr">
+      <input id="xt_host" type="text" value="http://live.lynxiptv.xyz" placeholder="رابط السيرفر (مثال: http://domain.com:8080)" dir="ltr">
+      <input id="xt_user" type="text" value="781150196435" placeholder="اسم المستخدم" dir="ltr">
+      <input id="xt_pass" type="text" value="pBixhRPeaU" placeholder="كلمة المرور" dir="ltr">
       <button class="btn" id="xt_add">إضافة السيرفر</button>
     </div>
   </div>
@@ -247,9 +226,6 @@
 <script src="js/settings.js"></script>
 <script src="js/xtream.js"></script>
 <script src="js/xtream-txt.js"></script>
-<script src="js/stalker.js"></script>
-<script src="js/addsrc.js"></script>
-<script src="js/chman.js"></script>
 <script src="js/vod.js"></script>
 <script src="js/newfiles.js"></script>
 <script src="js/idle.js"></script>

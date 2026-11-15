@@ -250,7 +250,7 @@
   document.addEventListener('mousemove',()=>{if(!on)return;rx.classList.add('on');clearTimeout(xT);xT=setTimeout(()=>rx.classList.remove('on'),3000)});
   document.addEventListener('keydown',e=>{
     const t=e.target.tagName;
-    if(/INPUT|TEXTAREA|SELECT/.test(t)||document.querySelector('dialog[open]')||stOn()||(window.__cmOn&&window.__cmOn())||(window.__vodOn&&window.__vodOn())||(window.__qpOn&&window.__qpOn())||e.ctrlKey||e.altKey||e.metaKey)return;
+    if(/INPUT|TEXTAREA|SELECT/.test(t)||document.querySelector('dialog[open]')||stOn()||(window.__vodOn&&window.__vodOn())||(window.__qpOn&&window.__qpOn())||e.ctrlKey||e.altKey||e.metaKey)return;
     const k=/^(OK|Select)$/.test(e.key)?'Enter':e.key,stop=()=>{e.preventDefault();e.stopPropagation()};
     if(/^[0-9]$/.test(k)){stop();digit(k);return}
     if(!on)return;

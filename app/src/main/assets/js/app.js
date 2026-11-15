@@ -74,10 +74,7 @@ function merge(oldI,newI,strict){
 }
 function setMsg(t,err){const m=$('msg');m.textContent=t||'';m.className=err?'err':'';m.style.color = err ? '#c4452d' : '#fff';}
 function saveLists(){return DB.set('lists',{lists,active}).catch(()=>{})}
-async function getText(u,ua){
-  if(ua&&window.__httpGet){const r=await window.__httpGet(u,{'User-Agent':ua});if(!r.ok)throw 0;return r.body}
-  const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return await r.text()
-}
+async function getText(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return await r.text()}
 
 async function syncFavList(){
   const storedMeta=LS.get('m3u_fav_meta',{});
@@ -107,25 +104,10 @@ async function syncFavList(){
 }
 
 const MODES=['auto','light','dark'],MTXT={auto:'🌓 تلقائي',light:'☀ نهاري',dark:'🌙 ليلي'};
-let theme=LS.get('m3u_theme','auto');if(MODES.indexOf(theme)<0)theme='auto';
-/* السمة الفعلية: «تلقائي» تتبع نظام الجهاز على الهاتف، وتبقى ليلية على التلفاز (لا يوجد وضع نهاري للتلفاز في النظام) */
-function effTheme(){
-  if(theme!=='auto')return theme;
-  if(window.Android&&Android.isTv&&Android.isTv())return 'dark';
-  try{return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){return 'dark'}
-}
-function applyTheme(){
-  const h=document.documentElement,e=effTheme();
-  if(theme==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',theme);
-  h.setAttribute('data-eff',e);                     // كل الشاشات تقرأ هذه السمة (ليلي/نهاري) لا اختيار المستخدم الخام
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=e==='light'?'#e9f3f1':'#030d0b';
-  $('theme').textContent=MTXT[theme];
-  document.dispatchEvent(new CustomEvent('themechange',{detail:{theme,eff:e}}));
-}
-function setTheme(t){if(MODES.indexOf(t)<0)return;theme=t;LS.set('m3u_theme',theme);applyTheme()}
-function cycleTheme(){setTheme(MODES[(MODES.indexOf(theme)+1)%3])}
+let theme=LS.get('m3u_theme','auto');
+function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);$('theme').textContent=MTXT[theme]}
+function cycleTheme(){theme=MODES[(MODES.indexOf(theme)+1)%3];LS.set('m3u_theme',theme);applyTheme()}
 $('theme').onclick=cycleTheme;applyTheme();
-try{const mq=matchMedia('(prefers-color-scheme: light)');(mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(()=>{if(theme==='auto')applyTheme()})}catch(e){}
 
 function fillLists(){
   const visible=lists.filter(l=>l.id!==FAV_LIST_ID||l.n>0);
@@ -218,7 +200,7 @@ async function updateList(id){
   if(!l.url){setMsg('«'+l.name+'» بلا رابط تحديث.',true);return}
   setMsg('جارٍ تحديث «'+l.name+'»...');
   try{
-    const n=parseM3U(await getText(l.url,l.ua));if(!n.length)throw 1;
+    const n=parseM3U(await getText(l.url));if(!n.length)throw 1;
     const old=parseM3U(l.text),had=new Set(old.map(i=>i.url));
     const out=merge(old,n,false);
     l.text=ser(out);l.n=out.length;l.upd=Date.now();await saveLists();
@@ -298,7 +280,7 @@ function stopAll(){
 }
 function modesFor(u){
   if(/\.m3u8?(\?|$)/i.test(u))return['hls','native','mpegts'];
-  if(/\.(ts|flv)(\?|$)/i.test(u)||/(play_token|\/live\/)/i.test(u))return['mpegts','hls','native'];
+  if(/\.(ts|flv)(\?|$)/i.test(u))return['mpegts','hls','native'];
   return['native','hls','mpegts'];
 }
 function play(it){
@@ -318,20 +300,7 @@ function play(it){
     setTimeout(() => { osd.style.display = 'none'; }, 3000); // إخفاء بعد 3 ثواني
   }
 
-  const v=$('v'),my=++tok;
-  /* روابط Stalker مؤقتة: تُحوَّل إلى رابط بث فعلي لحظة التشغيل (stalker.js) */
-  if(/^stalker:\/\//i.test(it.url)&&window.__resolveUrl){
-    setMsg('جارٍ فتح القناة…');
-    window.__resolveUrl(it.url).then(u=>{
-      if(my!==tok)return;
-      if(!u){setMsg('تعذّر فتح هذه القناة من بوابة Stalker. تحقق من الاشتراك أو أعد المحاولة.',true);return}
-      setMsg('');start(u);
-    });
-    markOn();return;
-  }
-  start(it.url);
-  function start(U){
-  const modes=modesFor(U);let i=0;
+  const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0;
   const next=()=>{
     if(my!==tok)return;
     if(i>=modes.length){setMsg('تعذر تشغيل هذا الرابط. قد يكون متوقفاً أو محجوباً أو بصيغة لا يدعمها المتصفح.',true);return}
@@ -340,21 +309,20 @@ function play(it){
     try{
       if(m==='hls'){
         if(!(window.Hls&&Hls.isSupported()))return next();
-        hls=new Hls();hls.loadSource(U);hls.attachMedia(v);
+        hls=new Hls();hls.loadSource(it.url);hls.attachMedia(v);
         hls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal)fail()});
       }else if(m==='mpegts'){
         if(!(window.mpegts&&mpegts.isSupported()))return next();
-        mp=mpegts.createPlayer({type:/\.flv(\?|$)/i.test(U)?'flv':'mpegts',isLive:true,url:U});
+        mp=mpegts.createPlayer({type:/\.flv(\?|$)/i.test(it.url)?'flv':'mpegts',isLive:true,url:it.url});
         mp.attachMediaElement(v);mp.load();
         mp.on(mpegts.Events.ERROR,fail);
       }else{
-        v.onerror=fail;v.src=U;
+        v.onerror=fail;v.src=it.url;
       }
       v.play().catch(()=>{});
     }catch(e){fail()}
   };
   next();markOn();
-  }
 }
 function step(d){
   if(!shown.length)return;
@@ -399,7 +367,7 @@ resumeChk.onchange=e=>LS.set('m3u_resume',e.target.checked);
 
 document.addEventListener('keydown',e=>{
   const t=e.target.tagName;
-  if(/INPUT|TEXTAREA|SELECT/.test(t)||document.querySelector('dialog[open]')||(window.__cmOn&&window.__cmOn())||e.ctrlKey||e.altKey||e.metaKey)return;
+  if(/INPUT|TEXTAREA|SELECT/.test(t)||document.querySelector('dialog[open]')||e.ctrlKey||e.altKey||e.metaKey)return;
   const k=e.key.toLowerCase(),v=$('v');
   if(k==='f')fs();
   else if(k==='p')pip();
@@ -481,7 +449,7 @@ let gT;$('grp').onchange=()=>{clearTimeout(gT);gT=setTimeout(render,80)};
 document.addEventListener('drop',e=>{const a=[...e.dataTransfer.files];a.length&&addFiles(a)});
 
 /* ---------- فحص التحديثات من المدونة ---------- */
-const APP_VERSION=(window.Android&&Android.version())||'15.4.0';
+const APP_VERSION=(window.Android&&Android.version())||'15.3.0';
 const UPDATE_PAGE='https://wasslatv.blogspot.com/p/version.html';
 
 $('ver').textContent=APP_VERSION;$('ver2').textContent=APP_VERSION;$('fv').textContent=APP_VERSION;
