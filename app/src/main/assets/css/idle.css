@@ -22,5 +22,7 @@ body.menu #ldg{display:none!important}
 #ldg.bad .ldr::after{content:"!";position:absolute;inset:0;display:grid;place-items:center;font-size:26px;font-weight:800;color:#e5484d}
 #ldg.bad .lds{color:#ffd1d1}
 #ldg.bad .ldh{display:none}
+#ldgb{display:none;position:absolute;inset-inline-start:50%;bottom:calc(var(--w-safe) + 10px);transform:translateX(-50%);z-index:38;min-width:170px;min-height:48px;padding:8px 18px;border:1px solid #3dc9ae;border-radius:999px;background:#04201b;color:#fff;font-size:17px}
+#ldg.bad~#ldgb{display:block}
 @keyframes ldspin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){#ldg .ldr{animation:none}}

@@ -2,7 +2,7 @@
    المصادر · إضافة مصدر · تعديل القنوات · البحث عن ملفات جديدة · مكتبة الأفلام · حول */
 (function(){
   const st=$('st'),body=$('stb'),title=$('stt'),msg=$('stm'),A=window.Android;
-  let stack=[],tt;
+  let stack=[],tt,pendingReviewCancel=null;
   const toast=t=>{msg.textContent=t||'';clearTimeout(tt);tt=setTimeout(()=>{msg.textContent=''},4000)};
   const user=()=>lists.filter(l=>l.id!==FAV_LIST_ID);
   const rowsEls=()=>[...body.querySelectorAll('.srow')];
@@ -46,7 +46,7 @@
   let sec='general',nf=false;
   function show(t,rows,keep){
     if(!wantPv)pvStop();wantPv=false;
-    title.textContent=t;body.textContent='';
+    title.textContent=t;body.textContent='';body.classList.remove('about');
     rows.forEach(r=>{
       if(r.sep!==undefined){const d=document.createElement('div');d.className='sep';d.textContent=r.sep;body.appendChild(d);return}
       if(r.para!==undefined){const b=document.createElement('button');b.type='button';b.className='srow para'+(r.small?' small':'');b.innerHTML='<span class="sx"><b class="sl"></b></span>';b.querySelector('.sl').textContent=r.para;b.onclick=()=>{if(r.run)r.run()};body.appendChild(b);return}
@@ -69,9 +69,12 @@
   }
   const SECS=[
     {id:'general',icon:'⚙',t:'عام',fn:general},
+    {id:'playback',icon:'▶',t:'التشغيل',fn:playbackSec},
+    {id:'appearance',icon:'🎨',t:'المظهر',fn:appearanceSec},
     {id:'sources',icon:'📂',t:'المصادر',fn:sources},
     {id:'channels',icon:'✎',t:'القنوات',fn:channelsSec},
     {id:'library',icon:'🎬',t:'المكتبة',fn:librarySec},
+    {id:'storage',icon:'💾',t:'التخزين',fn:storageSec},
     {id:'backup',icon:'☁',t:'نسخ احتياطي',fn:backupSec},
     {id:'reset',icon:'↺',t:'إعادة تعيين',fn:resetSec},
     {id:'about',icon:'ℹ',t:'حول',fn:about}
@@ -91,13 +94,22 @@
     stack.push(fn);fn();
   }
   function back(){
+    if(pendingReviewCancel){
+      const cancel=pendingReviewCancel;
+      if(!cancel())return;
+      pendingReviewCancel=null;
+    }
     stack.pop();
     const f=stack[stack.length-1];
     if(f)f(f.keep);else close();
   }
   function rerender(){const f=stack[stack.length-1];if(f){f.keep=focusIdx();f(f.keep)}}
   function setTop(fn,keep){stack[stack.length-1]=fn;fn(keep)}
-  function open(which){st.classList.add('on');sec=which==='sources'?'sources':'general';stack=[home];home()}
+  function open(which){
+    st.classList.add('on');sec=(which==='sources'||which==='addsource')?'sources':'general';stack=[home];home();
+    if(which==='addsource')push(addScreen);
+    if(!LS.get('m3u_tip_settings',false)){LS.set('m3u_tip_settings',true);toast('استخدم قسم المصادر لإدارة القوائم، وقسم التشغيل لضبط تجربة المشاهدة.')}
+  }
   function close(){pvStop();st.classList.remove('on');stack=[];if(document.activeElement)document.activeElement.blur()}
   window.__openSettings=open;
   window.__stOn=()=>st.classList.contains('on');
@@ -108,20 +120,41 @@
   /* ---------------- الرئيسية ---------------- */
   function home(keep){(SECS.find(x=>x.id===sec)||SECS[0]).fn(keep)}
   function general(keep){
-    const auto=LS.get('m3u_autoscan',true),zap=$('zapsnd').checked;
+    const auto=LS.get('m3u_autoscan',true);
     show('عام',[
-      {icon:'🎨',label:'السمة البصرية',sub:'تلقائي · نهاري · ليلي',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>{cycleTheme();rerender()}},
-      {icon:'🔊',label:'صوت التنقل بين القنوات',sub:'نغمة قصيرة عند تغيير القناة',on:zap,run:()=>{$('zapsnd').checked=!zap;LS.set('m3u_zap',!zap);rerender()}},
       {icon:'🔎',label:'البحث التلقائي عن الملفات',sub:'عند فتح التطبيق: التنزيلات · الوثائق · USB',on:auto,run:()=>{LS.set('m3u_autoscan',!auto);rerender()}},
       {icon:'📂',label:'اختيار مجلد للبحث فيه',sub:'للأجهزة التي تمنع الوصول المباشر',run:()=>{
         if(A&&A.pickFolder){window.__onFolder=ok=>{window.__onFolder=null;toast(ok?'تم حفظ المجلد':'')};A.pickFolder()}else toast('غير متاح على هذا الجهاز');
       }}
     ],keep);
   }
+  function playbackSec(keep){
+    const zap=$('zapsnd').checked,autoNext=LS.get('m3u_vod_autonext',true);
+    show('التشغيل',[
+      {icon:'🔊',label:'صوت التنقل بين القنوات',sub:'نغمة قصيرة عند تغيير القناة',on:zap,run:()=>{$('zapsnd').checked=!zap;LS.set('m3u_zap',!zap);rerender()}},
+      {icon:'⏭',label:'تشغيل الحلقة التالية تلقائياً',sub:'بعد عدّ تنازلي 10 ثوانٍ',on:autoNext,run:()=>{LS.set('m3u_vod_autonext',!autoNext);rerender()}}
+    ],keep);
+  }
+  function appearanceSec(keep){
+    show('المظهر',[
+      {icon:'🌗',label:'السمة البصرية',sub:'تلقائي · نهاري · ليلي',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>{cycleTheme();rerender()}},
+      {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}}
+    ],keep);
+  }
   function channelsSec(keep){
+    const RS=[['both','الاسم + الرقم + الشعار'],['num','الاسم + الرقم'],['logo','الاسم + الشعار']],rcur=LS.get('m3u_rowstyle','both'),ri=Math.max(0,RS.findIndex(x=>x[0]===rcur));
     show('القنوات',[
+      {icon:'🔤',label:'شكل صف القناة في القائمة',sub:'الاسم مع الرقم، أو مع الشعار، أو معاً',val:RS[ri][1],run:()=>{LS.set('m3u_rowstyle',RS[(ri+1)%RS.length][0]);rerender()}},
       {icon:'✎',label:'تعديل القنوات',sub:'الاسم · الرابط · المجموعة · الرقم · الترتيب · الحذف',run:()=>push(editorPick)},
       {icon:'🔎',label:'البحث عن ملفات جديدة',sub:'قوائم M3U جديدة على الجهاز',run:()=>push(scanScreen)}
+    ],keep);
+  }
+  /* التخزين: وجهة ملفات التطبيق تظهر أولاً */
+  function storageSec(keep){
+    show('التخزين',[
+      {sep:'وجهة الملفات'},
+      {icon:'📍',label:'مجلد الملفات',sub:(A&&A.appDir)?A.appDir():'—',run:()=>{}},
+      {para:'النسخ الاحتياطية وملفات التصدير تُحفظ في هذا المجلد.'}
     ],keep);
   }
   function librarySec(keep){
@@ -188,8 +221,16 @@
         if(v&&v.trim()){l.name=v.trim();await saveLists();fillLists();rerender()}
       }}
     ];
-    if(l.xt)rows.push({icon:'⟳',label:'تحديث من Xtream',sub:l.xt.host,run:async()=>{toast('جارٍ التحديث…');const ok=await window.xtRefresh(l);toast(ok?'تم التحديث':'تعذّر التحديث');rerender()}});
-    if(l.url)rows.push({icon:'⟳',label:'تحديث من الرابط',sub:l.url,run:async()=>{toast('جارٍ التحديث…');await updateList(id);toast('انتهى التحديث');rerender()}});
+    if(l.xt)rows.push({icon:'⟳',label:'مراجعة تحديث Xtream',sub:l.xt.host,run:()=>reviewSourceUpdate(id)});
+    if(l.url)rows.push({icon:'⟳',label:'مراجعة تحديث الرابط',sub:l.url,run:()=>reviewSourceUpdate(id)});
+    if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة حالة المصدر السابقة',run:async()=>{await undoSource(id);rerender()}});
+    if(l.xt)rows.push({icon:'📄',label:'تصدير حساب Xtream إلى TXT',sub:'يتضمن بيانات تسجيل الدخول لهذا المصدر',run:()=>{
+      if(!confirm('سيحتوي الملف على كلمة مرور هذا الحساب. احفظه في مكان آمن؟'))return;
+      const text='host='+l.xt.host+'\nusername='+l.xt.u+'\npassword='+l.xt.p+'\nname='+l.name+'\n';
+      const p=(A&&A.saveFile)?A.saveFile('wassla-xtream-'+id+'.txt',text):'';
+      toast(p?'تم حفظ ملف الحساب: '+p:'تعذّر حفظ الملف');
+    }});
+    if(l.remoteText)rows.push({icon:'↩',label:'استعادة نسخة الخادم الأخيرة',sub:'إلغاء التعديلات المحلية لهذا المصدر فقط',run:()=>push(k=>confirmRestoreSource(id,k))});
     rows.push({icon:'✎',label:'تعديل قنوات هذا المصدر',sub:'بالمجموعات أو البحث',run:()=>push(k=>groupsScreen(id,k))});
     rows.push({sep:'الحذف'},{icon:'🗑',label:'حذف هذا المصدر',sub:id==='builtin'?'يمكن استعادته لاحقًا من «المصادر»':'',danger:true,run:()=>push(k=>confirmDel(id,k))});
     show('المصدر: '+l.name,rows,keep);
@@ -201,6 +242,43 @@
       {icon:'↩',label:'إلغاء',run:()=>back()}
     ],1);
   }
+  function confirmRestoreSource(id,keep){
+    const l=lists.find(x=>x.id===id);if(!l){back();return}
+    show('استعادة نسخة الخادم؟',[
+      {icon:'↩',label:'نعم، استعد آخر نسخة من الخادم',sub:'لن يتغير سجل المشاهدة أو المفضلة',danger:true,run:async()=>{
+        const items=parseM3U(l.remoteText||'');
+        if(!items.length){toast('لا توجد نسخة خادم صالحة للاستعادة');return}
+        rememberSource(id,l.text);
+        l.text=ser(items);l.n=items.length;l.upd=Date.now();
+        await saveLists();
+        if(active===id)openList(id);
+        toast('تمت استعادة نسخة الخادم');back();
+      }},
+      {icon:'↩',label:'إلغاء',run:()=>back()}
+    ],keep||0);
+  }
+  const wnote=(t,err)=>window.WasslaNotify?WasslaNotify(t,{err:!!err}):toast(t);
+  /* تحديث المصدر: دمج مباشر يحفظ تعديلاتك، ثم إشعار بالنتيجة (بلا شاشة مراجعة) */
+  async function reviewSourceUpdate(id){
+    const l=lists.find(x=>x.id===id);if(!l){wnote('المصدر غير موجود',1);return false}
+    wnote('جارٍ تحديث «'+l.name+'»…');
+    let proposal;
+    try{
+      proposal=l.xt?await window.xtPreview(id):await window.__fetchListUpdate(id);
+    }catch(e){wnote(e&&e.message?e.message:'تعذّر جلب التحديث',1);return false}
+    const existing=new Set(parseM3U(l.text||'').map(it=>it.url));
+    const added=proposal.items.filter(it=>!existing.has(it.url)).length;
+    const localSnapshot=l.text;
+    try{
+      await window.__applyListUpdate(proposal,'merge');
+      rememberSource(id,localSnapshot);
+      const now=lists.find(x=>x.id===id)||l;
+      wnote('تم تحديث «'+l.name+'»: '+added+' جديد، المجموع '+(now.n||0));
+      if(st.classList.contains('on'))rerender();
+      return true;
+    }catch(e){wnote(e&&e.message?e.message:'تعذّر تطبيق التحديث',1);return false}
+  }
+  window.__openSourceUpdateReview=reviewSourceUpdate;
 
   /* ---------------- إضافة مصدر ---------------- */
   function addScreen(keep){
@@ -240,15 +318,31 @@
     if(ok){stack=[home];home()}
   }
   async function addXtream(){
-    const host=((await kbPrompt('عنوان السيرفر','http://live.lynxiptv.xyz','en'))||'').trim();if(!host)return;
-    const user_=await kbPrompt('اسم المستخدم','781150196435','en');if(user_===null)return;
-    const pass=await kbPrompt('كلمة السر','pBixhRPeaU','en');if(pass===null)return;
+    const host=((await kbPrompt('عنوان السيرفر','http://','en'))||'').trim();if(!host)return;
+    const user_=await kbPrompt('اسم المستخدم','','en');if(user_===null)return;
+    const pass=await kbPrompt('كلمة السر','','en');if(pass===null)return;
     const nm=await kbPrompt('اسم هذا المصدر','Xtream');if(nm===null)return;
     toast('جارٍ الاتصال بالسيرفر… (قد يستغرق لحظات)');
-    const ok=await window.xtAdd(host,user_.trim(),pass.trim(),nm.trim()||'Xtream');
-    toast(ok?'تمت إضافة المصدر: قنوات وأفلام ومسلسلات':'تعذّر الاتصال أو لا توجد قنوات — تحقق من العنوان والبيانات');
-    if(ok){stack=[home];home()}
+    try{
+      const prepared=await window.xtPrepare(host,user_.trim(),pass.trim());
+      await reviewXtreamAccounts([{name:nm.trim()||'Xtream',prepared}],[]);
+    }catch(e){toast(e&&e.message?e.message:'تعذّر الاتصال أو لا يوجد محتوى صالح')}
   }
+  /* حسابات Xtream: تُضاف وتُفعَّل مباشرة، والفاشل يُذكر في الإشعار */
+  async function reviewXtreamAccounts(accounts,failures){
+    const failed=(failures||[]).slice(),names=[];
+    for(const account of accounts){
+      try{
+        if(await window.xtAddPrepared(account.prepared,account.name))names.push(account.name);
+        else failed.push({name:account.name,reason:'تعذّرت الإضافة'});
+      }catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
+    }
+    if(names.length>1)wnote('تمت إضافة '+names.length+' حسابات، وفُعِّل آخرها');
+    if(failed.length)wnote((names.length?'أُضيف '+names.length+' · ':'')+'تعذّر '+failed.length+': '+failed.map(f=>f.name).join('، '),!names.length);
+    if(st.classList.contains('on')){stack=[home];home()}
+    return names.length>0;
+  }
+  window.__reviewXtreamAccounts=reviewXtreamAccounts;
 
   /* ---------------- البحث عن ملفات جديدة ---------------- */
   function scanScreen(keep){
@@ -288,6 +382,35 @@
   const numOfRaw=(it,i)=>{const m=it.raw&&/channel-number="(\d+)"/.exec(it.raw);return m?+m[1]:i+1};
   const itemsOf=id=>{const l=lists.find(x=>x.id===id);return l?parseM3U(l.text):[]};
   const isBuiltin=id=>id==='builtin'&&!!window.__chKey&&!!window.__chSetMany;
+  const sourceUndo=new Map();
+  function rememberSource(id,text){
+    const history=sourceUndo.get(id)||[];
+    if(history.length&&history[history.length-1].value===text)return;
+    history.push({type:'text',value:text});
+    if(history.length>20)history.shift();
+    sourceUndo.set(id,history);
+  }
+  function rememberBuiltin(){
+    const history=sourceUndo.get('builtin')||[];
+    history.push({type:'builtin',value:LS.get('m3u_chov',{})});
+    if(history.length>20)history.shift();
+    sourceUndo.set('builtin',history);
+  }
+  async function undoSource(id){
+    const l=lists.find(x=>x.id===id),history=sourceUndo.get(id)||[];
+    if(!l||!history.length)return false;
+    const entry=history.pop();
+    if(entry.type==='builtin'){
+      LS.set('m3u_chov',entry.value);
+      if(window.__chReload)await window.__chReload();
+    }else{
+      l.text=entry.value;l.n=parseM3U(l.text).length;l.upd=Date.now();
+      await saveLists();
+      if(active===id)openList(id);
+    }
+    toast('تم التراجع عن آخر تعديل');
+    return true;
+  }
   function editorPick(keep){
     show('تعديل القنوات — اختر المصدر',user().map(l=>({
       icon:l.id===active?'✔':'📄',label:l.name,sub:(l.n||0)+' قناة',run:()=>push(k=>groupsScreen(l.id,k))
@@ -300,6 +423,7 @@
     its.forEach(it=>{const g=it.group||'';m.set(g,(m.get(g)||0)+1)});
     const rows=[
       {icon:'🔎',label:'بحث عن قناة',sub:'بالاسم',run:async()=>{const v=await kbPrompt('اسم القناة','');if(v&&v.trim())push(k=>editor(id,0,k,{q:v.trim()}))}},
+      {icon:'☑',label:'تحديد جماعي',sub:'حذف · نقل · مفضلة · ترتيب',run:()=>{bsel.clear();push(k=>bulk(id,0,k))}},
       {icon:'📋',label:'كل القنوات',sub:its.length+' قناة',run:()=>push(k=>editor(id,0,k))},
       {sep:'المجموعات ('+m.size+')'}
     ];
@@ -309,6 +433,7 @@
   function groupMenu(id,g,keep){
     const nm=g||'بدون مجموعة';
     show('المجموعة: '+nm,[
+      {icon:'☑',label:'تحديد جماعي لقنوات المجموعة',sub:'حذف · نقل · مفضلة',run:()=>{bsel.clear();push(k=>bulk(id,0,k,{g}))}},
       {icon:'✎',label:'عرض وتعديل قنوات المجموعة',run:()=>push(k=>editor(id,0,k,{g}))},
       {icon:'🏷',label:'إعادة تسمية المجموعة',sub:nm,run:()=>renameGroup(id,g)},
       {sep:'الحذف'},
@@ -322,6 +447,7 @@
     const its=itemsOf(id);
     if(isBuiltin(id)){
       const p=[];its.forEach(it=>{if((it.group||'')===g){const k=window.__chKey(it);if(k!=null)p.push([k,{group:nv}])}});
+      rememberBuiltin();
       if(!window.__chSetMany(p)){toast('تعذّر التعديل');return}
     }else{
       its.forEach(it=>{if((it.group||'')===g)setGroup(it,nv)});
@@ -336,6 +462,7 @@
         const its=itemsOf(id);
         if(isBuiltin(id)){
           const p=[];its.forEach(it=>{if((it.group||'')===g){const k=window.__chKey(it);if(k!=null)p.push([k,{deleted:true}])}});
+          rememberBuiltin();
           if(!window.__chSetMany(p)){toast('تعذّر الحذف');return}
         }else{
           await saveItems(id,its.filter(it=>(it.group||'')!==g));
@@ -351,11 +478,12 @@
     const ents=its.map((it,i)=>({it,i})).filter(e=>!flt||(flt.g!==undefined?(e.it.group||'')===flt.g:(e.it.name||'').toLowerCase().includes(q)));
     const pages=Math.max(1,Math.ceil(ents.length/PAGE));
     page=Math.min(Math.max(0,page),pages-1);
-    const rows=[{icon:'💾',label:'حفظ نسخة احتياطية بهذا الترتيب',sub:'ملف M3U في مجلد التطبيق',run:()=>{
+    const rows=[{icon:'☑',label:'تحديد جماعي',sub:'حذف · نقل · مفضلة · ترتيب',run:()=>{bsel.clear();push(k=>bulk(id,0,k,flt))}},{icon:'💾',label:'حفظ نسخة احتياطية بهذا الترتيب',sub:'ملف M3U في مجلد التطبيق',run:()=>{
       const nm='wassla-backup-'+l.name+'-'+new Date().toISOString().slice(0,10)+'.m3u';
       const p=(A&&A.saveFile)?A.saveFile(nm,ser(its)):'';
       toast(p?'حُفظت النسخة: '+p:'تعذّر الحفظ');
     }}];
+    if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة حالة المصدر السابقة',run:async()=>{await undoSource(id);setTop(k=>editor(id,page,k,flt),keep||0)}});
     if(page>0)rows.push({icon:'◀',label:'الصفحة السابقة',sub:(page)+' / '+pages,run:()=>setTop(k=>editor(id,page-1,k,flt),1)});
     if(!ents.length)rows.push({sep:'لا توجد قنوات مطابقة'});
     const first=rows.length;
@@ -366,6 +494,98 @@
     wantPv=true;
     const fl=flt?(flt.g!==undefined?' · '+(flt.g||'بدون مجموعة'):' · بحث: '+flt.q):'';
     show(l.name+fl+' — '+ents.length+' قناة'+(pages>1?' (صفحة '+(page+1)+'/'+pages+')':''),rows,keep!=null?keep:first);
+  }
+  /* ---------------- تحديد جماعي: حذف · نقل لمجموعة · مفضلة · ترتيب ----------------
+     يُؤشَّر على القنوات (☑/☐) ثم يُنفَّذ الإجراء على كل المحدد دفعة واحدة، والتراجع متاح بعد أي حذف أو نقل. */
+  const bsel=new Set();let bfocus=null;   /* بعد التأشير يبقى التركيز على القناة نفسها مهما تغيّر عدد صفوف الإجراءات */
+  function bsl(id){const its=itemsOf(id),idxs=[...bsel].filter(i=>i<its.length).sort((a,b)=>a-b);return {its,idxs}}
+  function bulk(id,page,keep,flt){
+    const l=lists.find(x=>x.id===id);if(!l){back();return}
+    const its=itemsOf(id),q=flt&&flt.q!==undefined?String(flt.q).toLowerCase():'';
+    const ents=its.map((it,i)=>({it,i})).filter(e=>!flt||(flt.g!==undefined?(e.it.group||'')===flt.g:(e.it.name||'').toLowerCase().includes(q)));
+    const pages=Math.max(1,Math.ceil(ents.length/PAGE));
+    page=Math.min(Math.max(0,page),pages-1);
+    const n=[...bsel].filter(i=>i<its.length).length,pageEnts=ents.slice(page*PAGE,page*PAGE+PAGE),isB=isBuiltin(id);
+    const rows=[];
+    if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة الحالة السابقة (حذف أو نقل)',run:async()=>{await undoSource(id);bsel.clear();rerender()}});
+    rows.push({icon:'☑',label:'تحديد كل القنوات المعروضة',sub:ents.length+' قناة',run:()=>{ents.forEach(e=>bsel.add(e.i));rerender()}});
+    if(pages>1)rows.push({icon:'☑',label:'تحديد قنوات هذه الصفحة فقط',sub:pageEnts.length+' قناة',run:()=>{pageEnts.forEach(e=>bsel.add(e.i));rerender()}});
+    if(n)rows.push({icon:'☐',label:'إلغاء التحديد',sub:n+' محددة',run:()=>{bsel.clear();rerender()}});
+    if(n){
+      rows.push({sep:'إجراءات على المحدد ('+n+')'});
+      rows.push({icon:'🗑',label:'حذف المحدد',sub:n+' قناة — يمكن التراجع بعدها',danger:true,run:async()=>{await bulkDelete(id);rerender()}});
+      rows.push({icon:'📁',label:'نقل المحدد إلى مجموعة',run:()=>push(k=>bulkMove(id,k))});
+      rows.push({icon:'★',label:'إضافة المحدد إلى المفضلة',run:()=>{bulkFav(id,true);rerender()}});
+      rows.push({icon:'☆',label:'إزالة المحدد من المفضلة',run:()=>{bulkFav(id,false);rerender()}});
+      if(!isB){
+        rows.push({icon:'⤒',label:'نقل المحدد إلى أول القائمة',run:async()=>{await bulkOrder(id,true);rerender()}});
+        rows.push({icon:'⤓',label:'نقل المحدد إلى آخر القائمة',run:async()=>{await bulkOrder(id,false);rerender()}});
+      }
+    }
+    rows.push({sep:'القنوات — OK للتأشير'});
+    if(page>0)rows.push({icon:'◀',label:'الصفحة السابقة',sub:page+' / '+pages,run:()=>setTop(k=>bulk(id,page-1,k,flt),1)});
+    if(!ents.length)rows.push({sep:'لا توجد قنوات مطابقة'});
+    pageEnts.forEach(({it,i})=>{
+      rows.push({_i:i,icon:bsel.has(i)?'☑':'☐',label:it.name,sub:(it.group||'—')+(favs.has(it.url)?' · ★':''),run:()=>{if(bsel.has(i))bsel.delete(i);else bsel.add(i);bfocus=i;rerender()}});
+    });
+    if(page<pages-1)rows.push({icon:'▶',label:'الصفحة التالية',sub:(page+2)+' / '+pages,run:()=>setTop(k=>bulk(id,page+1,k,flt),1)});
+    const fl=flt?(flt.g!==undefined?' · '+(flt.g||'بدون مجموعة'):' · بحث: '+flt.q):'';
+    let pos=-1,cnt=0;
+    rows.forEach(r=>{if(r.sep!==undefined)return;if(bfocus!==null&&bfocus!=='top'&&r._i===bfocus&&pos<0)pos=cnt;cnt++});
+    let k=pos>=0?pos:(bfocus==='top'?0:(keep!=null?keep:0));
+    bfocus=null;k=Math.max(0,Math.min(k,cnt-1));
+    show('تحديد جماعي — '+n+' من '+ents.length+fl,rows,k);
+  }
+  async function bulkDelete(id){
+    const {its,idxs}=bsl(id);if(!idxs.length)return;
+    if(isBuiltin(id)){
+      const p=[];idxs.forEach(i=>{const k=window.__chKey(its[i]);if(k!=null)p.push([k,{deleted:true}])});
+      if(!p.length||!window.__chSetMany){toast('تعذّر الحذف');return}
+      rememberBuiltin();window.__chSetMany(p);
+    }else{
+      const del=new Set(idxs);
+      await saveItems(id,its.filter((_,i)=>!del.has(i)));
+    }
+    toast('تم حذف '+idxs.length+' قناة — «تراجع» في أول القائمة');
+    bsel.clear();bfocus='top';
+  }
+  function bulkMove(id,keep){
+    const its=itemsOf(id),m=new Map();
+    its.forEach(it=>{const g=it.group||'';m.set(g,(m.get(g)||0)+1)});
+    const rows=[{icon:'＋',label:'مجموعة جديدة…',sub:'اكتب الاسم',run:async()=>{
+      const v=await kbPrompt('اسم المجموعة الجديدة','');
+      if(v===null)return;
+      const nv=v.trim().replace(/"/g,'');
+      if(!nv){toast('اكتب اسمًا للمجموعة');return}
+      await bulkSetGroup(id,nv);
+    }},{sep:'أو اختر مجموعة موجودة'}];
+    [...m.entries()].forEach(([g,c])=>rows.push({icon:'📁',label:g||'بدون مجموعة',sub:c+' قناة',run:()=>bulkSetGroup(id,g)}));
+    show('نقل المحدد إلى…',rows,keep);
+  }
+  async function bulkSetGroup(id,g){
+    const {its,idxs}=bsl(id);if(!idxs.length){back();return}
+    if(isBuiltin(id)){
+      const p=[];idxs.forEach(i=>{const k=window.__chKey(its[i]);if(k!=null)p.push([k,{group:g}])});
+      if(!p.length||!window.__chSetMany){toast('تعذّر النقل');return}
+      rememberBuiltin();window.__chSetMany(p);
+    }else{
+      idxs.forEach(i=>setGroup(its[i],g));
+      await saveItems(id,its);
+    }
+    toast('تم نقل '+idxs.length+' قناة إلى «'+(g||'بدون مجموعة')+'»');
+    back();
+  }
+  function bulkFav(id,add){
+    const {its,idxs}=bsl(id);let c=0;
+    idxs.forEach(i=>{const u=its[i].url;if(add&&!favs.has(u)){favs.add(u);c++}else if(!add&&favs.has(u)){favs.delete(u);c++}});
+    LS.set('m3u_favs',[...favs]);syncFavList();render();
+    toast(c?(add?'أُضيفت '+c+' قناة إلى المفضلة':'أُزيلت '+c+' قناة من المفضلة'):'لا تغيير');
+  }
+  async function bulkOrder(id,top){
+    const {its,idxs}=bsl(id);if(!idxs.length)return;
+    const set=new Set(idxs),pick=idxs.map(i=>its[i]),rest=its.filter((_,i)=>!set.has(i));
+    await saveItems(id,top?pick.concat(rest):rest.concat(pick));
+    bsel.clear();bfocus='top';toast(top?'نُقلت القنوات المحددة إلى أول القائمة':'نُقلت القنوات المحددة إلى آخر القائمة');
   }
   function chan(id,idx,keep){
     const l=lists.find(x=>x.id===id);if(!l){back();return}
@@ -397,6 +617,7 @@
   }
   async function saveItems(id,its){
     const l=lists.find(x=>x.id===id);
+    rememberSource(id,l.text);
     l.text=ser(its);l.n=its.length;l.upd=Date.now();
     await saveLists();
     if(active===id)openList(id);
@@ -412,11 +633,13 @@
       const n=parseInt(val,10);
       if(!(n>=1&&n<=9999)){toast('الرقم غير صالح');return}
       if(its.some((x,j)=>j!==idx&&numOfRaw(x,j)===n)){toast('هذا الرقم مستخدم لقناة أخرى');return}
+      rememberBuiltin();
       window.__chSet(window.__chKey(it),{n});toast('تم تغيير الرقم');back();return;
     }
     if(field==='url'&&!/^https?:\/\//i.test(val)){toast('الرابط يجب أن يبدأ بـ http أو https');return}
     if(!val&&field!=='group'){toast('لا يمكن ترك هذا الحقل فارغاً');return}
     if(id==='builtin'&&window.__chKey&&window.__chKey(it)!=null){
+      rememberBuiltin();
       window.__chSet(window.__chKey(it),{[field]:val});
     }else{
       if(field==='name')setName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
@@ -435,7 +658,7 @@
     const its=itemsOf(id),it=its[idx];if(!it){back();return}
     show('حذف «'+it.name+'»؟',[
       {icon:'🗑',label:'نعم، احذف القناة',danger:true,run:async()=>{
-        if(id==='builtin'&&window.__chKey&&window.__chKey(it)!=null){window.__chSet(window.__chKey(it),{deleted:true})}
+        if(id==='builtin'&&window.__chKey&&window.__chKey(it)!=null){rememberBuiltin();window.__chSet(window.__chKey(it),{deleted:true})}
         else{its.splice(idx,1);await saveItems(id,its)}
         toast('تم الحذف');stack.pop();back();
       }},
@@ -453,14 +676,13 @@
   function about(keep){
     show('حول التطبيق',[
       {icon:'▶',label:'وصلة TV',sub:'الإصدار '+((A&&A.version)?A.version():APP_VERSION),run:()=>{}},
+      {icon:'🌐',label:'زيارة موقع التطبيق',sub:SITE,run:()=>openLink(SITE)},
       {sep:'إخلاء المسؤولية'},
       {para:DISCLAIMER},
-      {sep:'موقع التطبيق'},
-      {icon:'🌐',label:'زيارة موقع التطبيق',sub:SITE,run:()=>openLink(SITE)},
-      {icon:'📍',label:'مجلد الملفات',sub:(A&&A.appDir)?A.appDir():'—',run:()=>{}},
-      {sep:'لاسترجاع نسخة احتياطية: إضافة مصدر ← من ملف، أو البحث التلقائي.'},
+      {para:'لاسترجاع نسخة احتياطية: إضافة مصدر ← من ملف، أو البحث التلقائي.'},
       {para:'جميع الحقوق محفوظة DZ-fastlink',small:true,run:()=>openLink(DZ)}
     ],keep);
+    body.classList.add('about');   /* تخطيط مضغوط: كل المحتوى ظاهر بلا تحريك */
   }
 
   /* تعديل سريع لقناة من قائمة المشاهدة (INFO أو الزر الأصفر) */

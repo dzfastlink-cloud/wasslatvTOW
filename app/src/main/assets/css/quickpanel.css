@@ -1,17 +1,38 @@
-/* ===== القائمة السريعة (زر رجوع من البث) + تلميح البث ===== */
-#qp{display:none;position:fixed;inset-inline:0;bottom:0;z-index:90;flex-direction:column;gap:10px;padding:14px var(--w-safe) 18px;background:linear-gradient(180deg,#071815,#03120f 32%,#020b0a);border-top:2px solid rgba(61,201,174,.45);color:var(--w-ink)}
-#qp.on{display:flex}
-#qp .qpt{font-size:18px;font-weight:800;color:var(--w-gold);letter-spacing:.5px}
-#qp .qpr{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding-top:2px}
-#qp .qb{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:110px;padding:12px 10px;border-radius:var(--w-rm);border:1px solid rgba(127,243,220,.18);background:rgba(4,32,27,.75);font-size:var(--w-fs);cursor:pointer;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,opacity .2s ease}
-#qp .qb i{font-style:normal;font-size:28px;line-height:1}
-#qp .qb span{display:block;max-width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#qp .qb.sel{border-color:var(--w-focus);background:linear-gradient(180deg,#0f5a4f,#082922);box-shadow:0 0 0 3px rgba(245,176,76,.22),0 10px 24px rgba(0,0,0,.22);transform:translateY(-2px) scale(1.02)}
-#qp .qph{font-size:13px;color:#8ec7b8;text-align:center}
-#qpsrc,#qpchannel,#qpfav{display:inline-flex;align-items:center;justify-content:center;min-height:20px;padding:0 10px;border-radius:999px;background:rgba(7,25,22,.5);border:1px solid rgba(127,243,220,.18);color:#d9efe9;font-size:12px;line-height:1.4}
-#qpsrc::before,#qpchannel::before,#qpfav::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-inline-end:6px;background:currentColor;opacity:.8}
-#qpsrc{color:#9fe8da}#qpchannel{color:#f5d192}#qpfav{color:#f1a65c}
-#qp .qpi{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+/* ===== القائمة السريعة = الرئيسية: أيقونات كبيرة فوق البث + تلميح البث ===== */
+#qp{display:none;position:fixed;inset-inline:0;bottom:0;z-index:90;flex-direction:column;gap:clamp(8px,1.6vh,16px);padding:clamp(14px,2.4vh,24px) var(--w-safe) clamp(16px,3vh,30px);color:var(--w-ink);
+  background:linear-gradient(180deg,rgba(3,18,15,0) 0,rgba(3,18,15,.78) 22%,#03120f 46%,#020b0a);border-top:0;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#qp::before{content:"";position:absolute;inset-inline:0;top:0;height:2px;background:linear-gradient(90deg,transparent,rgba(61,201,174,.7),transparent)}
+#qp.on{display:flex;animation:qpup .28s ease-out both}
+@keyframes qpup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+#qp .qph0{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#qp .qpt{font-size:clamp(18px,2.2vw,28px);font-weight:800;color:#fff;letter-spacing:.5px}
+#qp .qpt b{color:var(--w-gold)}
+#qp .qpnow{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(12px,1.3vw,16px);color:#f5d192;padding:3px 12px;border-radius:999px;background:rgba(245,176,76,.1);border:1px solid rgba(245,176,76,.26);max-width:max-content}
+#qp .qpclk{margin-inline-start:auto;font-size:clamp(12px,1.3vw,16px);color:#9fcfc6}
+#qp .qpr{display:flex;gap:clamp(8px,1.4vw,18px);justify-content:center;flex-wrap:nowrap;overflow-x:auto;padding:10px 6px 12px;scrollbar-width:none}
+#qp .qpr::-webkit-scrollbar{display:none}
+#qp .qb{--acc:#3dc9ae;position:relative;overflow:hidden;flex:1 1 0;min-width:clamp(92px,11vw,150px);max-width:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:clamp(12px,2vh,20px) 8px;border-radius:var(--w-rm,16px);color:#fff;font-family:inherit;
+  border:2px solid rgba(127,243,220,.16);background:linear-gradient(160deg,rgba(4,32,27,.82),rgba(3,18,15,.9));cursor:pointer;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,opacity .2s ease}
+#qp .qb i{font-style:normal;font-size:clamp(30px,4.2vw,54px);line-height:1;filter:drop-shadow(0 4px 10px #0008)}
+#qp .qb .ql{font-size:clamp(14px,1.7vw,22px);font-weight:700;white-space:nowrap}
+#qp .qb .qs{display:block;max-width:100%;min-height:1.2em;font-size:clamp(10px,1.05vw,14px);color:#a8d1c9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#qp .qb.src{--acc:#6aa8ff}#qp .qb.vod{--acc:#e8b34a}#qp .qb.fav{--acc:#f1a65c}#qp .qb.num{--acc:#9b8cff}#qp .qb.set{--acc:#b8c4cc}#qp .qb.exit{--acc:#e0674f}
+#qp .qb.dim{opacity:.6}
+#qp .qb.sel,#qp .qb.open{outline:none;transform:translateY(-4px) scale(1.07);border-color:var(--acc);background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 36%,transparent),rgba(255,255,255,.06));box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent),0 12px 28px rgba(0,0,0,.4)}
+#qp .qb.sel::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%);transform:translateX(-120%);animation:qpsweep 1.6s ease-in-out infinite}
+@keyframes qpsweep{to{transform:translateX(120%)}}
+/* قائمة المصادر المنسدلة */
+#qp .qpdd{display:none;flex-direction:column;gap:6px;max-height:34vh;overflow-y:auto;padding:8px;border-radius:var(--w-rm,16px);background:rgba(4,32,27,.94);border:2px solid rgba(106,168,255,.45);box-shadow:0 10px 30px rgba(0,0,0,.45);align-self:center;width:min(640px,94%)}
+#qp .qpdd.on{display:flex}
+#qp .qd{display:flex;align-items:center;gap:12px;padding:11px 16px;border-radius:12px;border:2px solid transparent;background:rgba(255,255,255,.04);color:#e6f7f3;font-family:inherit;font-size:clamp(14px,1.6vw,20px);text-align:start;cursor:pointer}
+#qp .qd em{font-style:normal;flex:none;width:1.4em;text-align:center;font-weight:800;color:#7ff3dc}
+#qp .qd .qdn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+#qp .qd .qds{flex:none;color:#8ec7b8;font-size:.78em}
+#qp .qd.cur{background:rgba(61,201,174,.14)}
+#qp .qd.add{color:#f5d192}#qp .qd.add em{color:#f5b04c}
+#qp .qd.sel{border-color:var(--w-focus,#f5b04c);background:linear-gradient(90deg,#0f5a4f,#082922);box-shadow:0 0 0 3px rgba(245,176,76,.22)}
+#qp .qph{font-size:clamp(11px,1.2vw,14px);color:#8ec7b8;text-align:center}
 #lhint{position:fixed;bottom:5vh;inset-inline:0;margin:auto;width:max-content;max-width:90vw;padding:9px 22px;border-radius:999px;background:rgba(4,32,27,.88);color:#d2efe9;font-size:var(--w-fs);z-index:50;opacity:0;pointer-events:none;transition:opacity .35s;border:1px solid rgba(127,243,220,.2)}
 #lhint.on{opacity:1}
 body.menu #lhint,body.vod #lhint{display:none}
+@media (prefers-reduced-motion:reduce){#qp.on,#qp .qb.sel::after{animation:none!important}}
