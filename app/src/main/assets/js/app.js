@@ -177,6 +177,15 @@ function fillGroups(keep){
   if(keep&&[...$('grp').options].some(o=>o.value===prev))$('grp').value=prev;
 }
 function showWelcome(){items=[];shown=[];$('side').classList.add('hide');$('player').classList.add('hide');$('load').classList.remove('hide')}
+/* التجوّل بين المصادر والمجموعات دون اختيار قناة يغيّر المصدر/المجموعة الحاليين، فيصبح ↑↓ (القناة التالية/السابقة)
+   يعمل داخل المنطقة الخطأ. هذه الدالة تعيد التطبيق إلى منطقة القناة التي تعمل فعلاً. */
+function restoreCtx(){
+  const c=window.__playCtx;if(!c)return false;
+  if(c.listId&&c.listId!==active&&lists.some(l=>l.id===c.listId))openList(c.listId);
+  if(c.grp!==undefined&&[...$('grp').options].some(o=>o.value===c.grp))$('grp').value=c.grp;
+  $('q').value=c.q||'';render();return true;
+}
+window.__restoreCtx=restoreCtx;
 function openList(id){
   const l=lists.find(x=>x.id===id);if(!l)return;
   const same=(id===active);active=id;items=parseM3U(l.text);fillGroups(same);
@@ -375,6 +384,7 @@ function play(it){
   }else{
     LS.set('m3u_last_was_vod',false);
     LS.set('m3u_last',{url:it.url,name:it.name,listId:active,ts:Date.now()});
+    window.__playCtx={listId:active,grp:$('grp').value,q:$('q').value};   // منطقة القناة العاملة: المصدر + المجموعة + البحث
   }
   $('now').textContent=it.name;
   setMsg('');favBtn();
@@ -611,7 +621,8 @@ $('checkupd').onclick=()=>checkUpdates(false);
   if(active===FAV_LIST_ID)active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
   fillLists();
   const normals=lists.filter(l=>l.id!==FAV_LIST_ID);
-  if(normals.length)openList(normals.some(l=>l.id===active)?active:normals[0].id);
+  const lastPlayed=LS.get('m3u_last',null),lastId=lastPlayed&&lastPlayed.listId;
+  if(normals.length)openList(normals.some(l=>l.id===lastId)?lastId:normals.some(l=>l.id===active)?active:normals[0].id);
   else if(lists.find(l=>l.id===FAV_LIST_ID))openList(FAV_LIST_ID);
   else showWelcome();
   setTimeout(()=>tryResume(),250);

@@ -131,5 +131,5 @@
   }
   /* رجوع واحد يغلق القائمة المنسدلة أولاً */
   window.__qpBack=()=>{if(on&&ddOn){closeDd();paint();return true}return false};
-  window.__openQuick=open;window.__quickClose=close;window.__qpOn=()=>on;window.__hintLive=hintLive;
+  window.__openQuick=open;window.__quickClose=function(dismiss){close();if(dismiss&&window.__restoreCtx)window.__restoreCtx()};window.__qpOn=()=>on;window.__hintLive=hintLive;
 })();

@@ -19,7 +19,7 @@
     const vodOpen=!!(window.__vodOn&&__vodOn());
     // الضغط المزدوج من شاشة المشاهدة يخرج حتى لو فتحت قائمة الخيارات بالضغطة الأولى.
     if((receiver.on||settingsOpen||qpOpen)&&lastLiveBack&&now-lastLiveBack<WINDOW){lastLiveBack=0;return 'exit'}
-    if(qpOpen){lastLiveBack=0;__quickClose();return true}
+    if(qpOpen){lastLiveBack=0;__quickClose(true);return true}
     if(settingsOpen){lastLiveBack=0;if(window.__stBack&&__stBack())return true}
     if(vodOpen){if(window.__vodBack&&__vodBack())return true}
     if(receiver.on){

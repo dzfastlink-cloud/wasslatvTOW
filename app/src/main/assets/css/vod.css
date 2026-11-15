@@ -13,16 +13,30 @@ body.cine-play #vod{display:none!important}
 #vod .vt.on{background:#f5b04c;color:#04201b;font-weight:700}
 #vod .vt.sel{border-color:#fff;box-shadow:0 0 0 4px rgba(245,176,76,.4)}
 #vodsearch{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+#vodsort{white-space:nowrap}
 #vod .vsp{flex:1}
 #vod .vhint{font-size:13px;color:#d2efe9}
 #vod .vhero{display:flex;align-items:center;padding:10px 28px;min-height:62px;border-bottom:1px solid #ffffff14}
 #vod .vhero img{display:none}
+#vod .vhtxt{min-width:0}
+#vod .vcount{font-size:16px;font-weight:700;color:#d2efe9;white-space:nowrap;margin-inline-start:18px}
 #vod .vhero b{display:block;font-size:22px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #vod .vhero small{color:#9fcfc6;font-size:15px}
 #vod .vhero.hide{display:none}
-#vod .vbody{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:auto;overscroll-behavior:contain;padding-bottom:24px}
+#vod .vbody{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:auto;overscroll-behavior:contain;padding-bottom:24px}
+#vod .vbody.home{display:flex;overflow:hidden;padding-bottom:0}
+#vod .vmain{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:auto;overscroll-behavior:contain}
+/* عمود التصنيفات الجانبي */
+#vod .vside{flex:0 0 clamp(210px,24%,330px);overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 24px;background:#04120fd9;border-inline-end:1px solid #1f8f7c66}
+#vod .vsi{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:3px;border-radius:12px;border:2px solid transparent;font-size:17px;cursor:pointer;color:#d2efe9}
+#vod .vsi span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vod .vsi em{font-style:normal;flex:none;min-width:38px;text-align:center;padding:1px 8px;border-radius:999px;background:#ffffff1a;font-size:13px;color:#9fcfc6}
+#vod .vsi.first{margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid #1f8f7c66;border-radius:12px 12px 0 0}
+#vod .vsi.on{background:#0a544899;color:#fff;font-weight:800}
+#vod .vsi.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);color:#04201b;border-color:#f5b04c;font-weight:800}
+#vod .vsi.sel em{background:#04201b33;color:#04201b}
 /* شبكة ملصقات 2:3 — عنوان تحت الملصق وشارة تقييم؛ بلا تمويه ولا ظلال ثقيلة (أخف على صناديق Android TV) */
-#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:24px 16px;padding:18px 28px 30px;align-content:start}
+#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:24px 16px;padding:18px 24px 30px;align-content:start}
 #vod .vc{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0;width:auto;height:auto;border:0;border-radius:0;background:none;overflow:visible;cursor:pointer}
 #vod .vp{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#0e7c6b,#0a3b34)}
 #vod .vp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .2s}
@@ -36,9 +50,6 @@ body.cine-play #vod{display:none!important}
 #vod .vc.sel .vp{transform:translateY(-5px);outline:3px solid #f5b04c;outline-offset:3px}
 #vod .vc.sel .vn{color:#f5b04c;font-weight:800}
 #vod .vc.sel{transform:none;border:0;box-shadow:none}
-#vodcat{max-width:220px;padding:7px 12px;border:2px solid transparent;border-radius:8px;background:#ffffff1f;color:#fff;font:inherit}
-#vodcat option{background:#06352d;color:#fff}
-#vodcat.sel{border-color:#f5b04c}
 #vod .vdetails{display:flex;align-items:flex-start;gap:28px;max-width:1100px;margin:5vh auto;padding:24px;width:calc(100% - 48px);max-height:80%;overflow:auto;background:#ffffff0b;border:1px solid #ffffff20;border-radius:18px}
 #vod .vdetail-cover{flex:0 0 auto;width:210px;max-height:315px;object-fit:cover;border-radius:12px;background:#ffffff1f}
 #vod .vdetail-info{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0}
@@ -66,7 +77,7 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 @media(max-width:700px){
   #vod .vtop{gap:8px;padding:8px 12px;flex-wrap:wrap}
   #vod .vsource-label{font-size:12px}
-  #vodsource,#vodcat{max-width:145px}
+  #vodsource{max-width:145px}
   #vod .vhint{display:none}
   #vod .vdetails{margin:16px auto;padding:16px;gap:16px;width:calc(100% - 24px)}
   #vod .vdetail-cover{width:110px;max-height:165px}
@@ -87,3 +98,11 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 :root[data-eff="light"] #vod .vs{background:rgba(14,124,107,.12)}
 :root[data-eff="light"] #vod .vs.on{background:#0e7c6b;color:#fff}
 :root[data-eff="light"] #vod .vempty{color:#27514b}
+
+:root[data-eff="light"] #vod .vside{background:rgba(255,255,255,.88);border-inline-end-color:rgba(14,124,107,.22)}
+:root[data-eff="light"] #vod .vsi{color:#27514b}
+:root[data-eff="light"] #vod .vsi em{background:rgba(14,124,107,.12);color:#27514b}
+:root[data-eff="light"] #vod .vsi.on{background:rgba(14,124,107,.16);color:#0f2b28}
+:root[data-eff="light"] #vod .vsi.first{border-bottom-color:rgba(14,124,107,.22)}
+:root[data-eff="light"] #vod .vcount{color:#27514b}
+@media (max-width:700px){#vod .vside{flex-basis:38%}}
