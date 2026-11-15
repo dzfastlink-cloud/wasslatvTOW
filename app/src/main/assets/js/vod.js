@@ -1,19 +1,19 @@
-/* ===== مكتبة الأفلام والمسلسلات (VOD): وضع مستقل بمعزل عن البث المباشر =====
+/* ===== مكتبة الأفلام والمسلسلات (VOD): شبكة ملصقات بشارة تقييم =====
    • تعرض الأفلام والمسلسلات من روابطها المخصصة فقط (detectKind)، ولا تعرض البث المباشر.
    • المسلسلات تُجمَّع بالمواسم والحلقات من أسماء مثل S01E02 أو «الموسم 1 الحلقة 2».
-   • أي مصدر جديد فيه أفلام يظهر هنا تلقائياً (إضافة مكتبات لاحقاً = إضافة مصدر).
-   التنقل: ↑ ↓ بين الصفوف · ← → داخل الصف · OK فتح · رجوع خطوة للخلف. */
+   • الأداء: لا صفوف أفقية متعددة ولا صورة كبيرة تتبدل مع كل ضغطة؛ الشبكة تُرسم على دفعات (60 بطاقة)،
+     والصور تُحمَّل عند الاقتراب من الشاشة فقط، والتحديد يلمس عنصرين فقط في كل ضغطة (بلا إعادة رسم).
+   التنقل: ← → ↑ ↓ داخل الشبكة · ↑ من الصف الأول: شريط التصفية · OK فتح · رجوع خطوة للخلف. */
 (function(){
-  const el=$('vod'),bodyEl=$('vodb'),tabsEl=$('vtabs'),B=document.body;
-  let srcId='',query='',on=false,idx=null,idxSig='',filter='all',rowsData=[],rIdx=0,cols=[],zone='rows',tIdx=0;
-  let screen='home',detailReturn='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null;
-  let nextTimer=null,nextCard=null,nextEpisode=null,progressTimer=null,detailScrollTop=0,detailRowScroll=[],detailIndex=0;
-  const FILTERS=['all','movies','series'];
-  const Model=window.WasslaVodModel;
-  const progress=()=>LS.get('m3u_vod_progress',{});
-  const watched=()=>LS.get('m3u_vod_watched',{});
+  const el=$('vod'),bodyEl=$('vodb'),barEl=$('vbar'),B=document.body,infoT=$('vit'),infoS=$('vis'),pickEl=$('vpick');
+  const STEP=60;
+  let srcId='',on=false,idx=null,idxSig='',all=[],view=[],gi=0,rendered=0,cols=1,grid=null,io=null;
+  let filter='all',cat='',sort='recent',q='',zone='grid',bi=0,barItems=[];
+  let screen='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null,saved=null;
+  let pickOn=false,pickRows=[],pi=0,pickKind='';
   const rtl=()=>getComputedStyle(document.documentElement).direction==='rtl';
   const toast=t=>{if(window.__rcvToast)window.__rcvToast(t)};
+  const coll=(typeof Intl!=='undefined'&&Intl.Collator)?new Intl.Collator('ar'):null;
   window.__vodOn=()=>on;
 
   /* ---------- التحليل والتصنيف ---------- */
@@ -26,262 +26,215 @@
     m=EP3.exec(name);if(m)return{title:m[1].trim(),s:1,e:+m[2]};
     return null;
   }
-  function detailKey(k){
-    const buttons=[...bodyEl.querySelectorAll('.vdetails button')];
-    if(!buttons.length)return;
-    if(k==='ArrowDown'||k==='ArrowRight')detailIndex=Math.min(buttons.length-1,detailIndex+1);
-    else if(k==='ArrowUp'||k==='ArrowLeft')detailIndex=Math.max(0,detailIndex-1);
-    else if(k==='Enter'){buttons[detailIndex].click();return}
-    buttons.forEach((button,i)=>button.classList.toggle('sel',i===detailIndex));
-    buttons[detailIndex].focus({preventScroll:true});
-    buttons[detailIndex].scrollIntoView({block:'nearest'});
-  }
-  /* المكتبة تعتمد على التصنيف المشترك detectKind (يعتمد على نوع الرابط): الأفلام والمسلسلات فقط،
-     أما /live/ والبث المباشر والقوائم المدمجة فلا تدخل المكتبة أبداً. */
   function libKind(it){const k=detectKind(it);return(k==='movie'||k==='series')?k:null}
+  function rateOf(it){
+    const m=it&&it.raw&&/tvg-rating="([^"]*)"/.exec(it.raw);if(!m)return null;
+    const r=parseFloat(m[1]);return r>0&&r<=10?r:null;
+  }
   const sig=()=>lists.filter(l=>l.id!==FAV_LIST_ID).map(l=>l.id+':'+(l.upd||0)+':'+(l.n||0)).join('|');
   const tick=()=>new Promise(r=>setTimeout(r,0));
 
   async function build(){
-    const s=sig();if(idx&&s===idxSig)return;
-    const movies=[],series=new Map();
+    const s=sig()+'|'+srcId;if(idx&&s===idxSig)return;
+    const movies=[],series=new Map();let ord=0;
     for(const l of lists){
       if(l.id===FAV_LIST_ID||l.id==='builtin')continue;
+      if(srcId&&l.id!==srcId)continue;
       const its=parseM3U(l.text);
       for(let i=0;i<its.length;i++){
         const it=its[i],k=libKind(it);
         if(k!=='movie'&&k!=='series')continue;
         if(k==='series'&&/action=get_series_info/.test(it.url)){
-          series.set('xt:'+it.url,{kind:'series',title:it.name,logo:it.logo||'',group:it.group||'مسلسلات',eps:[],lazy:it.url,sourceId:l.id,sourceName:l.name});
+          series.set('xt:'+it.url,{kind:'series',title:it.name,logo:it.logo||'',group:it.group||'مسلسلات',rating:rateOf(it),eps:[],lazy:it.url,ord:ord++});
         }else if(k==='series'){
           const ei=epInfo(it.name)||{title:it.name,s:1,e:1};
           const t=(ei.title||it.name).replace(/[._]+/g,' ').trim(),key=t.toLowerCase();
-          const seriesKey=l.id+':'+key;
-          let sr=series.get(seriesKey);
-          if(!sr){sr={kind:'series',title:t,logo:it.logo||'',group:it.group||'مسلسلات',eps:[],sourceId:l.id,sourceName:l.name};series.set(l.id+':'+key,sr)}
+          let sr=series.get(key);
+          if(!sr){sr={kind:'series',title:t,logo:it.logo||'',group:it.group||'مسلسلات',rating:rateOf(it),eps:[],ord:ord++};series.set(key,sr)}
           if(!sr.logo&&it.logo)sr.logo=it.logo;
-          sr.eps.push({s:ei.s,e:ei.e,name:it.name,url:it.url,item:it,sourceId:l.id});
-        }else movies.push({kind:'movie',title:it.name,logo:it.logo||'',group:it.group||'أفلام',item:it,sourceId:l.id,sourceName:l.name});
+          sr.eps.push({s:ei.s,e:ei.e,name:it.name,url:it.url,item:it});
+        }else movies.push({kind:'movie',title:it.name,logo:it.logo||'',group:it.group||'أفلام',rating:rateOf(it),item:it,ord:ord++});
         if(i%1500===1499)await tick();
       }
       await tick();
     }
     series.forEach(sr=>sr.eps.sort((a,b)=>a.s-b.s||a.e-b.e));
     idx={movies,series:[...series.values()]};idxSig=s;
-  }
-  function makeRows(){
-    const candidates=[];
-    if(filter!=='series')candidates.push(...idx.movies);
-    if(filter!=='movies')candidates.push(...idx.series);
-    const q=Model.normalizeSearch(query);
-    const all=candidates.filter(c=>(!srcId||c.sourceId===srcId)&&(!q||[
-      c.title,c.group,c.sourceName
-    ].some(value=>Model.normalizeSearch(value).includes(q))));
-    const rows=[];
-    if(!all.length)return rows;
-    const records=progress(),seen=watched();
-    const resume=all.map(card=>{
-      let record=null;
-      if(card.kind==='movie')record=records[card.item.url];
-      else record=cardRecord(card);
-      const cardId=card.kind==='movie'?card.item.url:(card.lazy||card.sourceId+':'+card.title);
-      if(seen[cardId])return null;
-      return record&&Model&&Model.shouldResume(record)?Object.assign({},card,{resumeRecord:record}):null;
-    }).filter(Boolean).sort((a,b)=>(b.resumeRecord.updated||0)-(a.resumeRecord.updated||0));
-    if(resume.length)rows.push({title:'متابعة المشاهدة',cards:resume.slice(0,40)});
-    rows.push({title:'أُضيفت حديثاً',cards:all.slice(-40).reverse()});
-    const by=new Map();
-    all.forEach(c=>{
-      const group=c.group||'أخرى',key=Model.normalizeSearch(group)||group;
-      if(!by.has(key))by.set(key,{title:group,cards:[]});
-      by.get(key).cards.push(c);
-    });
-    [...by.values()].sort((a,b)=>b.cards.length-a.cards.length).slice(0,40)
-      .forEach(row=>rows.push({title:row.title+' ('+row.cards.length+')',cards:row.cards.slice(0,60)}));
-    return rows;
+    all=movies.concat(idx.series);
   }
 
-  /* ---------- الرسم ---------- */
-  function updateHero(c){
-    if(!c)return;
-    const img=$('vpimg');
-    if(c.logo){img.src=c.logo;img.style.display=''}else img.style.display='none';
-    $('vpt').textContent=c.title;
-    const record=c.resumeRecord||(c.kind==='movie'?progress()[c.item.url]:c.lazy?progress()[c.lazy]:null);
-    $('vps').textContent=(c.kind==='series'?'مسلسل'+(c.eps.length?' · '+c.eps.length+' حلقة':''):'فيلم')+
-      (c.group?' · '+c.group:'')+(c.sourceName?' · '+c.sourceName:'')+
-      (record&&Model&&Model.shouldResume(record)?' · متابعة عند '+fmt(record.position):'');
+  /* ---------- التصفية والترتيب ---------- */
+  function groupsOf(){
+    const m=new Map();
+    all.forEach(c=>{if(filter==='movies'&&c.kind!=='movie')return;if(filter==='series'&&c.kind!=='series')return;const g=c.group||'أخرى';m.set(g,(m.get(g)||0)+1)});
+    return [...m.entries()].sort((a,b)=>b[1]-a[1]);
   }
-  function sourceOptions(){
-    const select=$('vodsource'),sources=lists.filter(l=>l.id!==FAV_LIST_ID&&l.id!=='builtin');
-    if(srcId&&!sources.some(l=>l.id===srcId))srcId='';
-    select.textContent='';
-    const all=document.createElement('option');all.value='';all.textContent='كل المصادر';select.appendChild(all);
-    sources.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.name;select.appendChild(o)});
-    select.value=srcId;select.classList.toggle('sel',zone==='source');
+  function makeView(){
+    const ql=q.trim().toLowerCase();
+    let a=all.filter(c=>(filter==='all'||(filter==='movies'?c.kind==='movie':c.kind==='series'))&&(!cat||(c.group||'أخرى')===cat)&&(!ql||c.title.toLowerCase().includes(ql)));
+    if(sort==='az')a.sort(coll?(x,y)=>coll.compare(x.title,y.title):(x,y)=>x.title<y.title?-1:1);
+    else if(sort==='rating')a.sort((x,y)=>(y.rating||0)-(x.rating||0)||y.ord-x.ord);
+    else a.sort((x,y)=>y.ord-x.ord);                      // الأحدث إضافةً أولاً (آخر المصدر)
+    view=a;gi=0;
   }
-  function paintTabs(){
-    tabsEl.textContent='';
-    [['all','الكل'],['movies','🎬 أفلام'],['series','🎞 مسلسلات']].forEach(([k,l],i)=>{
-      const b=document.createElement('span');
-      b.className='vt'+(filter===k?' on':'')+(zone==='tabs'&&i===tIdx?' sel':'');
-      b.textContent=l;
-      b.onclick=()=>{filter=k;zone='rows';idxRows();paintHome()};
-      tabsEl.appendChild(b);
+  const SORTS={recent:'الأحدث',az:'أ ← ي',rating:'الأعلى تقييماً'};
+  function paintBar(){
+    barItems=[
+      {k:'f',v:'all',l:'الكل'},{k:'f',v:'movies',l:'🎬 أفلام'},{k:'f',v:'series',l:'🎞 مسلسلات'},{dv:1},
+      {k:'cat',l:'🗂 '+(cat||'كل التصنيفات')+' ▾'},{k:'sort',l:'⇅ '+SORTS[sort]},
+      {k:'q',l:q?'🔍 «'+q+'» ✕':'🔍 بحث'}
+    ];
+    barEl.textContent='';
+    barItems.forEach((b,i)=>{
+      const d=document.createElement('span');d.dataset.i=i;
+      if(b.dv){d.className='vt dv';barEl.appendChild(d);return}
+      d.className='vt'+((b.k==='f'&&filter===b.v)?' on':'')+(zone==='bar'&&bi===i?' sel':'');
+      d.textContent=b.l;barEl.appendChild(d);
     });
-    const search=$('vodsearch');
-    search.textContent=query?'🔎 '+query:'🔎 بحث';
-    search.classList.toggle('sel',zone==='search');
   }
-  async function searchPrompt(){
-    const value=await kbPrompt('بحث في العناوين والتصنيفات والمصادر',query);
-    if(value===null)return;
-    query=value.trim();idxRows();paintHome();
+  function markBar(){
+    [...barEl.children].forEach((d,i)=>d.classList.toggle('sel',zone==='bar'&&bi===i));
+    const s=barEl.querySelector('.sel');if(s)s.scrollIntoView({block:'nearest',inline:'nearest'});
+  }
+  function barAct(i){
+    const b=barItems[i];if(!b||b.dv)return;
+    if(b.k==='f'){filter=b.v;cat='';refresh()}
+    else if(b.k==='cat')openPick('cat');
+    else if(b.k==='sort')openPick('sort');
+    else if(b.k==='q'){
+      if(q){q='';refresh();return}
+      if(!window.kbPrompt)return;
+      kbPrompt('بحث في المكتبة','').then(v=>{if(v!==null){q=v.trim();refresh()}});
+    }
+  }
+
+  /* ---------- الرسم (الشبكة) ---------- */
+  function ensureIO(){
+    if(io||!('IntersectionObserver' in window))return;
+    io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;const im=e.target;io.unobserve(im);loadImg(im)})},{root:bodyEl,rootMargin:'500px 0px'});
+  }
+  function loadImg(im){
+    const u=im.dataset.s;if(!u)return;im.dataset.s='';
+    im.decoding='async';
+    im.onload=()=>im.classList.add('ld');
+    im.onerror=()=>{const c=im.closest('.vc');im.remove();if(c)c.classList.add('noimg')};
+    im.src=u;
+  }
+  function cardEl(c,i){
+    const d=document.createElement('div');d.className='vc';d.dataset.i=i;
+    const p=document.createElement('div');p.className='vp';p.dataset.i=((c.title||'?').trim()[0])||'?';
+    if(c.logo){
+      const im=document.createElement('img');im.alt='';im.dataset.s=c.logo;p.appendChild(im);
+      if(io)io.observe(im);else loadImg(im);
+    }else d.classList.add('noimg');
+    if(c.rating){const r=document.createElement('span');r.className='vr';r.textContent=c.rating.toFixed(1);p.appendChild(r)}
+    if(c.kind==='series'){const k=document.createElement('span');k.className='vk';k.textContent='مسلسل';p.appendChild(k)}
+    const n=document.createElement('div');n.className='vn';n.textContent=c.title;
+    d.append(p,n);return d;
+  }
+  function renderMore(to){
+    if(!grid)return;
+    const end=Math.min(view.length,Math.max(to,rendered+STEP)),fr=document.createDocumentFragment();
+    for(let i=rendered;i<end;i++)fr.appendChild(cardEl(view[i],i));
+    const more=grid.querySelector('.vmore');if(more)more.remove();
+    grid.appendChild(fr);rendered=end;
+    if(rendered<view.length){const m=document.createElement('div');m.className='vmore';m.textContent='…';grid.appendChild(m)}
+    calcCols();
+  }
+  function calcCols(){
+    try{const n=getComputedStyle(grid).gridTemplateColumns.split(' ').filter(x=>x&&x!=='none').length;cols=Math.max(1,n)}catch(e){cols=1}
   }
   function msgBody(t){
-    bodyEl.textContent='';
+    bodyEl.textContent='';grid=null;
     const d=document.createElement('div');d.className='vempty';d.textContent=t;bodyEl.appendChild(d);
   }
-  function idxRows(){rowsData=makeRows();rIdx=0;cols=[]}
-  function paintHome(){
-    screen='home';paintTabs();bodyEl.textContent='';
-    $('vodh').classList.remove('hide');
-    sourceOptions();
-    if(!rowsData.length){
-      msgBody(query?'لا توجد نتائج مطابقة في المصدر والنوع المحددين.':'لا توجد أفلام أو مسلسلات في مصادرك بعد.\nأضف مصدراً فيه مكتبة (ملف أو رابط أو Xtream) من الإعدادات ← إضافة مصدر، وستظهر هنا تلقائياً.');
-      return;
-    }
-    rowsData.forEach((r,ri)=>{
-      const row=document.createElement('div');row.className='vrow';
-      const t=document.createElement('div');t.className='vrt';t.textContent=r.title;row.appendChild(t);
-      const cs=document.createElement('div');cs.className='vcs';
-      r.cards.forEach((c,ci)=>{
-        const d=document.createElement('div');d.className='vc';d.dataset.i=((c.title||'?').trim()[0])||'?';
-        if(c.logo){
-          const img=document.createElement('img');img.loading='lazy';img.alt='';img.src=c.logo;
-          img.onerror=()=>{img.remove();d.classList.add('noimg')};
-          d.appendChild(img);
-        }else d.classList.add('noimg');
-        const nm=document.createElement('span');nm.className='vn';nm.textContent=c.title;d.appendChild(nm);
-        if(c.kind==='series'){const b=document.createElement('i');b.textContent='مسلسل';d.appendChild(b)}
-        if(c.sourceName){const source=document.createElement('small');source.className='vbadge';source.textContent=c.sourceName;d.appendChild(source)}
-        const rec=c.resumeRecord||(c.kind==='movie'?progress()[c.item.url]:null);
-        if(rec&&Model&&Model.shouldResume(rec)){
-          const bar=document.createElement('span');bar.className='vprogress';bar.style.setProperty('--progress',Model.progressPercent(rec)+'%');d.appendChild(bar);
-        }
-        d.onclick=()=>{rIdx=ri;cols[ri]=ci;zone='rows';markCards();showDetails(c,'home')};
-        cs.appendChild(d);
-      });
-      row.appendChild(cs);bodyEl.appendChild(row);
-    });
-    markCards();
+  function paintHome(keepScroll){
+    screen='home';paintBar();
+    $('vcount').textContent=view.length+' عنصر';
+    $('vhint').textContent='↑ ↓ ← → تنقل · OK فتح · رجوع';
+    if(!all.length){msgBody('لا توجد أفلام أو مسلسلات في مصادرك بعد.\nأضف مصدراً فيه مكتبة (ملف أو رابط أو Xtream أو Stalker) من الإعدادات ← المصادر ← إضافة مصدر، وستظهر هنا تلقائياً.');infoT.textContent='';infoS.textContent='';return}
+    if(!view.length){msgBody('لا نتائج مطابقة.\nغيّر التصنيف أو امسح البحث.');infoT.textContent='';infoS.textContent='';return}
+    bodyEl.textContent='';
+    if(io){io.disconnect()}
+    ensureIO();
+    grid=document.createElement('div');grid.className='vgrid';bodyEl.appendChild(grid);
+    rendered=0;renderMore(Math.max(STEP,gi+cols*3));
+    if(!keepScroll)bodyEl.scrollTop=0;
+    markSel();
   }
-  function markCards(){
-    bodyEl.querySelectorAll('.vc.sel').forEach(x=>x.classList.remove('sel'));
-    paintTabs();
-    if(zone!=='rows'||!rowsData.length)return;
-    const row=bodyEl.children[rIdx];if(!row)return;
-    const c=row.querySelectorAll('.vc')[cols[rIdx]||0];
-    row.scrollIntoView({block:'nearest'});
-    if(c){c.classList.add('sel');c.scrollIntoView({block:'nearest',inline:'nearest'});updateHero(rowsData[rIdx].cards[cols[rIdx]||0])}
+  function refresh(){makeView();zone=view.length?'grid':'bar';paintHome()}
+
+  function markSel(){
+    if(!grid){markBar();return}
+    const old=grid.querySelector('.vc.sel');if(old)old.classList.remove('sel');
+    if(zone!=='grid'){markBar();updateInfo();return}
+    const c=grid.children[gi];
+    if(c&&c.classList.contains('vc')){c.classList.add('sel');keepVisible(c)}
+    markBar();updateInfo();
   }
-  function cardId(c){return c.kind==='movie'?c.item.url:(c.lazy||c.sourceId+':'+c.title)}
-  function cardRecord(c){
-    const p=progress();
-    if(c.kind==='movie')return p[c.item.url]||null;
-    const records=Object.values(p).filter(x=>x&&x.seriesTitle===c.title&&x.sourceId===c.sourceId)
-      .sort((a,b)=>(b.updated||0)-(a.updated||0));
-    return records.find(x=>Model&&Model.shouldResume(x))||records[0]||(c.lazy?p[c.lazy]:null)||null;
+  function keepVisible(c){
+    const pad=26,top=c.offsetTop,h=c.offsetHeight,st=bodyEl.scrollTop,ch=bodyEl.clientHeight;
+    if(top-pad<st)bodyEl.scrollTop=Math.max(0,top-pad);
+    else if(top+h+pad>st+ch)bodyEl.scrollTop=top+h+pad-ch;
   }
-  function addAction(label,run,cls){
-    const button=document.createElement('button');button.type='button';button.className=cls||'';
-    button.textContent=label;button.onclick=run;return button;
+  function updateInfo(){
+    const c=(zone==='grid')?view[gi]:null;
+    if(!c){infoT.textContent=view.length?'':'';infoS.textContent='';return}
+    infoT.textContent=c.title;
+    infoS.textContent=(c.kind==='series'?'مسلسل'+(c.eps.length?' · '+c.eps.length+' حلقة':''):'فيلم')+(c.group?' · '+c.group:'')+(c.rating?' · ★ '+c.rating.toFixed(1):'');
   }
-  function showDetails(card,returnTo){
-    cur=card;detailReturn=returnTo||'home';screen='details';zone='details';
-    detailScrollTop=bodyEl.scrollTop;
-    detailRowScroll=[...bodyEl.querySelectorAll('.vcs')].map(row=>row.scrollLeft);
-    bodyEl.textContent='';$('vodh').classList.add('hide');
-    const panel=document.createElement('section');panel.className='vdetails';
-    const cover=document.createElement('img');cover.className='vdetail-cover';cover.alt='';if(card.logo)cover.src=card.logo;
-    cover.onerror=()=>{cover.remove()};
-    const info=document.createElement('div');info.className='vdetail-info';
-    const title=document.createElement('h2');title.textContent=card.title;info.appendChild(title);
-    const meta=document.createElement('p');meta.textContent=(card.kind==='series'?'مسلسل':'فيلم')+' · '+(card.group||'بدون تصنيف')+' · '+(card.sourceName||'مصدر');info.appendChild(meta);
-    const alternatives=idx?[...idx.movies,...idx.series].filter(other=>other!==card&&Model.sameTitle(card,other)):[];
-    const key=Model.normalizeTitle(card.title),remembered=LS.get('m3u_vod_provider',{})[key];
-    alternatives.sort((a,b)=>(a.sourceId===remembered?-1:0)-(b.sourceId===remembered?-1:0));
-    const rec=cardRecord(card),canResume=rec&&Model.shouldResume(rec);
-    if(card.kind==='series'){
-      info.appendChild(addAction('اختيار الموسم والحلقة',()=>{detailReturn='home';activate(card)}));
-      if(canResume)info.appendChild(addAction('▶ متابعة من '+fmt(rec.position),()=>playCard(card,rec.position),'alt'));
+
+  /* ---------- منتقي التصنيف / الترتيب ---------- */
+  function openPick(kind){
+    pickKind=kind;pickOn=true;pickRows=[];
+    if(kind==='sort'){
+      $('vpt').textContent='ترتيب العرض';
+      Object.keys(SORTS).forEach(k=>pickRows.push({v:k,l:SORTS[k],cur:sort===k}));
     }else{
-      info.appendChild(addAction(canResume?'▶ متابعة من '+fmt(rec.position):'▶ تشغيل',()=>playCard(card,canResume?rec.position:0)));
-      if(canResume)info.appendChild(addAction('↺ البدء من البداية',()=>playCard(card,0),'alt'));
+      $('vpt').textContent='التصنيف';
+      pickRows.push({v:'',l:'كل التصنيفات',n:all.filter(c=>filter==='all'||(filter==='movies'?c.kind==='movie':c.kind==='series')).length,cur:!cat});
+      groupsOf().slice(0,500).forEach(([g,n])=>pickRows.push({v:g,l:g,n,cur:cat===g}));
     }
-    const cardWatched=!!watched()[cardId(card)];
-    info.appendChild(addAction(cardWatched?'✓ تمت المشاهدة':'○ تحديد كمشاهد',()=>setWatched(card,!cardWatched),'alt'));
-    info.appendChild(addAction('← العودة إلى القائمة',()=>returnFromDetails(),'alt'));
-    if(alternatives.length){
-      const heading=document.createElement('h3');heading.textContent='مصادر بديلة';info.appendChild(heading);
-      alternatives.forEach(other=>info.appendChild(addAction(other.sourceName+' · '+other.title,()=>{
-        const providers=LS.get('m3u_vod_provider',{});providers[key]=other.sourceId;LS.set('m3u_vod_provider',providers);
-        cur=other;showDetails(other,detailReturn);
-      },'alt')));
-    }
-    panel.append(cover,info);bodyEl.appendChild(panel);
-    detailIndex=0;
-    const first=panel.querySelector('button');if(first)first.focus({preventScroll:true});
-  }
-  function returnFromDetails(){
-    if(detailReturn==='series'&&cur){screen='series';zone='eps';paintSeries();return}
-    $('vodh').classList.remove('hide');
-    const selected=rowsData[rIdx]&&rowsData[rIdx].cards[cols[rIdx]||0];
-    idxRows();
-    if(selected){
-      const rowIndex=rowsData.findIndex(row=>row.cards.some(card=>cardId(card)===cardId(selected)));
-      if(rowIndex>=0){rIdx=rowIndex;cols[rowIndex]=rowsData[rowIndex].cards.findIndex(card=>cardId(card)===cardId(selected))}
-    }
-    screen='home';zone='rows';paintHome();
-    requestAnimationFrame(()=>{
-      bodyEl.scrollTop=detailScrollTop;
-      [...bodyEl.querySelectorAll('.vcs')].forEach((row,i)=>{row.scrollLeft=detailRowScroll[i]||0});
-      markCards();
+    pi=Math.max(0,pickRows.findIndex(r=>r.cur));
+    const L=$('vpl');L.textContent='';
+    pickRows.forEach((r,i)=>{
+      const d=document.createElement('div');d.className='vpi'+(r.cur?' cur':'');d.dataset.i=i;
+      const s=document.createElement('span');s.textContent=r.l;d.appendChild(s);
+      if(r.n!==undefined){const e=document.createElement('em');e.textContent=r.n;d.appendChild(e)}
+      L.appendChild(d);
     });
+    pickEl.classList.add('on');markPick();
   }
-  function setWatched(card,value){
-    const map=watched(),id=cardId(card);
-    if(value)map[id]=Date.now();else delete map[id];
-    LS.set('m3u_vod_watched',map);
-    const records=progress();
-    if(card.kind==='movie'&&records[card.item.url])records[card.item.url].watched=!!value;
-    if(card.lazy&&records[card.lazy])records[card.lazy].watched=!!value;
-    if(card.kind==='series')Object.keys(records).forEach(url=>{if(records[url]&&records[url].seriesTitle===card.title&&records[url].sourceId===card.sourceId)records[url].watched=!!value});
-    LS.set('m3u_vod_progress',records);
-    if(screen==='details')showDetails(card,detailReturn);else paintHome();
+  function markPick(){
+    const L=$('vpl');[...L.children].forEach((d,i)=>d.classList.toggle('sel',i===pi));
+    const s=L.children[pi];if(s)s.scrollIntoView({block:'nearest'});
   }
-  async function playCard(card,position){
-    const record=cardRecord(card);
-    const ep=card.kind==='series'&&record&&record.url?card.eps.findIndex(e=>e.url===record.url):0;
-    if(card.kind==='series'&&card.lazy&&!card.eps.length){
-      const ok=await loadLazy(card);
-      if(!ok){toast('تعذّر تحميل حلقات هذا المسلسل');return}
-      playCard(card,position);return;
-    }
-    if(card.kind==='series'){
-      const episode=card.eps[Math.max(0,ep)]||card.eps[0];
-      if(!episode){toast('لا توجد حلقات لهذا المسلسل');return}
-      cur=card;curEps=card.eps.filter(e=>e.s===episode.s);eIdx=Math.max(0,curEps.findIndex(e=>e.url===episode.url));
-      detailReturn='details';playItem(episode.item,curEps,eIdx,card,position);
-    }else{
-      if(position===0){
-        const marks=watched();delete marks[cardId(card)];LS.set('m3u_vod_watched',marks);
-        const records=progress();if(records[card.item.url])records[card.item.url].watched=false;LS.set('m3u_vod_progress',records);
-      }
-      playItem(card.item,null,0,card,position);
-    }
+  function closePick(){pickOn=false;pickEl.classList.remove('on')}
+  function pickDo(){
+    const r=pickRows[pi];if(!r)return;closePick();
+    if(pickKind==='sort'){sort=r.v}else cat=r.v;
+    refresh();
   }
-  /* حلقات مسلسلات Xtream: تُحمَّل عند الفتح فقط */
+  pickEl.addEventListener('click',e=>{
+    const d=e.target.closest('.vpi');
+    if(d){pi=+d.dataset.i;pickDo();return}
+    if(e.target===pickEl)closePick();
+  });
+
+  /* ---------- أحداث النقر (فأرة/لمس) ---------- */
+  bodyEl.addEventListener('click',e=>{
+    if(screen!=='home')return;
+    const c=e.target.closest('.vc');if(!c)return;
+    gi=+c.dataset.i;zone='grid';markSel();activate(view[gi]);
+  });
+  barEl.addEventListener('click',e=>{const d=e.target.closest('.vt');if(!d||d.classList.contains('dv'))return;bi=+d.dataset.i;zone='bar';markBar();barAct(bi)});
+  bodyEl.addEventListener('scroll',()=>{
+    if(screen!=='home'||!grid||rendered>=view.length)return;
+    if(bodyEl.scrollTop+bodyEl.clientHeight>bodyEl.scrollHeight-bodyEl.clientHeight*1.5)renderMore(rendered+STEP);
+  },{passive:true});
+  window.addEventListener('resize',()=>{if(on&&grid)calcCols()});
+
+  /* ---------- حلقات مسلسلات Xtream: تُحمَّل عند الفتح فقط ---------- */
   async function loadLazy(c){
     toast('جارٍ تحميل الحلقات…');
     try{
@@ -300,23 +253,29 @@
       eps.sort((a,b)=>a.s-b.s||a.e-b.e);c.eps=eps;return true;
     }catch(e){return false}
   }
+  function openSeries(c){saved={gi,sc:bodyEl.scrollTop};cur=c;sIdx=0;eIdx=0;zone='eps';paintSeries()}
   function activate(c){
+    if(!c)return;
     if(c.kind==='series'&&c.lazy&&!c.eps.length){
-      loadLazy(c).then(ok=>{if(ok&&on){cur=c;sIdx=0;eIdx=0;zone='eps';paintSeries()}else if(!ok)toast('تعذّر تحميل حلقات هذا المسلسل')});
+      loadLazy(c).then(ok=>{if(ok&&on)openSeries(c);else if(!ok)toast('تعذّر تحميل حلقات هذا المسلسل')});
       return;
     }
-    if(c.kind==='series'){cur=c;sIdx=0;eIdx=0;zone='eps';paintSeries()}
-    else showDetails(c,'home');
+    if(c.kind==='series')openSeries(c);
+    else playItem(c.item,null,0);
   }
 
   /* ---------- شاشة المسلسل ---------- */
   function paintSeries(){
-    screen='series';bodyEl.textContent='';
+    screen='series';bodyEl.textContent='';grid=null;
+    $('vhint').textContent='↑ ↓ حلقات · ← → مواسم · OK تشغيل · رجوع';
+    infoT.textContent=cur.title;infoS.textContent='';
     const seasons=[...new Set(cur.eps.map(e=>e.s))].sort((a,b)=>a-b);
     if(sIdx>=seasons.length)sIdx=0;
-    const details=addAction('تفاصيل المسلسل',()=>showDetails(cur,'series'),'alt');
-    details.classList.toggle('sel',zone==='seriesInfo');
-    bodyEl.appendChild(details);
+    const head=document.createElement('div');head.className='vser';
+    if(cur.logo){const im=document.createElement('img');im.alt='';im.src=cur.logo;im.onerror=()=>im.remove();head.appendChild(im)}
+    const tx=document.createElement('div');const t=document.createElement('b'),m=document.createElement('small');
+    t.textContent=cur.title;m.textContent='مسلسل · '+cur.eps.length+' حلقة'+(cur.group?' · '+cur.group:'')+(cur.rating?' · ★ '+cur.rating.toFixed(1):'');
+    tx.append(t,m);head.appendChild(tx);
     const bar=document.createElement('div');bar.className='vseas';
     seasons.forEach((s,i)=>{
       const b=document.createElement('span');b.className='vs'+(i===sIdx?' on':'')+(zone==='seasons'&&i===sIdx?' sel':'');
@@ -329,151 +288,76 @@
       const r=document.createElement('div');r.className='ve'+(zone==='eps'&&i===eIdx?' sel':'');
       r.innerHTML='<span class="n"></span><span class="t"></span>';
       r.children[0].textContent='الحلقة '+e.e;r.children[1].textContent=e.name;
-      r.onclick=()=>{eIdx=i;zone='eps';detailReturn='series';playItem(e.item,curEps,i,cur,0)};
+      r.onclick=()=>{eIdx=i;zone='eps';playItem(e.item,curEps,i)};
       list.appendChild(r);
     });
-    bodyEl.appendChild(bar);bodyEl.appendChild(list);
+    bodyEl.append(head,bar,list);
     const s=list.querySelector('.sel');if(s)s.scrollIntoView({block:'nearest'});
-    updateHero(cur);
   }
   function seriesKey(k){
     const r=rtl(),fwd=r?'ArrowLeft':'ArrowRight',bwd=r?'ArrowRight':'ArrowLeft';
     const nSeasons=bodyEl.querySelectorAll('.vs').length;
-    if(zone==='seriesInfo'){
-      if(k==='ArrowDown'){zone=nSeasons?'seasons':'eps';paintSeries()}
-      else if(k==='Enter')showDetails(cur,'series');
-      return;
-    }
+    if(k===fwd&&sIdx<nSeasons-1){sIdx++;eIdx=0;paintSeries();return}
+    if(k===bwd&&sIdx>0){sIdx--;eIdx=0;paintSeries();return}
     if(zone==='seasons'){
-      if(k===fwd&&sIdx<nSeasons-1){sIdx++;eIdx=0;paintSeries()}
-      else if(k===bwd&&sIdx>0){sIdx--;eIdx=0;paintSeries()}
-      else if(k==='ArrowDown'||k==='Enter'){zone='eps';paintSeries()}
-      else if(k==='ArrowUp'){zone='seriesInfo';paintSeries()}
+      if(k==='ArrowDown'||k==='Enter'){zone='eps';paintSeries()}
     }else{
       if(k==='ArrowUp'){if(eIdx>0)eIdx--;else zone='seasons';paintSeries()}
       else if(k==='ArrowDown'){eIdx=Math.min(curEps.length-1,eIdx+1);paintSeries()}
       else if(k==='Enter'){const e=curEps[eIdx];if(e)playItem(e.item,curEps,eIdx)}
     }
   }
+  function leaveSeries(){
+    zone='grid';
+    paintHome(true);
+    if(saved){gi=Math.min(saved.gi,Math.max(0,view.length-1));renderMore(gi+cols*2);bodyEl.scrollTop=saved.sc;markSel()}
+  }
 
-  /* ---------- الرئيسية ---------- */
+  /* ---------- لوحة المفاتيح: الشبكة ---------- */
   function homeKey(k){
+    if(pickOn){
+      if(k==='ArrowDown')pi=Math.min(pickRows.length-1,pi+1);
+      else if(k==='ArrowUp')pi=Math.max(0,pi-1);
+      else if(k==='PageDown')pi=Math.min(pickRows.length-1,pi+6);
+      else if(k==='PageUp')pi=Math.max(0,pi-6);
+      else if(k==='Enter'){pickDo();return}
+      else if(k==='Escape'||k==='Backspace'){closePick();return}
+      markPick();return;
+    }
     const r=rtl(),fwd=r?'ArrowLeft':'ArrowRight',bwd=r?'ArrowRight':'ArrowLeft';
-    if(zone==='search'){
-      if(k==='Enter'){searchPrompt();return}
-      else if(k==='ArrowUp'){zone='tabs';tIdx=FILTERS.indexOf(filter)}
-      else if(k==='ArrowDown'){zone='source'}
-      paintTabs();sourceOptions();return;
+    if(zone==='bar'){
+      const n=barItems.length;
+      if(k===fwd){let i=bi+1;while(i<n&&barItems[i].dv)i++;if(i<n)bi=i}
+      else if(k===bwd){let i=bi-1;while(i>=0&&barItems[i].dv)i--;if(i>=0)bi=i}
+      else if(k==='ArrowDown'&&view.length){zone='grid'}
+      else if(k==='Enter'){barAct(bi);return}
+      markSel();return;
     }
-    if(zone==='source'){
-      const source=$('vodsource'),step=k===fwd?1:k===bwd?-1:0;
-      if(step){source.selectedIndex=Math.max(0,Math.min(source.options.length-1,source.selectedIndex+step))}
-      else if(k==='Enter'){source.dispatchEvent(new Event('change'));zone='rows';return}
-      else if(k==='ArrowDown'){zone='rows'}
-      else if(k==='ArrowUp'){zone='search'}
-      source.classList.toggle('sel',zone==='source');paintTabs();return;
-    }
-    if(zone==='tabs'){
-      if(k===fwd)tIdx=Math.min(FILTERS.length-1,tIdx+1);
-      else if(k===bwd)tIdx=Math.max(0,tIdx-1);
-      else if(k==='ArrowUp'){zone='search';$('vodsource').classList.remove('sel')}
-      else if(k==='ArrowDown'){zone='rows'}
-      else if(k==='Enter'){filter=FILTERS[tIdx];zone='rows';idxRows();paintHome();return}
-      markCards();return;
-    }
-    if(!rowsData.length){if(k==='ArrowUp'){zone='tabs';tIdx=FILTERS.indexOf(filter);markCards()}return}
-    const n=rowsData[rIdx].cards.length;
-    if(k==='ArrowUp'){if(rIdx>0)rIdx--;else{zone='tabs';tIdx=FILTERS.indexOf(filter)}}
-    else if(k==='ArrowDown'){rIdx=Math.min(rowsData.length-1,rIdx+1)}
-    else if(k===fwd){cols[rIdx]=Math.min(n-1,(cols[rIdx]||0)+1)}
-    else if(k===bwd){cols[rIdx]=Math.max(0,(cols[rIdx]||0)-1)}
-    else if(k==='Enter'){activate(rowsData[rIdx].cards[cols[rIdx]||0]);return}
-    markCards();
+    if(!view.length){if(k==='ArrowUp'){zone='bar'}markSel();return}
+    const last=view.length-1;let n=gi;
+    if(k===fwd)n=Math.min(last,gi+1);
+    else if(k===bwd)n=Math.max(0,gi-1);
+    else if(k==='ArrowDown')n=Math.min(last,gi+cols);
+    else if(k==='ArrowUp'){if(gi<cols){zone='bar';markSel();return}n=gi-cols}
+    else if(k==='PageDown')n=Math.min(last,gi+cols*3);
+    else if(k==='PageUp')n=Math.max(0,gi-cols*3);
+    else if(k==='Home')n=0;
+    else if(k==='End')n=last;
+    else if(k==='Enter'){activate(view[gi]);return}
+    else return;
+    gi=n;
+    if(gi>=rendered-cols*2&&rendered<view.length)renderMore(gi+cols*3);
+    markSel();
   }
 
   /* ---------- التشغيل ---------- */
   const fmt=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')};
-  function playItem(it,eps,i,card,position){
-    if(playing){
-      saveProgress();
-      clearInterval(progressTimer);progressTimer=null;
-      stopAll();
-    }
-    playing={eps:eps||null,i:i||0,card:card||cur,item:it};
-    screen='player';
-    clearNext();
+  function playItem(it,eps,i){
+    playing=eps?{eps,i}:null;
     B.classList.add('cine-play');
-    const v=$('v');
-    const seekTo=()=>{if(position>0&&Number.isFinite(v.duration)&&v.duration>position){v.currentTime=position}v.removeEventListener('loadedmetadata',seekTo)};
-    if(position>0)v.addEventListener('loadedmetadata',seekTo);
     play(it);
-    updatePlaybackActions();
-    progressTimer=setInterval(saveProgress,15000);
   }
-  function activeRecordKey(){
-    return playing&&playing.item?playing.item.url:'';
-  }
-  function saveProgress(){
-    if(!playing)return;
-    const v=$('v'),url=activeRecordKey();
-    if(!url||!Number.isFinite(v.duration)||v.duration<=0||!Number.isFinite(v.currentTime))return;
-    const records=progress(),old=records[url]||{};
-    const complete=old.watched||v.ended||v.currentTime>=v.duration*0.95;
-    records[url]={
-      url,title:playing.item.name||playing.card.title,seriesTitle:playing.card.kind==='series'?playing.card.title:'',
-      sourceId:playing.card.sourceId||active,position:v.currentTime,duration:v.duration,
-      watched:!!complete,updated:Date.now()
-    };
-    LS.set('m3u_vod_progress',records);
-    if(playing.card.kind==='movie'&&complete){
-      const marks=watched();marks[cardId(playing.card)]=Date.now();LS.set('m3u_vod_watched',marks);
-    }
-  }
-  function clearNext(){
-    clearTimeout(nextTimer);nextTimer=null;nextCard=null;nextEpisode=null;
-    $('vodnext').classList.add('hide');
-  }
-  function stopPlay(){saveProgress();clearInterval(progressTimer);progressTimer=null;clearNext();tok++;stopAll();B.classList.remove('cine-play');playing=null;screen='details'}
-  function updatePlaybackActions(){
-    const c=playing&&playing.card;
-    $('vodwatched').style.display=c?'':'none';
-    $('vodbackdetails').style.display=c?'':'none';
-    if(c)$('vodwatched').textContent=c.kind==='series'?'✓ تمت مشاهدة الحلقة':'✓ تمت المشاهدة';
-  }
-  function setCurrentWatched(){
-    if(!playing)return;
-    if(playing.card.kind==='series'){
-      const v=$('v');if(Number.isFinite(v.duration)&&v.duration>0)v.currentTime=v.duration;
-      saveProgress();
-    }else setWatched(playing.card,true);
-    updatePlaybackActions();
-  }
-  function offerNext(){
-    if(!playing||!playing.eps||playing.i+1>=playing.eps.length)return;
-    nextCard=playing.card;nextEpisode=playing.eps[playing.i+1];
-    let remaining=10;
-    const auto=LS.get('m3u_vod_autonext',true);
-    $('vodnexttext').textContent=auto?'الحلقة التالية خلال '+remaining+' ثوانٍ':'انتهت الحلقة · اختر تشغيل الحلقة التالية';
-    $('vodnext').classList.remove('hide');
-    if(!auto)return;
-    const tick=()=>{remaining--;if(remaining<=0){playNext();return} $('vodnexttext').textContent='الحلقة التالية خلال '+remaining+' ثوانٍ';nextTimer=setTimeout(tick,1000)};
-    nextTimer=setTimeout(tick,1000);
-  }
-  function playNext(){
-    if(!nextEpisode||!nextCard)return;
-    const card=nextCard,episode=nextEpisode,eps=playing.eps,index=eps.findIndex(e=>e.url===episode.url);
-    clearNext();playItem(episode.item,eps,index,card,0);eIdx=index;
-  }
-  $('vodnextnow').onclick=playNext;
-  $('vodnextcancel').onclick=clearNext;
-  $('vodbackdetails').onclick=()=>{
-    if(!playing)return;
-    const card=playing.card,backTo=detailReturn;
-    stopPlay();detailReturn=backTo;showDetails(card,backTo);
-  };
-  $('vodwatched').onclick=setCurrentWatched;
-  $('v').addEventListener('pause',saveProgress);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)saveProgress()});
+  function stopPlay(){tok++;stopAll();B.classList.remove('cine-play');playing=null}
   function seek(sec){
     const v=$('v');
     if(!isFinite(v.duration)||!v.duration){toast('لا يمكن التقديم في هذا المحتوى');return}
@@ -482,64 +366,57 @@
   }
   function playKey(k){
     const v=$('v');
-    if(k==='Escape'&&nextCard)clearNext();
-    else if(k==='Enter'){if(v.paused)v.play();else v.pause();toast(v.paused?'⏸ متوقف':'▶ تشغيل')}
+    if(k==='Enter'){if(v.paused)v.play();else v.pause();toast(v.paused?'⏸ متوقف':'▶ تشغيل')}
     else if(k==='ArrowRight'||k==='ArrowLeft')seek(k==='ArrowRight'?10:-10);
     else if(k==='ArrowUp'||k==='ArrowDown')seek(k==='ArrowUp'?60:-60);
-    else if((k==='PageDown'||k==='PageUp')&&playing&&playing.eps){
+    else if((k==='PageDown'||k==='PageUp')&&playing){
       const n=playing.i+(k==='PageDown'?1:-1);
-      if(n>=0&&n<playing.eps.length){const episode=playing.eps[n];eIdx=n;playItem(episode.item,playing.eps,n,playing.card,0)}
+      if(n>=0&&n<playing.eps.length){playing.i=n;eIdx=n;play(playing.eps[n].item)}
     }
   }
   $('v').addEventListener('ended',()=>{
     if(!on||!B.classList.contains('cine-play')||!playing)return;
-    saveProgress();
-    if(playing.eps)offerNext();
+    const n=playing.i+1;
+    if(n<playing.eps.length){playing.i=n;eIdx=n;play(playing.eps[n].item)}
   });
-  $('vodsource').addEventListener('change',()=>{
-    srcId=$('vodsource').value;idxRows();screen='home';zone='rows';paintHome();
-  });
-  $('vodsearch').onclick=searchPrompt;
 
   /* ---------- فتح وإغلاق ---------- */
   function open(){
     if(on)return;
     on=true;
-    LS.set('m3u_last_was_vod',true);
-    if(!LS.get('m3u_tip_vod',false)){LS.set('m3u_tip_vod',true);toast('اضغط OK لفتح التفاصيل، واختر المصدر لتصفية المكتبة دون تغيير مصدر البث الحي.')}
     lastLive=shown.find(i=>i.url===curUrl)||null;
     tok++;stopAll();
     el.classList.add('on');B.classList.add('vod');
-    zone='rows';screen='home';tabsEl.textContent='';
+    zone='grid';screen='home';pickOn=false;pickEl.classList.remove('on');
+    $('vsrc').textContent=srcId?((lists.find(l=>l.id===srcId)||{}).name||''):'';
+    barEl.textContent='';$('vcount').textContent='';infoT.textContent='';infoS.textContent='';
     msgBody('جارٍ تحليل المكتبة…');
-    build().then(()=>{idxRows();paintHome()}).catch(()=>msgBody('تعذّر تحليل المكتبة'));
+    build().then(()=>{if(!on)return;filter='all';cat='';q='';sort='recent';bi=0;makeView();zone='grid';paintHome()}).catch(()=>msgBody('تعذّر تحليل المكتبة'));
   }
   function close(){
-    if(playing)stopPlay();
     on=false;el.classList.remove('on');B.classList.remove('vod');B.classList.remove('cine-play');
+    if(io){io.disconnect()}grid=null;
     if(lastLive){const it=lastLive;lastLive=null;play(it)}
   }
   window.__openVod=function(id){srcId=(typeof id==='string')?id:'';open()};
   window.__vodBack=function(){
     if(!on)return false;
-    if(B.classList.contains('cine-play')){
-      const card=playing&&playing.card,backTo=detailReturn;
-      stopPlay();
-      if(card)showDetails(card,backTo);
-      return true;
-    }
-    if(screen==='details'){returnFromDetails();return true}
-    if(screen==='series'){zone='rows';paintHome();return true}
+    if(B.classList.contains('cine-play')){stopPlay();return true}
+    if(pickOn){closePick();return true}
+    if(screen==='series'){leaveSeries();return true}
     close();return true;
   };
   document.addEventListener('keydown',e=>{
     if(!on||document.querySelector('dialog[open]'))return;
     if(e.ctrlKey||e.altKey||e.metaKey)return;
     e.preventDefault();e.stopPropagation();
-    const k=e.key;
-    if(B.classList.contains('cine-play'))playKey(k);
-    else if(screen==='series')seriesKey(k);
-    else if(screen==='home')homeKey(k);
-    else if(screen==='details')detailKey(k);
+    const k=/^(OK|Select)$/.test(e.key)?'Enter':e.key;
+    if(B.classList.contains('cine-play')){playKey(k);return}
+    if(screen==='series'){
+      if(k==='Escape'||k==='Backspace'){leaveSeries();return}
+      seriesKey(k);return;
+    }
+    if(!pickOn&&(k==='Escape'||k==='Backspace')){close();return}
+    homeKey(k);
   },true);
 })();

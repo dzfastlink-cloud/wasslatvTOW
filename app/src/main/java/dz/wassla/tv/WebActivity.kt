@@ -46,6 +46,7 @@ class WebActivity : Activity() {
     private var lastBack = 0L
     private var pickedName = ""
     private var pickedText = ""
+    private val httpRes = java.util.concurrent.ConcurrentHashMap<String, String>()
 
     private val reqPick = 4101
     private val reqTree = 4102
@@ -205,17 +206,9 @@ class WebActivity : Activity() {
 
         @JavascriptInterface
         fun readAsset(name: String): String = try {
-            if (name != "channels.json" && name != "source-config.json") "" else assets.open(name).bufferedReader().use { it.readText() }
+            if (name != "channels.json") "" else assets.open(name).bufferedReader().use { it.readText() }
         } catch (e: Exception) {
             ""
-        }
-
-        @JavascriptInterface
-        fun edition(): String = try {
-            val cfg = org.json.JSONObject(assets.open("source-config.json").bufferedReader().use { it.readText() })
-            if (cfg.optString("edition") == "personal") "personal" else "open"
-        } catch (e: Exception) {
-            "open"
         }
 
         @JavascriptInterface
@@ -244,6 +237,42 @@ class WebActivity : Activity() {
                 imm.showSoftInput(web, 0)
             }
         }
+
+        /* ---------- طلب HTTP أصلي (يسمح برؤوس مثل Cookie وUser-Agent وAuthorization التي يمنعها fetch) ----------
+           يُستعمل لبوابات Stalker ولتنزيل قوائم M3U بوكيل مستخدم مخصّص. النتيجة تُقرأ عبر httpBody(id)
+           حتى لا تُمرَّر الردود الكبيرة داخل evaluateJavascript. */
+        @JavascriptInterface
+        fun httpGet(id: String, url: String, headersJson: String) {
+            Thread {
+                var ok = false
+                var code = 0
+                var body = ""
+                try {
+                    val u = java.net.URL(url)
+                    if (u.protocol != "http" && u.protocol != "https") throw IllegalArgumentException("scheme")
+                    val c = u.openConnection() as java.net.HttpURLConnection
+                    c.connectTimeout = 15000
+                    c.readTimeout = 25000
+                    c.instanceFollowRedirects = true
+                    val h = JSONObject(if (headersJson.isBlank()) "{}" else headersJson)
+                    val keys = h.keys()
+                    while (keys.hasNext()) {
+                        val k = keys.next()
+                        c.setRequestProperty(k, h.optString(k))
+                    }
+                    code = c.responseCode
+                    val ins = if (code in 200..399) c.inputStream else c.errorStream
+                    body = readLimited(ins)
+                    ok = code in 200..299
+                    c.disconnect()
+                } catch (_: Exception) { }
+                httpRes[id] = body
+                js("window.__onHttp&&window.__onHttp(" + JSONObject.quote(id) + "," + ok + "," + code + ")")
+            }.start()
+        }
+
+        @JavascriptInterface
+        fun httpBody(id: String): String = httpRes.remove(id) ?: ""
 
         /* ---------- اختيار ملف من الجهاز ---------- */
         @JavascriptInterface

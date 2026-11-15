@@ -20,7 +20,7 @@
     if(target)play(target.it);
   };
   document.addEventListener('keydown',e=>{
-    if(e.defaultPrevented||document.querySelector('dialog[open]')||window.__stOn&&window.__stOn()||window.__vodOn&&window.__vodOn())return;
+    if(e.defaultPrevented||document.querySelector('dialog[open]')||window.__stOn&&window.__stOn()||window.__vodOn&&window.__vodOn()||window.__cmOn&&window.__cmOn())return;
     if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.ctrlKey||e.altKey||e.metaKey)return;
     const key=e.key.toLowerCase();
     if(document.body.classList.contains('rcv'))return; // receiver.js owns live-view keys

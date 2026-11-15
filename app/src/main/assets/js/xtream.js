@@ -10,6 +10,8 @@
   }
   const catMap=arr=>{const m={};(Array.isArray(arr)?arr:[]).forEach(c=>{m[c.category_id]=clean(c.category_name)});return m};
   const arr=x=>Array.isArray(x)?x:[];
+  /* التقييم (0-10): rating أو rating_5based×2 — يُحفظ في tvg-rating ليظهر على ملصق المكتبة */
+  const rt=x=>{let r=parseFloat(x&&x.rating);if(!(r>0)){const f=parseFloat(x&&x.rating_5based);if(f>0)r=f*2}return r>0?(Math.round(Math.min(r,10)*10)/10):''};
 
   async function build(host,u,p){
     host=host.trim().replace(/\/+$/,'');
@@ -23,47 +25,36 @@
       out.push(host+'/live/'+u+'/'+p+'/'+c.stream_id+'.m3u8');n++;
     });
     arr(vod).forEach(m=>{
-      out.push('#EXTINF:-1 tvg-logo="'+clean(m.stream_icon)+'" group-title="أفلام | '+(V[m.category_id]||'عام')+'",'+nm(m.name));
+      out.push('#EXTINF:-1 tvg-logo="'+clean(m.stream_icon)+'" tvg-rating="'+rt(m)+'" group-title="أفلام | '+(V[m.category_id]||'عام')+'",'+nm(m.name));
       out.push(host+'/movie/'+u+'/'+p+'/'+m.stream_id+'.'+(m.container_extension||'mp4'));n++;
     });
     arr(ser).forEach(s=>{
-      out.push('#EXTINF:-1 tvg-logo="'+clean(s.cover)+'" group-title="مسلسلات | '+(S[s.category_id]||'عام')+'",'+nm(s.name));
+      out.push('#EXTINF:-1 tvg-logo="'+clean(s.cover)+'" tvg-rating="'+rt(s)+'" group-title="مسلسلات | '+(S[s.category_id]||'عام')+'",'+nm(s.name));
       out.push(host+'/player_api.php?username='+encodeURIComponent(u)+'&password='+encodeURIComponent(p)+'&action=get_series_info&series_id='+s.series_id);n++;
     });
     return{text:out.join('\n')+'\n',count:n,host};
   }
 
-  window.xtPrepare=async function(host,u,p){
-    const r=await build(host,u,p);
-    if(!r.count)throw new Error('لم يُرجع الحساب محتوى صالحًا');
-    return{xt:{host:r.host,u,p},text:r.text,count:r.count};
-  };
-  window.xtAddPrepared=async function(prepared,name){
-    if(!prepared||!prepared.xt||!prepared.text)return false;
-    const existing=new Set(lists.map(l=>l.id));
-    const ok=await addList(prepared.text,name||'Xtream','');
-    if(ok){
-      const l=lists.find(x=>!existing.has(x.id));
-      if(l){l.xt=prepared.xt;l.remoteText=prepared.text;await saveLists()}
-    }
-    return ok;
-  };
   /* إضافة سيرفر جديد: يعيد true عند النجاح */
   window.xtAdd=async function(host,u,p,name){
-    const prepared=await window.xtPrepare(host,u,p);
-    return await window.xtAddPrepared(prepared,name);
-  };
-  window.xtPreview=async function(id){
-    const l=lists.find(x=>x.id===id);
-    if(!l||!l.xt)throw new Error('حساب Xtream غير متاح');
-    const r=await build(l.xt.host,l.xt.u,l.xt.p);
-    if(!r.count)throw new Error('لم يُرجع حساب Xtream أي محتوى');
-    return{id,kind:'xtream',sourceKey:JSON.stringify(l.xt),items:parseM3U(r.text),remoteText:r.text};
+    const r=await build(host,u,p);
+    if(!r.count)return false;
+    const ok=await addList(r.text,name||'Xtream','');
+    if(ok){
+      const l=lists.find(x=>x.id===active);
+      if(l){l.xt={host:r.host,u,p};await saveLists()}
+    }
+    return ok;
   };
   /* تحديث مصدر Xtream موجود */
   window.xtRefresh=async function(l){
     if(!l||!l.xt)return false;
-    const proposal=await window.xtPreview(l.id);
-    return await window.__applyListUpdate(proposal,'merge');
+    const r=await build(l.xt.host,l.xt.u,l.xt.p);
+    if(!r.count)return false;
+    const its=parseM3U(r.text);
+    l.text=ser(its);l.n=its.length;l.upd=Date.now();
+    await saveLists();
+    if(active===l.id)openList(l.id);
+    return true;
   };
 })();
