@@ -121,7 +121,10 @@
     select.value=srcId;select.classList.toggle('sel',zone==='source');
   }
   const SORTS={recent:'الأحدث',az:'أ ← ي',rating:'الأعلى تقييماً'};
+  let tabKey='';
   function paintTabs(){
+    const key=[query,sort,zone==='search',zone==='sort',zone==='source'].join('|');
+    if(key===tabKey)return;tabKey=key;
     tabsEl.textContent='';
     const search=$('vodsearch');
     search.textContent=query?'🔎 '+query:'🔎 بحث';
@@ -178,7 +181,7 @@
     sideItems=TYPES.map(([k,l])=>({t:'type',v:k,l}));
     sideItems.push({t:'cat',v:'',l:'كل التصنيفات',n:catList.reduce((a,c)=>a+c.n,0),first:true});
     catList.forEach(c=>sideItems.push({t:'cat',v:c.k,l:c.title,n:c.n}));
-    sideEl=document.createElement('div');sideEl.className='vside';
+    sideEl=document.createElement('div');sideEl.className='vside';sideWas=false;sideLast=-1;
     sideItems.forEach((it,i)=>{
       const d=document.createElement('div');d.dataset.i=i;
       d.className='vsi'+(it.first?' first':'')+((it.t==='type'?filter===it.v:cat===it.v&&filter!=='resume')?' on':'');
@@ -196,15 +199,22 @@
     // يبقى التحديد في العمود الجانبي لمواصلة التنقل بين التصنيفات
     const keepIdx=sideIdx;paintHome();sideIdx=keepIdx;markCards();
   }
+  let sideWas=false,sideLast=-1;
   function markSide(){
     if(!sideEl)return;
-    [...sideEl.children].forEach((d,i)=>d.classList.toggle('sel',zone==='side'&&i===sideIdx));
-    const s=sideEl.children[sideIdx];if(s&&zone==='side')s.scrollIntoView({block:'nearest'});
+    const now=zone==='side';
+    if(!now&&!sideWas)return;                       // العمود غير مُركَّز: لا لمس للـDOM مع كل ضغطة
+    if(now&&sideWas&&sideLast===sideIdx)return;
+    const kids=sideEl.children;
+    if(sideLast>=0&&kids[sideLast])kids[sideLast].classList.remove('sel');
+    if(sideWas&&!now){sideWas=false;sideLast=-1;return}
+    const s=kids[sideIdx];if(s){s.classList.add('sel');s.scrollIntoView({block:'nearest'})}
+    sideWas=true;sideLast=sideIdx;
   }
   const FL={all:'الكل',resume:'متابعة المشاهدة',movies:'أفلام',series:'مسلسلات'};
 
   function paintHome(){
-    screen='home';paintTabs();bodyEl.textContent='';gridEl=null;
+    screen='home';heroFor=null;tabKey='';paintTabs();bodyEl.textContent='';gridEl=null;
     bodyEl.classList.add('home');
     $('vodh').classList.remove('hide');
     sourceOptions();
@@ -238,12 +248,22 @@
     const pad=24,t=c.offsetTop,h=c.offsetHeight,st=sc.scrollTop,ch=sc.clientHeight;
     if(t-pad<st)sc.scrollTop=Math.max(0,t-pad);else if(t+h+pad>st+ch)sc.scrollTop=t+h+pad-ch;
   }
+  let deferMark=false,markDirty=false,keyQ=[],keyRaf=0,heroFor=null;
+  const MOVE=/^(Arrow(Up|Down|Left|Right)|Page(Up|Down))$/;
+  function flushKeys(){
+    if(keyRaf){cancelAnimationFrame(keyRaf);keyRaf=0}
+    if(!keyQ.length)return;
+    const q=keyQ;keyQ=[];deferMark=true;markDirty=false;
+    try{q.forEach(k=>homeKey(k))}finally{deferMark=false}
+    markCards();
+  }
   function markCards(){
+    if(deferMark){markDirty=true;return}
     if(gridEl){const o=gridEl.querySelector('.vc.sel');if(o)o.classList.remove('sel')}
     paintTabs();markSide();
     if(zone!=='rows'||!view.length||!gridEl)return;
     const c=gridEl.children[gi];
-    if(c){c.classList.add('sel');keepVisible(c);updateHero(view[gi])}
+    if(c){c.classList.add('sel');keepVisible(c);if(heroFor!==view[gi]){heroFor=view[gi];updateHero(heroFor)}}
   }
   function cardId(c){return c.kind==='movie'?c.item.url:(c.lazy||c.sourceId+':'+c.title)}
   function cardRecord(c){
@@ -586,6 +606,7 @@
       if(card)showDetails(card,backTo);
       return true;
     }
+    flushKeys();
     if(screen==='details'){returnFromDetails();return true}
     if(screen==='series'){zone='rows';paintHome();return true}
     close();return true;
@@ -597,7 +618,11 @@
     const k=e.key;
     if(B.classList.contains('cine-play'))playKey(k);
     else if(screen==='series')seriesKey(k);
-    else if(screen==='home')homeKey(k);
+    else if(screen==='home'){
+      /* الضغط المتواصل: تُجمَّع الحركات وتُرسم مرة واحدة كل إطار بدل رسم كل ضغطة (يمنع تراكم الضغطات على الأجهزة الضعيفة) */
+      if(zone==='rows'&&MOVE.test(k)&&keyQ.length<40){keyQ.push(k);if(!keyRaf)keyRaf=requestAnimationFrame(()=>{keyRaf=0;flushKeys()})}
+      else{flushKeys();homeKey(k)}
+    }
     else if(screen==='details')detailKey(k);
   },true);
 })();

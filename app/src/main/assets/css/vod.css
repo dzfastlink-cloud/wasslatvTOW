@@ -36,10 +36,10 @@ body.cine-play #vod{display:none!important}
 #vod .vsi.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);color:#04201b;border-color:#f5b04c;font-weight:800}
 #vod .vsi.sel em{background:#04201b33;color:#04201b}
 /* شبكة ملصقات 2:3 — عنوان تحت الملصق وشارة تقييم؛ بلا تمويه ولا ظلال ثقيلة (أخف على صناديق Android TV) */
-#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:18px 12px;padding:16px 20px 28px;align-content:start}
-#vod .vc{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0;width:auto;height:auto;border:0;border-radius:0;background:none;overflow:visible;cursor:pointer}
-#vod .vp{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#0e7c6b,#0a3b34)}
-#vod .vp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .2s}
+#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:4px 0;padding:8px 12px 24px;align-content:start}
+#vod .vc{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0;width:auto;height:auto;border:0;border-radius:0;background:none;padding:8px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 230px}
+#vod .vp{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:#0c5a4e}
+#vod .vp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0}
 #vod .vp img.ld{opacity:1}
 #vod .vc.noimg .vp::before{content:attr(data-i);position:absolute;inset:0;display:grid;place-items:center;font-size:38px;font-weight:800;color:#ffffff66}
 #vod .vr{position:absolute;top:6px;right:6px;z-index:2;display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:8px;background:#081412d1;color:#fff;font-size:12.5px;font-weight:700;direction:ltr;line-height:1.5}
@@ -47,7 +47,7 @@ body.cine-play #vod{display:none!important}
 #vod .vp i{position:absolute;top:8px;left:8px;z-index:2;font-style:normal;font-size:11px;font-weight:800;background:#f5b04c;color:#04201b;border-radius:7px;padding:2px 8px}
 #vod .vp .vprogress{position:absolute;inset-inline:0;bottom:0;height:5px;background:linear-gradient(to right,#f5b04c var(--progress),#ffffff55 var(--progress));z-index:2}
 #vod .vc .vn{position:static;padding:0;max-height:none;background:none;font-size:13.5px;line-height:1.4;text-align:center;color:#d2efe9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em;word-break:break-word}
-#vod .vc.sel .vp{transform:translateY(-5px);outline:3px solid #f5b04c;outline-offset:3px}
+#vod .vc.sel .vp{transform:translateY(-3px);outline:3px solid #f5b04c;outline-offset:2px}
 #vod .vc.sel .vn{color:#f5b04c;font-weight:800}
 #vod .vc.sel{transform:none;border:0;box-shadow:none}
 #vod .vdetails{display:flex;align-items:flex-start;gap:28px;max-width:1100px;margin:5vh auto;padding:24px;width:calc(100% - 48px);max-height:80%;overflow:auto;background:#ffffff0b;border:1px solid #ffffff20;border-radius:18px}
@@ -116,3 +116,7 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 #vod .vp .vprogress{left:0;right:0}
 
 #vod .vver{font-size:11px;color:#ffffffa6;white-space:nowrap;margin-inline-start:12px}
+
+#vod .vmain{contain:layout style}
+#vod .vhero{height:64px;box-sizing:border-box;overflow:hidden;contain:layout paint style}
+#vod .vtop{contain:layout style}
