@@ -131,10 +131,26 @@ async function syncFavList(){
 }
 
 const MODES=['auto','light','dark'],MTXT={auto:'🌓 تلقائي',light:'☀ نهاري',dark:'🌙 ليلي'};
-let theme=LS.get('m3u_theme','auto');
-function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);$('theme').textContent=MTXT[theme]}
-function cycleTheme(){theme=MODES[(MODES.indexOf(theme)+1)%3];LS.set('m3u_theme',theme);applyTheme()}
+let theme=LS.get('m3u_theme','auto');if(MODES.indexOf(theme)<0)theme='auto';
+/* السمة الفعلية: «تلقائي» تتبع نظام الجهاز على الهاتف، وتبقى ليلية على التلفاز (لا يوجد وضع نهاري للتلفاز في النظام) */
+function effTheme(){
+  if(theme!=='auto')return theme;
+  if(window.Android&&Android.isTv&&Android.isTv())return 'dark';
+  try{return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){return 'dark'}
+}
+function applyTheme(){
+  const h=document.documentElement,e=effTheme();
+  if(theme==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',theme);
+  h.setAttribute('data-eff',e);                     // كل الشاشات تقرأ هذه السمة (ليلي/نهاري) لا اختيار المستخدم الخام
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=e==='light'?'#e9f3f1':'#030d0b';
+  $('theme').textContent=MTXT[theme];
+  document.dispatchEvent(new CustomEvent('themechange',{detail:{theme,eff:e}}));
+}
+function setTheme(t){if(MODES.indexOf(t)<0)return;theme=t;LS.set('m3u_theme',theme);applyTheme()}
+function cycleTheme(){setTheme(MODES[(MODES.indexOf(theme)+1)%3])}
 $('theme').onclick=cycleTheme;applyTheme();
+try{const mq=matchMedia('(prefers-color-scheme: light)');(mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(()=>{if(theme==='auto')applyTheme()})}catch(e){}
+
 const DENSITIES=['large','medium','small'],DENSITY_LABEL={large:'كبير',medium:'متوسط',small:'صغير'},DENSITY_ZOOM={large:'1.08',medium:'1',small:'0.92'};
 let density=LS.get('m3u_density','large');
 if(!DENSITIES.includes(density))density='large';

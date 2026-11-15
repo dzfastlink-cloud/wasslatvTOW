@@ -10,6 +10,7 @@
   }
   const catMap=arr=>{const m={};(Array.isArray(arr)?arr:[]).forEach(c=>{m[c.category_id]=clean(c.category_name)});return m};
   const arr=x=>Array.isArray(x)?x:[];
+  const rt=x=>{let r=parseFloat(x&&x.rating);if(!(r>0)){const f=parseFloat(x&&x.rating_5based);if(f>0)r=f*2}return r>0?(Math.round(Math.min(r,10)*10)/10):''};
 
   async function build(host,u,p){
     host=host.trim().replace(/\/+$/,'');
@@ -23,7 +24,7 @@
       out.push(host+'/live/'+u+'/'+p+'/'+c.stream_id+'.m3u8');n++;
     });
     arr(vod).forEach(m=>{
-      out.push('#EXTINF:-1 tvg-logo="'+clean(m.stream_icon)+'" group-title="أفلام | '+(V[m.category_id]||'عام')+'",'+nm(m.name));
+      out.push('#EXTINF:-1 tvg-logo="'+clean(m.stream_icon)+'" tvg-rating="'+rt(m)+'" group-title="أفلام | '+(V[m.category_id]||'عام')+'",'+nm(m.name));
       out.push(host+'/movie/'+u+'/'+p+'/'+m.stream_id+'.'+(m.container_extension||'mp4'));n++;
     });
     arr(ser).forEach(s=>{

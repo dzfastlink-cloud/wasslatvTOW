@@ -24,10 +24,11 @@
 <link rel="stylesheet" href="css/polish.css">
 <link rel="stylesheet" href="css/look.css">
 <link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-<script>if(window.Android)document.documentElement.classList.add('droid')</script>
-<div id="splash"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="sl-mark" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="slg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#slg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></div><div class="sl-t">وصلة <b>TV</b></div><div class="sl-v" id="slv"></div></div>
+<script>if(window.Android)document.documentElement.classList.add('droid');(function(){var h=document.documentElement,t='auto';try{t=JSON.parse(localStorage.getItem('m3u_theme'))||'auto'}catch(e){}var e=t;if(t!=='light'&&t!=='dark'){e=(window.Android&&Android.isTv&&Android.isTv())?'dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}h.setAttribute('data-eff',e)})()</script>
+<div id="splash" aria-hidden="true"><div class="sp-glow"></div><div class="sp-grid"></div><div class="sp-stage"><div class="sp-ring r1"></div><div class="sp-ring r2"></div><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="sl-mark" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="slg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#slg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></div></div><div class="sp-bar"><i></i></div></div>
 <div id="wnotify" role="status" aria-live="polite"></div>
 <div id="qp"><div class="qph0"><div class="qpt">وصلة <b>TV</b></div><div class="qpnow" id="qpchannel"></div><div class="qpclk" id="qpclk"></div></div><div class="qpdd" id="qpdd"></div><div class="qpr" id="qpr"></div><div class="qph">← → تنقل · OK فتح · رجوع: إغلاق (مرتان = خروج)</div></div>
 <div id="favbadge">★ وضع المفضلة</div>
@@ -110,13 +111,13 @@
 </main>
 <footer>© 2026 DZ fastlink — جميع الحقوق محفوظة · تصميم <b>dahman atallaoui</b> · الإصدار <span id="fv"></span></footer>
 <div id="st">
-  <div class="sth"><span class="stt" id="stt">الإعدادات</span><span class="stm" id="stm"></span><button type="button" class="alt" id="stback">→ رجوع</button></div>
+  <div class="sth"><span class="stmark"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="currentColor" opacity=".25"></rect><path d="M12 9v14l11-7z" fill="currentColor"></path></svg></span><span class="stt" id="stt">الإعدادات</span><span class="stm" id="stm"></span><button type="button" class="alt" id="stback">→ رجوع</button></div>
   <div class="stw"><nav class="snv" id="stnav"></nav><div class="stb" id="stb"></div></div>
   <div class="stpv" id="stpv"><span>معاينة البث</span></div>
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
 <div id="vod">
-  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
+  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><label class="vsource-label">التصنيف <select id="vodcat"></select></label><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
   <div class="vhero" id="vodh"><img id="vpimg" alt=""><div><b id="vpt"></b><small id="vps"></small></div></div>
   <div class="vbody" id="vodb"></div>
 </div>

@@ -53,8 +53,10 @@
       const b=document.createElement('button');b.type='button';b.className='srow'+(r.danger?' danger':'');
       b.innerHTML='<i></i><span class="sx"><b class="sl"></b><small class="ss"></small></span><em class="sc"></em>';
       b.children[0].textContent=r.icon||'';b.querySelector('.sl').textContent=r.label;b.querySelector('.ss').textContent=r.sub||'';
+      if(r.sw){b.children[0].className='sws '+r.sw;b.children[0].textContent=''}
       const c=b.querySelector('.sc');
-      if(r.on!==undefined){c.className='sc sw'+(r.on?' on':'');b.setAttribute('role','switch');b.setAttribute('aria-checked',r.on?'true':'false')}
+      if(r.check!==undefined){c.className='sc ck'+(r.check?' on':'');c.textContent=r.check?'✓':'';b.setAttribute('role','radio');b.setAttribute('aria-checked',r.check?'true':'false')}
+      else if(r.on!==undefined){c.className='sc sw'+(r.on?' on':'');b.setAttribute('role','switch');b.setAttribute('aria-checked',r.on?'true':'false')}
       else if(r.val!==undefined)c.textContent=r.val+' ▾';
       else c.remove();
       b.onclick=()=>{if(r.run)r.run()};
@@ -135,9 +137,13 @@
       {icon:'⏭',label:'تشغيل الحلقة التالية تلقائياً',sub:'بعد عدّ تنازلي 10 ثوانٍ',on:autoNext,run:()=>{LS.set('m3u_vod_autonext',!autoNext);rerender()}}
     ],keep);
   }
+  function themePick(keep){
+    const T=[['auto','تلقائي','يتبع نظام الجهاز على الهاتف، ويبقى ليلياً على التلفاز'],['light','نهاري','خلفيات فاتحة هادئة للإضاءة القوية'],['dark','ليلي','خلفيات داكنة مريحة للعين في الإضاءة الخافتة']];
+    show('السمة البصرية',T.map(([id,l,sub])=>({sw:id,label:l,sub,check:theme===id,run:()=>{setTheme(id);toast('تم تطبيق السمة: '+l);rerender()}})),keep);
+  }
   function appearanceSec(keep){
     show('المظهر',[
-      {icon:'🌗',label:'السمة البصرية',sub:'تلقائي · نهاري · ليلي',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>{cycleTheme();rerender()}},
+      {icon:'🌗',label:'السمة البصرية',sub:'اختر: تلقائي · نهاري · ليلي — تُطبَّق فوراً على كل الشاشات',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>push(themePick)},
       {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}}
     ],keep);
   }

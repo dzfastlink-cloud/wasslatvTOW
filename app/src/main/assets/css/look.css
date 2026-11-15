@@ -22,11 +22,6 @@
 .lgw .lgx{display:none;position:absolute;right:4%;bottom:4%;width:28%;aspect-ratio:1;border-radius:50%;background:#e5484d;color:#fff;border:3px solid #000;place-items:center;font-size:clamp(16px,3vh,24px);font-weight:800}
 @media (prefers-reduced-motion:reduce){.lgw .lgr,.lgw .lgc,.lgw .sl-mark,.lgw .lgm{animation:none}}
 
-/* ---- الإقلاع ---- */
-#splash{background:var(--w-black),#000;gap:0}
-#splash .lgw{animation:slpop .9s ease-out both}
-#splash .sl-t{margin-top:28px;font-size:32px;font-weight:800;letter-spacing:1px;opacity:0;animation:slfade .8s .5s ease-out forwards}
-#splash .sl-v{margin-top:10px;font-size:14px;color:#7fa8a0;min-height:18px;opacity:0;animation:slfade .8s .8s ease-out forwards}
 
 /* ---- الانتظار بين القنوات والفشل: أسود + شعار، بلا فوضى ---- */
 #ldg{background:var(--w-black),#000!important;gap:0}
