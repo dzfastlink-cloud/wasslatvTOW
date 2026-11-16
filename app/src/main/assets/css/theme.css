@@ -54,9 +54,11 @@ html{background:#030d0b}
 :root[data-eff="light"] #rmenu .r .n{background:rgba(14,124,107,.14);border-color:rgba(14,124,107,.25);color:#7a4a00}
 :root[data-eff="light"] #rmenu .r .t img{background:rgba(14,124,107,.1)}
 :root[data-eff="light"] #rmenu .r .s{color:#b86e00}
-:root[data-eff="light"] #rmenu .r.sel{color:#fff;outline-color:#e0902b;box-shadow:0 0 0 3px rgba(224,144,43,.35)}
+:root[data-eff="light"] #rmenu .r.pn .n{color:#0f2b28}
+:root[data-eff="light"] #rmenu .r.pn .s{color:#557873}
+:root[data-eff="light"] #rmenu .r.sel,:root[data-eff="light"] #rmenu .r.pn.sel{color:#fff;outline-color:#e0902b;box-shadow:0 0 0 3px rgba(224,144,43,.35)}
 :root[data-eff="light"] #rmenu .r.sel .n{background:#f5b04c;color:#241600}
-:root[data-eff="light"] #rmenu .r.sel .s{color:#ffe2a8}
+:root[data-eff="light"] #rmenu .r.sel .s,:root[data-eff="light"] #rmenu .r.pn.sel .s{color:#ffe2a8}
 :root[data-eff="light"] #rmenu .mi b{color:#0f2b28}
 :root[data-eff="light"] #rmenu .mi small{color:#557873}
 :root[data-eff="light"] #rmenu .mf{background:rgba(255,255,255,.8);border-top-color:rgba(14,124,107,.3)}
