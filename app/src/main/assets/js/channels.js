@@ -18,7 +18,7 @@
     let best=await getJSON('channels.json');
     const cache=LS.get('m3u_chcache',null);
     if(ok(cache)&&newer(cache,best))best=cache;
-    if(CHANNELS_URL){
+    if(CHANNELS_URL&&!(window.Android&&Android.edition&&Android.edition()==='personal')){
       const rem=await getJSON(CHANNELS_URL);
       if(ok(rem)&&newer(rem,best)){best=rem;LS.set('m3u_chcache',rem)}
     }
@@ -127,6 +127,7 @@
   const nobase=()=>{$('chinfo').textContent='تعذّر تحميل channels.json'};
   $('chadd').onclick=async()=>{
     base=await load();if(!base)return nobase();
+    LS.set('m3u_builtin_off',false);
     if(!lists.find(x=>x.id==='builtin'))lists.unshift({id:'builtin',name:'القنوات',text:'',url:'',n:0,upd:Date.now()});
     apply(false);openList('builtin');$('dlg').close();
   };
@@ -139,6 +140,19 @@
     apply(true);info();if($('chlist').style.display!=='none')review();
   };
   window.__chReload=async function(){base=await load();if(base)apply(true)};
+  /* استعادة القائمة المدمجة الأصلية بعد حذفها (تعديلات القنوات القديمة تُمسح، وقنواتك المضافة تبقى) */
+  window.__chRestore=async function(){
+    base=await load();if(!base)return false;
+    LS.del('m3u_chov');LS.set('m3u_builtin_off',false);
+    if(!lists.find(x=>x.id==='builtin'))lists.unshift({id:'builtin',name:'القنوات',text:'',url:'',n:0,upd:Date.now()});
+    apply(false);await saveLists();openList('builtin');return true;
+  };
+  /* تعديل دفعة واحدة (لتغيير مجموعة كاملة بسرعة): [[key,patch],...] */
+  window.__chSetMany=function(list){
+    if(!base)return false;
+    const o=ov();list.forEach(([k,p])=>{o[k]=Object.assign(o[k]||{},p)});LS.set('m3u_chov',o);
+    apply(true);return true;
+  };
   window.__chKey=keyOf;
   window.__chSet=function(key,patch){if(!base)return false;setOv(key,patch);apply(true);return true};
   let tries=0;
@@ -148,13 +162,26 @@
       clearInterval(w);
       base=await load();
       if(base){
-        // قائمة مدمجة جديدة: تعديلات الأرقام القديمة لا تنطبق عليها، فتُصفَّر مرة واحدة (قنوات المستخدم المضافة تبقى)
-        const sg=String(base.version)+'|'+String(base.updated);
-        if(LS.get('m3u_chsig','')!==sg){LS.del('m3u_chov');LS.set('m3u_chsig',sg)}
-        apply(true);
+        if(base.channels.length){
+          // قائمة مدمجة جديدة: تعديلات الأرقام القديمة لا تنطبق عليها، فتُصفَّر مرة واحدة (قنوات المستخدم المضافة تبقى)
+          const sg=String(base.version)+'|'+String(base.updated);
+          if(LS.get('m3u_chsig','')!==sg){LS.del('m3u_chov');LS.set('m3u_chsig',sg)}
+          apply(true);
+        }else{
+          lists=lists.filter(l=>l.id!=='builtin');
+          if(active==='builtin')active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
+          fillLists();
+          if(active)openList(active);
+          else showWelcome();
+          saveLists();
+        }
       }
       // البدء من آخر قناة، وإلا من أول قناة
-      setTimeout(()=>{if(!curUrl&&shown.length&&document.body.classList.contains('rcv'))play(shown[0])},900);
+      setTimeout(()=>{
+        if(!curUrl&&shown.length&&document.body.classList.contains('rcv')){
+          play(shown.find(it=>detectKind(it)==='live')||shown[0]);
+        }
+      },900);
     }
   },300);
 })();

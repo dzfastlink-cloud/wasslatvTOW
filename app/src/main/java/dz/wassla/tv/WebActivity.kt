@@ -30,6 +30,7 @@ import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.InputStream
 
 /**
  * Wassla TV shell: the whole interface lives in assets/ (HTML + CSS + JS).
@@ -49,6 +50,9 @@ class WebActivity : Activity() {
     private val reqPick = 4101
     private val reqTree = 4102
     private val reqPerm = 4103
+
+    /** أقصى حجم لملف قنوات يُقرأ ويمرَّر إلى الصفحة (حماية ذاكرة أجهزة التلفاز الضعيفة). */
+    private val maxBytes = 20 * 1024 * 1024
 
     private val chrome = object : WebChromeClient() {
         // يمنع رسم أيقونة التشغيل الافتراضية (المثلث الأبيض) قبل بدء البث
@@ -100,7 +104,9 @@ class WebActivity : Activity() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val u = request?.url ?: return false
                 if (u.scheme == "http" || u.scheme == "https") {
-                    try { startActivity(Intent(Intent.ACTION_VIEW, u)) } catch (_: Exception) { }
+                    try { startActivity(Intent(Intent.ACTION_VIEW, u)) } catch (_: Exception) {
+                        Toast.makeText(this@WebActivity, "لا يوجد تطبيق لفتح هذا الرابط", Toast.LENGTH_LONG).show()
+                    }
                     return true
                 }
                 return false
@@ -117,7 +123,11 @@ class WebActivity : Activity() {
         val n = name.lowercase()
         if (n.endsWith(".m3u") || n.endsWith(".m3u8")) return true
         val textual = n.endsWith(".json") || n.endsWith(".txt")
-        return textual && (n.contains("wassla") || name.contains("وصلة") || n.contains("channels"))
+        return textual && (
+            n.contains("wassla") || n.contains("channels") || n.contains("xtream") || n.contains("xtreme") ||
+            n.contains("extreme") || n.contains("iptv") || n.contains("server") || n.contains("account") ||
+            name.contains("وصلة") || name.contains("سيرفر") || name.contains("حساب") || name.contains("اشتراك")
+        )
     }
 
     private fun displayName(uri: Uri): String {
@@ -127,6 +137,59 @@ class WebActivity : Activity() {
             }
         } catch (_: Exception) { }
         return uri.lastPathSegment ?: "ملف"
+    }
+
+    /** يقرأ النص بحد أقصى؛ يعيد "" إن تجاوز الحجم الحد. */
+    private fun readLimited(ins: InputStream?): String {
+        if (ins == null) return ""
+        return ins.use { i ->
+            val out = java.io.ByteArrayOutputStream()
+            val buf = ByteArray(64 * 1024)
+            var total = 0
+            var tooBig = false
+            while (true) {
+                val n = i.read(buf)
+                if (n < 0) break
+                total += n
+                if (total > maxBytes) { tooBig = true; break }
+                out.write(buf, 0, n)
+            }
+            if (tooBig) "" else String(out.toByteArray(), Charsets.UTF_8)
+        }
+    }
+
+    /** المجلدات المسموح بقراءة ملفات القنوات منها فقط. */
+    private fun allowedRoots(): List<File> {
+        val roots = ArrayList<File>()
+        try {
+            val ext = Environment.getExternalStorageDirectory()
+            for (sub in listOf("Download", "Downloads", "Documents", "")) roots.add(File(ext, sub))
+        } catch (_: Exception) { }
+        try { getExternalFilesDirs(null)?.forEach { if (it != null) roots.add(it) } } catch (_: Exception) { }
+        roots.add(filesDir)
+        try {
+            File("/storage").listFiles()?.forEach { v ->
+                if (v.isDirectory && v.name != "emulated" && v.name != "self") {
+                    roots.add(v); roots.add(File(v, "Download"))
+                }
+            }
+        } catch (_: Exception) { }
+        return roots
+    }
+
+    /** المسار يجب أن يقع مباشرة داخل مجلد مسموح (لا مجلدات فرعية ولا ..) ويكون ملف قنوات. */
+    private fun isAllowedFile(path: String): Boolean = try {
+        val f = File(path).canonicalFile
+        f.isFile && isChannelFile(f.name) &&
+            allowedRoots().any { r -> try { f.parentFile == r.canonicalFile } catch (_: Exception) { false } }
+    } catch (_: Exception) { false }
+
+    /** عناوين content:// المسموحة: ما كان تحت المجلد الذي اختاره المستخدم فقط. */
+    private fun isAllowedUri(uriStr: String): Boolean {
+        val saved = getSharedPreferences("wassla", MODE_PRIVATE).getString("tree", null) ?: return false
+        return uriStr.startsWith(saved.trimEnd('/') + "/document/") && isChannelFile(
+            Uri.parse(uriStr).lastPathSegment?.substringAfterLast('/')?.substringAfterLast(':') ?: ""
+        )
     }
 
     inner class Bridge {
@@ -142,14 +205,35 @@ class WebActivity : Activity() {
 
         @JavascriptInterface
         fun readAsset(name: String): String = try {
-            assets.open(name).bufferedReader().use { it.readText() }
+            if (name != "channels.json" && name != "source-config.json") "" else assets.open(name).bufferedReader().use { it.readText() }
         } catch (e: Exception) {
             ""
         }
 
         @JavascriptInterface
+        fun edition(): String = try {
+            val cfg = org.json.JSONObject(assets.open("source-config.json").bufferedReader().use { it.readText() })
+            if (cfg.optString("edition") == "personal") "personal" else "open"
+        } catch (e: Exception) {
+            "open"
+        }
+
+        @JavascriptInterface
         fun exitApp() {
             runOnUiThread { finish() }
+        }
+
+        /** يفتح رابط موقع التطبيق (http/https فقط) في المتصفح إن وُجد. */
+        @JavascriptInterface
+        fun openUrl(url: String) {
+            runOnUiThread {
+                try {
+                    val u = Uri.parse(url)
+                    if (u.scheme == "http" || u.scheme == "https") startActivity(Intent(Intent.ACTION_VIEW, u))
+                } catch (_: Exception) {
+                    Toast.makeText(this@WebActivity, "لا يوجد متصفح على هذا الجهاز. الرابط: " + url, Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         @JavascriptInterface
@@ -222,7 +306,7 @@ class WebActivity : Activity() {
             for (d in dirs) {
                 val fs = try { d.listFiles() } catch (_: Exception) { null } ?: continue
                 for (f in fs) {
-                    if (!f.isFile || f.length() == 0L || f.length() > 60L * 1024 * 1024) continue
+                    if (!f.isFile || f.length() == 0L || f.length() > maxBytes) continue
                     if (!isChannelFile(f.name) || !seen.add(f.absolutePath)) continue
                     out.put(
                         JSONObject().put("name", f.name).put("path", f.absolutePath)
@@ -250,9 +334,12 @@ class WebActivity : Activity() {
         @JavascriptInterface
         fun readFile(path: String): String = try {
             if (path.startsWith("uri:")) {
-                contentResolver.openInputStream(Uri.parse(path.substring(4)))?.bufferedReader()?.use { it.readText() } ?: ""
+                val u = path.substring(4)
+                if (!isAllowedUri(u)) "" else readLimited(contentResolver.openInputStream(Uri.parse(u)))
+            } else if (!isAllowedFile(path)) {
+                ""
             } else {
-                File(path).readText()
+                readLimited(File(path).inputStream())
             }
         } catch (e: Exception) {
             ""
@@ -289,7 +376,7 @@ class WebActivity : Activity() {
                 val name = c.getString(1) ?: continue
                 val size = c.getLong(2)
                 val mod = c.getLong(3)
-                if (size == 0L || !isChannelFile(name)) continue
+                if (size == 0L || size > maxBytes || !isChannelFile(name)) continue
                 val u = DocumentsContract.buildDocumentUriUsingTree(tree, id)
                 out.put(JSONObject().put("name", name).put("path", "uri:" + u.toString()).put("size", size).put("mod", mod))
             }
@@ -308,7 +395,7 @@ class WebActivity : Activity() {
             Thread {
                 try {
                     val name = displayName(uri)
-                    val txt = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+                    val txt = readLimited(contentResolver.openInputStream(uri))
                     pickedName = name
                     pickedText = txt
                     js("window.__onPicked&&window.__onPicked(true,'')")
