@@ -445,6 +445,26 @@ class WebActivity : Activity() {
             }
             return true
         }
+        when (e.keyCode) {
+            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                if (e.action == KeyEvent.ACTION_DOWN && e.repeatCount == 0) {
+                    val seconds = if (e.keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) 10 else -10
+                    web.evaluateJavascript("window.__vodMediaSeek&&window.__vodMediaSeek($seconds)", null)
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                if (e.action == KeyEvent.ACTION_DOWN && e.repeatCount == 0) {
+                    val action = when (e.keyCode) {
+                        KeyEvent.KEYCODE_MEDIA_PLAY -> "play"
+                        KeyEvent.KEYCODE_MEDIA_PAUSE -> "pause"
+                        else -> "toggle"
+                    }
+                    web.evaluateJavascript("window.__vodMediaControl&&window.__vodMediaControl('$action')", null)
+                }
+                return true
+            }
+        }
         val mapped = when (e.keyCode) {
             KeyEvent.KEYCODE_PROG_RED -> KeyEvent.KEYCODE_F1
             KeyEvent.KEYCODE_PROG_GREEN -> KeyEvent.KEYCODE_F2

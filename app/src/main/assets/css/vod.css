@@ -2,6 +2,7 @@
 #vod{display:none;position:fixed;inset:0;z-index:70;flex-direction:column;background:linear-gradient(180deg,#06231e,#030d0b);color:#fff}
 #vod.on{display:flex}
 body.cine-play #vod{display:none!important}
+body.cine-mini #vod{bottom:clamp(160px,24vh,220px)}
 #vod .vtop{display:flex;align-items:center;gap:18px;padding:12px 28px;background:linear-gradient(90deg,#0a5448,#0e7c6b)}
 #vod .vsource-label{display:flex;align-items:center;gap:8px;color:#d2efe9;font-size:14px}
 #vodsource{max-width:220px;padding:7px 12px;border:2px solid transparent;border-radius:8px;background:#ffffff1f;color:#fff;font:inherit}
@@ -69,8 +70,16 @@ body.cine-play #vod{display:none!important}
 #vod .ve .n{min-width:90px;color:#f5b04c}
 #vod .ve.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);border-color:#f5b04c}
 #vod .vempty{padding:60px 28px;text-align:center;color:#d2efe9;font-size:20px;line-height:1.8;white-space:pre-line}
-body:not(.cine-play) #vodbackdetails,body:not(.cine-play) #vodwatched,#vodnext{display:none}
-body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
+body:not(.cine-play):not(.cine-mini) #vodbackdetails,
+body:not(.cine-play):not(.cine-mini) #vodwatched,
+body:not(.cine-play):not(.cine-mini) #vodplaypause,
+body:not(.cine-play):not(.cine-mini) #vodexpand,
+body:not(.cine-play):not(.cine-mini) #vodmini,
+body:not(.cine-play):not(.cine-mini) #vodclose,
+#vodnext{display:none}
+body.cine-play #vodbackdetails,body.cine-play #vodwatched,body.cine-play #vodplaypause,body.cine-play #vodmini{display:inline-flex}
+body.cine-mini #vodplaypause,body.cine-mini #vodexpand,body.cine-mini #vodclose{display:inline-flex}
+body.cine-mini #vodplayer{display:inline-flex}
 #vodnext.vod-next:not(.hide){display:flex}
 .vod-next{position:absolute;z-index:5;top:18%;inset-inline:10%;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:16px;border:1px solid #ffffff55;border-radius:14px;background:#061b18ee;color:#fff}
 .vod-next span{flex-basis:100%;text-align:center;font-size:20px}
@@ -83,6 +92,7 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
   #vod .vdetail-cover{width:110px;max-height:165px}
   #vod .vdetail-info h2{font-size:22px}
   #vod .vdetail-info button{min-width:180px}
+  body.cine-mini #vod{bottom:160px}
 }
 
 /* ----- المكتبة في الوضع النهاري ----- */
@@ -128,9 +138,9 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 #vod .vsi{padding:12px 16px;font-size:19px;color:#e6f7f3}
 #vod .vsi em{font-size:15px;color:#d2efe9;background:#ffffff26}
 /* شبكة الملصقات: عناوين أكبر وأوضح، وتحديد ذهبي بارز */
-#vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:28px 20px;padding:22px var(--w-safe,28px) 36px}
+#vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:20px 14px;padding:18px var(--w-safe,28px) 30px}
 #vod .vp{border-radius:16px}
-#vod .vc .vn{display:block;font-size:19px;font-weight:700;line-height:1.45;color:#fff;min-height:0;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal}
+#vod .vc .vn{display:block;font-size:17px;font-weight:700;line-height:1.4;color:#fff;min-height:0;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal}
 #vod .vc.sel .vp{transform:translateY(-6px) scale(1.04);outline:4px solid #f5b04c;outline-offset:3px;box-shadow:0 12px 26px rgba(0,0,0,.6)}
 #vod .vc.sel .vn{color:#f5b04c;font-weight:800}
 #vod .vr{top:10px;right:10px;padding:3px 10px;font-size:16px;background:rgba(0,0,0,.8)}

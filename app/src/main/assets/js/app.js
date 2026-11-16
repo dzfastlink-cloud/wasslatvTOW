@@ -355,10 +355,11 @@ function modesFor(u){
   if(/\.(ts|flv)(\?|$)/i.test(u))return['mpegts','hls','native'];
   return['native','hls','mpegts'];
 }
+function isVodPlayback(){return document.body.classList.contains('cine-play')||document.body.classList.contains('cine-mini')}
 function play(it){
   curUrl=it.url;
   recs=[it.url].concat(recs.filter(u=>u!==it.url)).slice(0,30);LS.set('m3u_recs',recs);
-  if(document.body.classList.contains('cine-play')){
+  if(isVodPlayback()){
     LS.set('m3u_last_was_vod',true);
   }else{
     LS.set('m3u_last_was_vod',false);
@@ -378,12 +379,21 @@ function play(it){
       window.__osdTimer=setTimeout(() => { osd.style.display = 'none'; }, 5000);
   }
 
-  const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0;
+  const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0,started=false;
+  v.addEventListener('playing',()=>{if(my===tok)started=true},{once:true});
   const next=()=>{
     if(my!==tok)return;
     if(i>=modes.length){setMsg('تعذر تشغيل هذا الرابط. قد يكون متوقفاً أو محجوباً أو بصيغة لا يدعمها المتصفح.',true);return}
     const m=modes[i++];stopAll();
-    const fail=()=>{if(my===tok)next()};
+    const fail=()=>{
+      if(my!==tok)return;
+      if(isVodPlayback()&&started){
+        const message='تعذّر استكمال تشغيل المحتوى. حاول التقديم مجدداً أو أعد تشغيله.';
+        if(window.__rcvToast)window.__rcvToast(message);else setMsg(message,true);
+        return;
+      }
+      next();
+    };
     try{
       if(m==='hls'){
         if(!(window.Hls&&Hls.isSupported()))return next();
@@ -391,7 +401,7 @@ function play(it){
         hls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal)fail()});
       }else if(m==='mpegts'){
         if(!(window.mpegts&&mpegts.isSupported()))return next();
-        mp=mpegts.createPlayer({type:/\.flv(\?|$)/i.test(it.url)?'flv':'mpegts',isLive:true,url:it.url});
+        mp=mpegts.createPlayer({type:/\.flv(\?|$)/i.test(it.url)?'flv':'mpegts',isLive:!isVodPlayback(),url:it.url});
         mp.attachMediaElement(v);mp.load();
         mp.on(mpegts.Events.ERROR,fail);
       }else{
