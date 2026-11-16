@@ -178,3 +178,8 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
   #vod .vdetail-info h2{font-size:24px}
   #vod .vdetail-info button,#vod .ve{font-size:17px}
 }
+
+/* عناوين المكتبة تُعرض كاملة، بما فيها العناوين الطويلة على WebView التلفاز. */
+#vod .vc .vn{display:block;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;-webkit-line-clamp:unset;-webkit-box-orient:initial}
+#vod .vhero b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+#vod .vdetail-info h2,#vod .ve .t{overflow-wrap:anywhere}
