@@ -180,6 +180,6 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 }
 
 /* عناوين المكتبة تُعرض كاملة، بما فيها العناوين الطويلة على WebView التلفاز. */
-#vod .vc .vn{display:block;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;-webkit-line-clamp:unset;-webkit-box-orient:initial}
+#vod .vc .vn{display:block!important;height:auto!important;min-height:0;max-height:none!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere;word-break:normal;-webkit-line-clamp:unset!important;-webkit-box-orient:initial!important}
 #vod .vhero b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 #vod .vdetail-info h2,#vod .ve .t{overflow-wrap:anywhere}
