@@ -106,3 +106,70 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 :root[data-eff="light"] #vod .vsi.first{border-bottom-color:rgba(14,124,107,.22)}
 :root[data-eff="light"] #vod .vcount{color:#27514b}
 @media (max-width:700px){#vod .vside{flex-basis:38%}}
+
+/* ===== تحسين تصميم المكتبة (v2): قراءة من بعيد · تحديد واضح · ألوان موحّدة ===== */
+#vod{background:radial-gradient(1100px 520px at 88% -8%,rgba(14,124,107,.38),transparent 62%),linear-gradient(180deg,#06231e,#030d0b)}
+/* الشريط العلوي والتبويبات */
+#vod .vtop{gap:16px;padding:14px var(--w-safe,28px);background:linear-gradient(90deg,#083f36,#0e7c6b);border-bottom:1px solid #ffffff1f;position:relative;z-index:3}
+#vod .vlogo{font-size:26px}
+#vod .vt{min-height:46px;padding:9px 22px;font-size:19px;font-weight:600;color:#fff;background:#ffffff29}
+#vod .vt.on{background:#f5b04c;color:#04201b;font-weight:800}
+#vod .vt.sel{border-color:#fff;box-shadow:0 0 0 4px rgba(245,176,76,.55);transform:scale(1.05)}
+#vod .vsource-label{font-size:16px;color:#fff}
+#vodsource{max-width:240px;min-height:46px;padding:9px 14px;font-size:17px}
+#vod .vhint{font-size:15px;color:#e6f7f3}
+#vod .vhero{padding:12px var(--w-safe,28px);min-height:72px}
+#vod .vhero b{font-size:28px;line-height:1.3;color:#fff}
+#vod .vhero small{font-size:18px;color:#bfe6de}
+#vod .vcount{font-size:18px;color:#e6f7f3}
+/* العمود الجانبي */
+#vod .vsi{padding:12px 16px;font-size:19px;color:#e6f7f3}
+#vod .vsi em{font-size:15px;color:#d2efe9;background:#ffffff26}
+/* شبكة الملصقات: عناوين أكبر وأوضح، وتحديد ذهبي بارز */
+#vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:28px 20px;padding:22px var(--w-safe,28px) 36px}
+#vod .vp{border-radius:16px}
+#vod .vc .vn{font-size:19px;font-weight:700;line-height:1.45;color:#fff;min-height:2.9em}
+#vod .vc.sel .vp{transform:translateY(-6px) scale(1.04);outline:4px solid #f5b04c;outline-offset:3px;box-shadow:0 12px 26px rgba(0,0,0,.6)}
+#vod .vc.sel .vn{color:#f5b04c;font-weight:800}
+#vod .vr{top:10px;right:10px;padding:3px 10px;font-size:16px;background:rgba(0,0,0,.8)}
+#vod .vp i{top:10px;left:10px;font-size:13px;padding:3px 10px}
+#vod .vp .vprogress{height:6px}
+/* نافذة التفاصيل */
+#vod .vdetails{max-width:1200px;gap:32px;padding:30px;border-radius:22px;background:rgba(255,255,255,.07)}
+#vod .vdetail-cover{width:260px;max-height:390px;border-radius:14px}
+#vod .vdetail-info h2{font-size:36px;line-height:1.3;color:#fff}
+#vod .vdetail-info p{font-size:19px;color:#d2efe9}
+#vod .vdetail-info h3{font-size:22px}
+#vod .vdetail-info button{min-width:320px;min-height:52px;padding:10px 18px;font-size:19px;border-radius:12px}
+#vod .vdetail-info button.sel,#vod .vdetail-info button:focus-visible{outline:3px solid #f5b04c;outline-offset:3px}
+/* المواسم والحلقات */
+#vod .vseas{padding:14px var(--w-safe,28px)}
+#vod .vs{padding:9px 20px;font-size:18px;color:#fff}
+#vod .vs.sel{border-color:#f5b04c;box-shadow:0 0 0 4px rgba(245,176,76,.45)}
+#vod .veps{padding:0 var(--w-safe,28px)}
+#vod .ve{margin-bottom:6px;padding:14px 18px;font-size:20px;line-height:1.5;border-radius:12px;background:rgba(255,255,255,.06);color:#fff}
+#vod .ve .n{min-width:100px;font-weight:700}
+#vod .ve.sel{color:#04201b;font-weight:700}
+#vod .ve.sel .n{color:#04201b}
+#vod .vempty{font-size:22px}
+/* الوضع النهاري */
+:root[data-eff="light"] #vod .vhero b{color:#0f2b28}
+:root[data-eff="light"] #vod .vhero small,:root[data-eff="light"] #vod .vdetail-info p{color:#3f625d}
+:root[data-eff="light"] #vod .vc .vn{color:#0f2b28}
+:root[data-eff="light"] #vod .vc.sel .vn{color:#a85f00}
+:root[data-eff="light"] #vod .vsi{color:#1f453f}
+:root[data-eff="light"] #vod .vdetail-info h2{color:#0f2b28}
+:root[data-eff="light"] #vod .vdetails{background:rgba(255,255,255,.85)}
+:root[data-eff="light"] #vod .vs{color:#0f2b28}
+:root[data-eff="light"] #vod .vs.on{color:#fff}
+:root[data-eff="light"] #vod .ve{background:rgba(14,124,107,.08);color:#0f2b28}
+:root[data-eff="light"] #vod .ve.sel{color:#04201b}
+@media(max-width:700px){
+  #vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:20px 12px;padding:14px 14px 24px}
+  #vod .vc .vn{font-size:16px}
+  #vod .vlogo{font-size:20px}
+  #vod .vt{font-size:15px;padding:7px 14px;min-height:40px}
+  #vod .vhero b{font-size:20px}
+  #vod .vdetail-info h2{font-size:24px}
+  #vod .vdetail-info button,#vod .ve{font-size:17px}
+}
