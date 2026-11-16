@@ -29,7 +29,7 @@ body.cine-play #vod{display:none!important}
 /* عمود التصنيفات الجانبي */
 #vod .vside{flex:0 0 clamp(210px,24%,330px);overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 24px;background:#04120fd9;border-inline-end:1px solid #1f8f7c66}
 #vod .vsi{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:3px;border-radius:12px;border:2px solid transparent;font-size:17px;cursor:pointer;color:#d2efe9}
-#vod .vsi span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vod .vsi span{flex:1;min-width:0;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere}
 #vod .vsi em{font-style:normal;flex:none;min-width:38px;text-align:center;padding:1px 8px;border-radius:999px;background:#ffffff1a;font-size:13px;color:#9fcfc6}
 #vod .vsi.first{margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid #1f8f7c66;border-radius:12px 12px 0 0}
 #vod .vsi.on{background:#0a544899;color:#fff;font-weight:800}
@@ -128,7 +128,7 @@ body.cine-play #vodbackdetails,body.cine-play #vodwatched{display:inline-flex}
 #vod .vsi{padding:12px 16px;font-size:19px;color:#e6f7f3}
 #vod .vsi em{font-size:15px;color:#d2efe9;background:#ffffff26}
 /* شبكة الملصقات: عناوين أكبر وأوضح، وتحديد ذهبي بارز */
-#vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:28px 20px;padding:22px var(--w-safe,28px) 36px}
+#vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:20px 14px;padding:22px var(--w-safe,28px) 36px}
 #vod .vp{border-radius:16px}
 #vod .vc .vn{font-size:19px;font-weight:700;line-height:1.45;color:#fff;min-height:2.9em}
 #vod .vc .vn{display:block;min-height:0;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;-webkit-line-clamp:unset;-webkit-box-orient:initial}
