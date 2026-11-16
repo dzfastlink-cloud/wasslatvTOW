@@ -161,7 +161,8 @@ applyDensity();
 
 function fillLists(){
   const visible=lists.filter(l=>l.id!==FAV_LIST_ID||l.n>0);
-  const s=$('lists');s.classList.add('hide');
+  const s=$('lists');
+  s.classList.toggle('hide', !visible.length);
   s.innerHTML=visible.map(l=>'<option value="'+l.id+'"'+(l.id===active?' selected':'')+'>'+esc(l.name)+'</option>').join('');
 }
 function fillGroups(keep){
