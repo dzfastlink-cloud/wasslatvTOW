@@ -14,7 +14,6 @@
   const gname=g=>g.name||NOG;
 
   /* ---------- أدوات تعديل عنصر M3U ---------- */
-  function setName(it,v){it.name=v;if(it.raw){const i=it.raw.lastIndexOf(',');it.raw=(i>-1?it.raw.slice(0,i):it.raw)+','+v}else it.raw='#EXTINF:-1,'+v}
   function setGroup(it,g){
     g=g.replace(/"/g,'');it.group=g;
     if(!it.raw)it.raw='#EXTINF:-1,'+it.name;
@@ -164,7 +163,7 @@
     const it=(groups[gi]||{items:[]}).items[ci];if(!it)return;
     const v=await kbPrompt('اسم القناة',it.name);if(v===null)return;
     const nv=v.trim();if(!nv){say('لا يمكن ترك الاسم فارغاً');return}
-    setName(it,nv);mark();paintWindow();
+    setM3UName(it,nv);mark();paintWindow();
   }
   async function editUrl(){
     const it=(groups[gi]||{items:[]}).items[ci];if(!it)return;

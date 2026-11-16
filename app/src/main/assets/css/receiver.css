@@ -112,9 +112,9 @@ body.rcv.favmode:not(.menu) #favbadge{display:block}
 #rmenu .mh .mdt .mc{font-size:clamp(18px,2vw,26px);font-weight:800;color:#fff}
 #rmenu .mh .mdt .md{direction:rtl;font-size:clamp(11px,1.2vw,15px);color:#9fcfc6}
 /* أرقام القنوات أصغر + خيار شكل الصف (رقم / شعار / معاً) */
-#rmenu .r:not(.pn) .n{min-width:50px;font-size:14px;padding:0 5px}
-#rmenu[data-rs="logo"] .r:not(.pn) .n{display:none}
-#rmenu[data-rs="num"] .r:not(.pn) .t img{display:none}
+#rmenu .r .n{min-width:50px;font-size:14px;padding:0 5px}
+#rmenu[data-rs="logo"] .r .n{display:none}
+#rmenu[data-rs="num"] .r .t img{display:none}
 /* شريط الشرح السفلي أصغر */
 #rmenu #rhint{padding-block:4px;gap:4px 10px;font-size:12px;min-height:0}
 #rmenu #rhint span{padding:2px 9px;font-size:12px}

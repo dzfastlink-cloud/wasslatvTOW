@@ -614,7 +614,6 @@
     show(it.name,rows,keep);
     pvPlay(it,true);
   }
-  const setName=(it,v)=>{it.name=v;if(it.raw){const i=it.raw.lastIndexOf(',');it.raw=(i>-1?it.raw.slice(0,i):it.raw)+','+v}else it.raw='#EXTINF:-1,'+v};
   function setGroup(it,g){
     g=g.replace(/"/g,'');it.group=g;
     if(!it.raw)it.raw='#EXTINF:-1,'+it.name;
@@ -648,7 +647,7 @@
       rememberBuiltin();
       window.__chSet(window.__chKey(it),{[field]:val});
     }else{
-      if(field==='name')setName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
+      if(field==='name')setM3UName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
       await saveItems(id,its);
     }
     toast('تم الحفظ');rerender();

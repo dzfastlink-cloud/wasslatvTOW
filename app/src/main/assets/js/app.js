@@ -31,28 +31,6 @@ const DB={
   async del(k){const d=await this.open();return new Promise(ok=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=ok;t.onerror=ok})}
 };
 
-function parseM3U(text){
-  const out=[],lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
-  let meta=null;
-  for(const raw of lines){
-    const l=raw.trim();
-    if(!l)continue;
-    if(l.startsWith('#EXTINF')){
-      const attrs={};
-      l.replace(/([\w-]+)="([^"]*)"/g,(_,k,v)=>{attrs[k.toLowerCase()]=v});
-      const i=l.lastIndexOf(',');
-      meta={name:(i>-1?l.slice(i+1):'').trim()||attrs['tvg-name']||'',logo:attrs['tvg-logo']||'',group:attrs['group-title']||'',raw:l,extra:[]};
-    }else if(l.startsWith('#EXTGRP:')&&meta){meta.group=meta.group||l.slice(8).trim();meta.extra.push(l)}
-    else if(l.startsWith('#')){if(meta)meta.extra.push(l)}
-    else{
-      const m=meta||{name:'',logo:'',group:'',raw:'',extra:[]};
-      if(!m.name)m.name=l.split('/').pop().split('?')[0]||l;
-      m.url=l;out.push(m);meta=null;
-    }
-  }
-  return out;
-}
-
 function detectKind(item){
   const g=(item.group||'').toLowerCase();
   const u=(item.url||'').toLowerCase();
@@ -92,7 +70,7 @@ let favs=new Set(LS.get('m3u_favs',[])),recs=LS.get('m3u_recs',[]);
 const FAV_LIST_ID='__fav_list__';
 const FAV_LIST_NAME='⭐ المفضلة';
 
-function ser(a){return '#EXTM3U\n'+a.map(i=>(i.raw?i.raw+'\n':'')+i.extra.join('\n')+(i.extra.length?'\n':'')+i.url).join('\n')+'\n'}
+const ser=serializeM3U;
 function merge(oldI,newI,strict){
   const nm=new Map(newI.map(i=>[i.url,i])),seen=new Set(),out=[];
   oldI.forEach(i=>{if(nm.has(i.url)){if(!seen.has(i.url)){out.push(nm.get(i.url));seen.add(i.url)}}else if(!strict)out.push(i)});
