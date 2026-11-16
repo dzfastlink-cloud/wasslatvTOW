@@ -23,16 +23,11 @@
 <link rel="stylesheet" href="css/idle.css">
 <link rel="stylesheet" href="css/polish.css">
 <link rel="stylesheet" href="css/look.css">
-<link rel="stylesheet" href="css/home.css">
-<link rel="stylesheet" href="css/addsrc.css">
-<link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-<script>if(window.Android)document.documentElement.classList.add('droid');(function(){var h=document.documentElement,t='auto';try{t=JSON.parse(localStorage.getItem('m3u_theme'))||'auto'}catch(e){}var e=t;if(t!=='light'&&t!=='dark'){e=(window.Android&&Android.isTv&&Android.isTv())?'dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}h.setAttribute('data-eff',e)})()</script>
-<div id="splash" aria-hidden="true"><div class="sp-glow"></div><div class="sp-grid"></div><div class="sp-stage"><div class="sp-ring r1"></div><div class="sp-ring r2"></div><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="sl-mark" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="slg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#slg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></div></div><div class="sp-bar"><i></i></div></div>
-<div id="wnotify" role="status" aria-live="polite"></div>
-<div id="qp"><div class="qph0"><div class="qpt">وصلة <b>TV</b></div><div class="qpnow" id="qpchannel"></div><div class="qpclk" id="qpclk"></div></div><div class="qpdd" id="qpdd"></div><div class="qpr" id="qpr"></div><div class="qph">← → تنقل · OK فتح · رجوع: إغلاق (مرتان = خروج)</div></div>
-<div id="favbadge">★ وضع المفضلة</div>
+<script>if(window.Android)document.documentElement.classList.add('droid')</script>
+<div id="splash"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="sl-mark" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="slg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#slg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></div><div class="sl-t">وصلة <b>TV</b></div><div class="sl-v" id="slv"></div></div>
+<div id="qp"><div class="qpt">القائمة السريعة</div><div class="qpr" id="qpr"></div><div class="qph">← → تنقل · OK اختيار · رجوع: إغلاق (مرتان = خروج)</div></div>
 <div id="lhint"></div>
 
 <div id="updbar" class="hide">
@@ -59,27 +54,21 @@
   </aside>
   <section style="position:relative;">
     <!-- شاشة الريسيفر OSD -->
-    <div id="ldg"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="lgm" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#lgg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg><b class="lgx">!</b></div><img id="ldgl" alt=""><div class="ldn" id="ldgn"></div><div class="lds" id="ldgs"></div><div class="ldh">OK القنوات · ↑ ↓ قناة أخرى</div><div class="ldb"><button type="button" class="alt" id="ldgr">↻ إعادة المحاولة</button><button type="button" class="alt" id="ldgx">⏭ القناة التالية</button></div></div>
-    <button id="ldgb" type="button">↩ رجوع للقنوات</button>
+    <div id="ldg"><div class="lgw"><svg class="lgr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle class="lgt" cx="100" cy="100" r="94"/><circle class="lgc" cx="100" cy="100" r="94"/></svg><svg class="lgm" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#lgg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg><b class="lgx">!</b></div><img id="ldgl" alt=""><div class="ldn" id="ldgn"></div><div class="lds" id="ldgs"></div><div class="ldh">OK إعادة المحاولة · ↑ ↓ قناة أخرى</div><div class="ldb"><button type="button" class="alt" id="ldgr">↻ إعادة المحاولة</button><button type="button" class="alt" id="ldgx">⏭ القناة التالية</button></div></div>
     <div id="osd" class="osd-overlay">القناة: 1</div>
     <div id="rbanner"><div class="b1"><div class="rn"></div><img alt=""><div class="ri"><b></b><small></small></div></div><div class="b2"><span class="bg"></span><span class="dt"></span><span class="rc"></span></div></div>
     <div id="rnum"></div>
     <div id="rtoast"></div>
     <div id="rmenu">
-      <div class="mh">
-        <span class="appmark" aria-label="وصلة TV"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="currentColor" opacity=".18"></rect><path d="M12 9v14l11-7z" fill="currentColor"></path></svg></span>
-        <b class="app-name">وصلة TV</b>
-        <span class="source-name" id="rsrc"></span>
-        <span class="mdt"><b class="mc"></b><small class="md"></small></span>
-      </div>
-      <div class="rhead" id="rhead"></div>
+      <div class="mh"><span class="mt"><svg class="mk" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mhg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17b79c"/><stop offset="1" stop-color="#0a5448"/></linearGradient></defs><rect x="10" y="10" width="88" height="88" rx="22" fill="url(#mhg)" stroke="#7ff3dc" stroke-width="2"/><polygon points="37,32 37,76 76,54" fill="#fff"/><circle cx="85" cy="23" r="6" fill="#f5b04c"/></svg></span><span class="hs" id="hsrc"><i class="hi"></i><b></b></span><span class="hc" id="hcat"><i class="hi"></i><b></b><em></em></span><span class="mg"></span><span class="mc"></span></div>
+      <div class="rhead" id="rhead" hidden></div>
       <div class="mb">
         <div class="ml"><div class="rows"></div></div>
-        <div class="mp"><div class="pv"></div></div>
+        <div class="mp"><div class="pv"></div><div class="mi"><img alt=""><div><b></b><small></small></div></div></div>
       </div>
       <div class="mf" id="rhint"></div>
     </div>
-    <button id="rexit">☰ القائمة السريعة</button>
+    <button id="rexit">⚙ الإعدادات</button>
 
     <div id="load" class="hide">
       <div class="hero"><span class="logo big">▶</span><h2>وصلة TV</h2><p>مشغل IPTV متكامل - يدعم M3U و Xtream Codes</p></div>
@@ -93,14 +82,7 @@
         <button class="alt" id="pf" style="color:white; border-color:#555;">☆ أضف للمفضلة</button>
       </div>
       <video id="v" controls playsinline></video>
-      <div id="vodnext" class="vod-next hide">
-        <span id="vodnexttext"></span>
-        <button type="button" id="vodnextnow">التشغيل الآن</button>
-        <button type="button" class="alt" id="vodnextcancel">إلغاء</button>
-      </div>
       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
-        <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
-        <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
         <button class="alt" id="prev" style="color:white; border-color:#555;" title="القناة السابقة (↑)">⏮ السابقة</button>
         <button class="alt" id="nextb" style="color:white; border-color:#555;" title="القناة التالية (↓)">التالية ⏭</button>
         <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶ ملء الشاشة</button>
@@ -112,23 +94,16 @@
 </main>
 <footer>© 2026 DZ fastlink — جميع الحقوق محفوظة · تصميم <b>dahman atallaoui</b> · الإصدار <span id="fv"></span></footer>
 <div id="st">
-  <div class="sth"><span class="stmark"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="currentColor" opacity=".25"></rect><path d="M12 9v14l11-7z" fill="currentColor"></path></svg></span><span class="stt" id="stt">الإعدادات</span><span class="stm" id="stm"></span><button type="button" class="alt" id="stback">→ رجوع</button></div>
+  <div class="sth"><span class="stt" id="stt">الإعدادات</span><span class="stm" id="stm"></span><button type="button" class="alt" id="stback">→ رجوع</button></div>
   <div class="stw"><nav class="snv" id="stnav"></nav><div class="stb" id="stb"></div></div>
   <div class="stpv" id="stpv"><span>معاينة البث</span></div>
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
 <div id="vod">
-  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><button id="vodsort" class="vt" type="button">⇅ الأحدث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span><span class="vver" id="vver"></span></div>
-  <div class="vhero" id="vodh"><img id="vpimg" alt=""><div class="vhtxt"><b id="vpt"></b><small id="vps"></small></div><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
+  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
+  <div class="vhero" id="vodh"><img id="vpimg" alt=""><div><b id="vpt"></b><small id="vps"></small></div></div>
   <div class="vbody" id="vodb"></div>
 </div>
-<dialog id="addsrc" data-nav="grid">
-  <div class="as-head"><h3>إضافة القائمة</h3><p>اختر طريقة الاتصال، ويمكنك إعادة تسميتها لاحقاً.</p></div>
-  <div class="as-grid" id="asg" role="radiogroup"></div>
-  <div class="as-form" id="asf"></div>
-  <div class="as-msg" id="asm" aria-live="polite"></div>
-  <div class="as-foot"><button type="button" id="asadd" disabled>إضافة القائمة</button><button type="button" class="alt" id="ascan">إلغاء</button><span class="as-sp"></span><button type="button" class="alt" id="asclr">مسح</button></div>
-</dialog>
 <dialog id="kb" data-nav="grid">
   <h3 id="kbt"></h3>
   <div class="kbv" id="kbv"></div>
@@ -173,10 +148,9 @@
 <dialog id="dlg">
   <h3>⚙ الإعدادات</h3>
   <p class="small"><b>وصلة TV</b> — الإصدار <span id="ver"></span> · © 2026 DZ fastlink · تصميم <b>dahman atallaoui</b></p>
-  <p class="small">مشغّل وسائط فقط؛ لا يملك التطبيق أي قنوات أو محتوى، والمصادر التي تضيفها مسؤوليتك. الموقع: <a href="https://wasslatv.blogspot.com/" target="_blank" rel="noopener">wasslatv.blogspot.com</a></p>
   
   <div class="sec"><h4>➕ إضافة قائمة M3U</h4>
-    <div class="drop" id="drop">اسحب ملف m3u أو txt (حساب Xtream) هنا أو <label class="btn">اختر ملفاً<input id="file" type="file" multiple accept=".m3u,.m3u8,.txt,audio/x-mpegurl,application/vnd.apple.mpegurl" hidden></label></div>
+    <div class="drop" id="drop">اسحب ملف m3u هنا أو <label class="btn">اختر ملفاً<input id="file" type="file" multiple accept=".m3u,.m3u8,.txt,audio/x-mpegurl,application/vnd.apple.mpegurl" hidden></label></div>
     <div class="lb"><input id="url" type="url" placeholder="https://example.com/list.m3u"><button class="alt" id="fetch">جلب من رابط</button></div>
   </div>
 
@@ -207,7 +181,7 @@
       <button class="alt" id="chnew" type="button">➕ قناة جديدة</button>
       <button class="alt" id="chrst" type="button">↺ إعادة الضبط</button>
     </div>
-    <div class="small">للتعديل: زر الفأرة الأيمن على القناة، أو INFO / الزر الأصفر في قائمة الريسيفر.</div>
+    <div class="small">للتعديل: زر الفأرة الأيمن على القناة، أو F4 في قائمة الريسيفر.</div>
     <div id="chlist" style="display:none;max-height:240px;overflow:auto"></div>
   </div>
   <div class="sec"><h4>🔔 الصوت</h4>
@@ -231,11 +205,10 @@
 
 <script src="js/boot.js"></script>
 <script src="js/libs.js"></script>
-<script src="js/source-model.js"></script>
 <script src="js/app.js"></script>
-<script src="js/home.js"></script>
 <script src="js/remote.js"></script>
-<script src="js/receiver.js?v=home-20261114"></script>
+<script src="js/icons.js"></script>
+<script src="js/receiver.js"></script>
 <script src="js/modes.js"></script>
 <script src="js/channels.js"></script>
 <script src="js/android.js"></script>
@@ -244,12 +217,8 @@
 <script src="js/loading.js"></script>
 <script src="js/quickpanel.js"></script>
 <script src="js/keyboard.js"></script>
-<script src="js/http.js"></script>
 <script src="js/settings.js"></script>
-<script src="js/addsrc.js"></script>
 <script src="js/xtream.js"></script>
-<script src="js/xtream-txt.js"></script>
-<script src="js/vod-model.js"></script>
 <script src="js/vod.js"></script>
 <script src="js/newfiles.js"></script>
 <script src="js/idle.js"></script>

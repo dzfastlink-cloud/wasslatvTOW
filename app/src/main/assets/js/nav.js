@@ -10,16 +10,13 @@
     if(isText(a)&&!a.readOnly){a.blur();return true}
     const d=document.querySelector('dialog[open]');
     if(d){d.close();return true}
-    if(window.__qpBack&&__qpBack())return true;   // القائمة المنسدلة للمصادر تُغلق أولاً
-    const homeOn=!!(window.WasslaHome&&WasslaHome.isOn());
-    if(homeOn&&!(window.__stOn&&__stOn())&&!(window.__qpOn&&__qpOn())&&!(window.__vodOn&&__vodOn()))return false; // الرئيسية: الحاضنة تعرض «اضغط رجوع مرة أخرى للخروج»
     const receiver=window.__rcvState?__rcvState():{on:false};
     const settingsOpen=!!(window.__stOn&&__stOn());
     const qpOpen=!!(window.__qpOn&&__qpOn());
     const vodOpen=!!(window.__vodOn&&__vodOn());
     // الضغط المزدوج من شاشة المشاهدة يخرج حتى لو فتحت قائمة الخيارات بالضغطة الأولى.
     if((receiver.on||settingsOpen||qpOpen)&&lastLiveBack&&now-lastLiveBack<WINDOW){lastLiveBack=0;return 'exit'}
-    if(qpOpen){lastLiveBack=0;__quickClose(true);return true}
+    if(qpOpen){lastLiveBack=0;__quickClose();return true}
     if(settingsOpen){lastLiveBack=0;if(window.__stBack&&__stBack())return true}
     if(vodOpen){if(window.__vodBack&&__vodBack())return true}
     if(receiver.on){

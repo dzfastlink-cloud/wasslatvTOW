@@ -1,35 +1,21 @@
 const $=id=>document.getElementById(id);
-const EDITION=window.Android&&Android.edition?Android.edition():'open';
-const STORAGE_PREFIX='wassla:'+EDITION+':';
 const DB={
-  open(){return this._p||(this._p=new Promise((ok,no)=>{
-    const r=indexedDB.open('m3u-viewer-'+EDITION,1);
-    r.onupgradeneeded=()=>r.result.createObjectStore('kv');
-    r.onsuccess=()=>{
-      const db=r.result;
-      if(EDITION!=='open'||localStorage.getItem(STORAGE_PREFIX+'db-migrated')){ok(db);return}
-      const old=indexedDB.open('m3u-viewer',1);
-      old.onerror=()=>{console.warn('Could not inspect legacy local database',old.error);localStorage.setItem(STORAGE_PREFIX+'db-migrated','1');ok(db)};
-      old.onsuccess=()=>{
-        const legacy=old.result;
-        if(!legacy.objectStoreNames.contains('kv')){
-          legacy.close();localStorage.setItem(STORAGE_PREFIX+'db-migrated','1');ok(db);return;
-        }
-        const tx=db.transaction('kv','readwrite'),read=legacy.transaction('kv').objectStore('kv').openCursor();
-        read.onsuccess=()=>{
-          const cursor=read.result;
-          if(cursor){tx.objectStore('kv').put(cursor.value,cursor.key);cursor.continue()}
-        };
-        tx.oncomplete=()=>{legacy.close();localStorage.setItem(STORAGE_PREFIX+'db-migrated','1');ok(db)};
-        tx.onerror=()=>{legacy.close();this._p=null;no(tx.error)};
-      };
-    };
-    r.onerror=()=>{this._p=null;no(r.error)};
-  }))},
+  open(){return this._p||(this._p=new Promise((ok,no)=>{const r=indexedDB.open('m3u-viewer',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>{this._p=null;no(r.error)}}))},
   async get(k){const d=await this.open();return new Promise(ok=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})},
   async set(k,v){const d=await this.open();return new Promise((ok,no)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=ok;t.onerror=()=>no(t.error)})},
   async del(k){const d=await this.open();return new Promise(ok=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=ok;t.onerror=ok})}
 };
+
+// ================== القنوات المدمجة (يمكنك تعديلها هنا) ==================
+const BUILT_IN_M3U = `#EXTM3U
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/EPTV_logo.svg/200px-EPTV_logo.svg.png" group-title="قنوات جزائرية",الجزائرية 1
+https://example.com/algerie1.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_El_Heddaf_TV.png/200px-Logo_El_Heddaf_TV.png" group-title="قنوات رياضية",الهداف TV
+https://example.com/elheddaf.m3u8
+#EXTINF:-1 group-title="قنوات إخبارية",الجزيرة
+https://example.com/aljazeera.m3u8
+`;
+// ==========================================================================
 
 function parseM3U(text){
   const out=[],lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
@@ -57,36 +43,17 @@ function detectKind(item){
   const g=(item.group||'').toLowerCase();
   const u=(item.url||'').toLowerCase();
   const n=(item.name||'').toLowerCase();
-  // 1) الروابط المخصصة للأفلام والمسلسلات (Xtream) صراحةً
-  if(/action=get_series_info/.test(u)||/\/series\/[^/]+\/[^/]+\/[^/]+/.test(u))return 'series';
-  if(/\/movie\/[^/]+\/[^/]+\/[^/]+/.test(u))return 'movie';
-  // 2) الراديو
+  if(/مسلسل|مسلسلات|series|show|season|episode|حلقة/.test(g)||/مسلسل|حلقة\s*\d|s\d{1,2}e\d{1,2}/.test(n))return 'series';
+  if(/فيلم|أفلام|افلام|movie|movies|film|cinema|vod/.test(g))return 'movie';
+  if(/\.(mp4|mkv|avi|mov|wmv|webm|flv)(\?|$)/.test(u)&&!/\.m3u8?(\?|$)/.test(u))return 'movie';
+  if(/^فيلم|^movie|^film/.test(n))return 'movie';
   if(/radio|راديو/.test(g)||/\.(mp3|aac|ogg|m4a)(\?|$)/.test(u))return 'radio';
-  // 3) البث المباشر لا يُصنَّف فيلماً أو مسلسلاً أبداً مهما كان اسم مجموعته
-  if(/\/live\//.test(u))return 'live';
-  // 4) ملفات فيديو مباشرة (وليست m3u8): فيلم، أو مسلسل إن دلّ الاسم أو المجموعة
-  if(/\.(mp4|mkv|avi|mov|wmv|webm|m4v)(\?|$)/.test(u)){
-    return (/مسلسل|مسلسلات|series|season|episode|حلقة/.test(g)||/مسلسل|حلقة\s*\d|s\d{1,2}e\d{1,2}/.test(n))?'series':'movie';
-  }
   return 'live';
 }
 const KIND_ICON={live:'📺',movie:'🎬',series:'🎞️',radio:'📻'};
 const KIND_NAME={live:'قنوات',movie:'أفلام',series:'مسلسلات',radio:'راديو'};
 
-const LS={
-  get(k,d){
-    try{
-      let v=localStorage.getItem(STORAGE_PREFIX+k);
-      if(v==null&&EDITION==='open'){
-        v=localStorage.getItem(k);
-        if(v!=null)localStorage.setItem(STORAGE_PREFIX+k,v);
-      }
-      return v==null?d:JSON.parse(v);
-    }catch(e){return d}
-  },
-  set(k,v){try{localStorage.setItem(STORAGE_PREFIX+k,JSON.stringify(v))}catch(e){}},
-  del(k){try{localStorage.removeItem(STORAGE_PREFIX+k)}catch(e){}}
-};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let lists=[],active='',items=[],shown=[],hls=null,mp=null,curUrl='',tok=0,mergeTarget='';
 let favs=new Set(LS.get('m3u_favs',[])),recs=LS.get('m3u_recs',[]);
 const FAV_LIST_ID='__fav_list__';
@@ -101,10 +68,7 @@ function merge(oldI,newI,strict){
 }
 function setMsg(t,err){const m=$('msg');m.textContent=t||'';m.className=err?'err':'';m.style.color = err ? '#c4452d' : '#fff';}
 function saveLists(){return DB.set('lists',{lists,active}).catch(()=>{})}
-async function getText(u,ua){
-  if(ua&&window.__httpGet){const r=await window.__httpGet(u,{'User-Agent':ua});if(!r.ok)throw 0;return r.body}
-  const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return await r.text()
-}
+async function getText(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return await r.text()}
 
 async function syncFavList(){
   const storedMeta=LS.get('m3u_fav_meta',{});
@@ -134,37 +98,14 @@ async function syncFavList(){
 }
 
 const MODES=['auto','light','dark'],MTXT={auto:'🌓 تلقائي',light:'☀ نهاري',dark:'🌙 ليلي'};
-let theme=LS.get('m3u_theme','auto');if(MODES.indexOf(theme)<0)theme='auto';
-/* السمة الفعلية: «تلقائي» تتبع نظام الجهاز على الهاتف، وتبقى ليلية على التلفاز (لا يوجد وضع نهاري للتلفاز في النظام) */
-function effTheme(){
-  if(theme!=='auto')return theme;
-  if(window.Android&&Android.isTv&&Android.isTv())return 'dark';
-  try{return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){return 'dark'}
-}
-function applyTheme(){
-  const h=document.documentElement,e=effTheme();
-  if(theme==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',theme);
-  h.setAttribute('data-eff',e);                     // كل الشاشات تقرأ هذه السمة (ليلي/نهاري) لا اختيار المستخدم الخام
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=e==='light'?'#e9f3f1':'#030d0b';
-  $('theme').textContent=MTXT[theme];
-  document.dispatchEvent(new CustomEvent('themechange',{detail:{theme,eff:e}}));
-}
-function setTheme(t){if(MODES.indexOf(t)<0)return;theme=t;LS.set('m3u_theme',theme);applyTheme()}
-function cycleTheme(){setTheme(MODES[(MODES.indexOf(theme)+1)%3])}
+let theme=LS.get('m3u_theme','auto');
+function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);$('theme').textContent=MTXT[theme]}
+function cycleTheme(){theme=MODES[(MODES.indexOf(theme)+1)%3];LS.set('m3u_theme',theme);applyTheme()}
 $('theme').onclick=cycleTheme;applyTheme();
-try{const mq=matchMedia('(prefers-color-scheme: light)');(mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(()=>{if(theme==='auto')applyTheme()})}catch(e){}
-
-const DENSITIES=['large','medium','small'],DENSITY_LABEL={large:'كبير',medium:'متوسط',small:'صغير'},DENSITY_ZOOM={large:'1.08',medium:'1',small:'0.92'};
-let density=LS.get('m3u_density','large');
-if(!DENSITIES.includes(density))density='large';
-function applyDensity(){document.documentElement.style.zoom=DENSITY_ZOOM[density]}
-function cycleDensity(){density=DENSITIES[(DENSITIES.indexOf(density)+1)%DENSITIES.length];LS.set('m3u_density',density);applyDensity()}
-window.cycleDensity=cycleDensity;window.densityLabel=()=>DENSITY_LABEL[density];
-applyDensity();
 
 function fillLists(){
   const visible=lists.filter(l=>l.id!==FAV_LIST_ID||l.n>0);
-  const s=$('lists');s.classList.add('hide');
+  const s=$('lists');s.classList.toggle('hide',!visible.length);
   s.innerHTML=visible.map(l=>'<option value="'+l.id+'"'+(l.id===active?' selected':'')+'>'+esc(l.name)+'</option>').join('');
 }
 function fillGroups(keep){
@@ -180,15 +121,6 @@ function fillGroups(keep){
   if(keep&&[...$('grp').options].some(o=>o.value===prev))$('grp').value=prev;
 }
 function showWelcome(){items=[];shown=[];$('side').classList.add('hide');$('player').classList.add('hide');$('load').classList.remove('hide')}
-/* التجوّل بين المصادر والمجموعات دون اختيار قناة يغيّر المصدر/المجموعة الحاليين، فيصبح ↑↓ (القناة التالية/السابقة)
-   يعمل داخل المنطقة الخطأ. هذه الدالة تعيد التطبيق إلى منطقة القناة التي تعمل فعلاً. */
-function restoreCtx(){
-  const c=window.__playCtx;if(!c)return false;
-  if(c.listId&&c.listId!==active&&lists.some(l=>l.id===c.listId))openList(c.listId);
-  if(c.grp!==undefined&&[...$('grp').options].some(o=>o.value===c.grp))$('grp').value=c.grp;
-  $('q').value=c.q||'';render();return true;
-}
-window.__restoreCtx=restoreCtx;
 function openList(id){
   const l=lists.find(x=>x.id===id);if(!l)return;
   const same=(id===active);active=id;items=parseM3U(l.text);fillGroups(same);
@@ -197,23 +129,13 @@ function openList(id){
   $('upd').style.display=(active===FAV_LIST_ID||!l.url)?'none':'';
   fillLists();render();saveLists();
 }
-function kindSummary(arr){
-  const c={live:0,movie:0,series:0};
-  arr.forEach(i=>{const k=detectKind(i);if(k==='movie'||k==='series')c[k]++;else c.live++});
-  const p=[];if(c.live)p.push(c.live+' قناة');if(c.movie)p.push(c.movie+' فيلم');if(c.series)p.push(c.series+' مسلسل');
-  return p.join('، ');
-}
 async function addList(text,name,url){
   const n=parseM3U(text);
-  if(!n.length){setMsg('لم يتم العثور على قنوات. تأكد أن الملف بصيغة M3U، أو ملف txt فيه بيانات Xtream (السيرفر والمستخدم وكلمة السر).',true);return false}
-  const hadUserSource=lists.some(x=>x.id!==FAV_LIST_ID&&x.id!=='builtin');
+  if(!n.length){setMsg('لم يتم العثور على قنوات. تأكد أن الملف بصيغة M3U وغير مشفّر.',true);return false}
   let l=url?lists.find(x=>x.url===url):null;
-  if(l){const out=merge(parseM3U(l.text),n,false);l.text=ser(out);l.remoteText=ser(n);l.n=out.length;l.upd=Date.now()}
-  else{l={id:'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:name||('قائمة '+(lists.filter(x=>x.id!==FAV_LIST_ID).length+1)),text:ser(n),remoteText:url?ser(n):'',url:url||'',n:n.length,upd:Date.now()};lists.push(l)}
-  openList(l.id);
-  mgr();setMsg('تمت إضافة «'+l.name+'» ('+l.n+' قناة).');
-  if(window.WasslaNotify)WasslaNotify('تمت إضافة «'+l.name+'» وتفعيلها — '+kindSummary(n));
-  return true;
+  if(l){const out=merge(parseM3U(l.text),n,false);l.text=ser(out);l.n=out.length;l.upd=Date.now()}
+  else{l={id:'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:name||('قائمة '+(lists.filter(x=>x.id!==FAV_LIST_ID).length+1)),text:ser(n),url:url||'',n:n.length,upd:Date.now()};lists.push(l)}
+  openList(l.id);mgr();setMsg('تمت إضافة «'+l.name+'» ('+l.n+' قناة).');return true;
 }
 
 // دالة لجلب قنوات Xtream Codes (Extreme)
@@ -266,44 +188,22 @@ async function loadXtreamCodes(host, username, password, name) {
 }
 
 async function updateList(id){
-  if(window.__openSourceUpdateReview){
-    if($('dlg').open)$('dlg').close();
-    return window.__openSourceUpdateReview(id);
-  }
-  const proposal=await fetchListUpdate(id);
-  await applyListUpdate(proposal,'merge');
-  return true;
-}
-async function fetchListUpdate(id){
-  if(id===FAV_LIST_ID)throw new Error('قائمة المفضلة لا تُحدَّث من رابط');
+  if(id===FAV_LIST_ID){setMsg('قائمة المفضلة لا تُحدَّث من رابط.',true);return}
   const l=lists.find(x=>x.id===id);
-  if(!l)throw new Error('لا توجد قائمة لتحديثها');
-  if(!l.url)throw new Error('«'+l.name+'» بلا رابط تحديث');
+  if(!l){setMsg('لا توجد قائمة لتحديثها.',true);return}
+  if(!l.url){setMsg('«'+l.name+'» بلا رابط تحديث.',true);return}
   setMsg('جارٍ تحديث «'+l.name+'»...');
-  const items=parseM3U(await getText(l.url,l.ua));
-  if(!items.length)throw new Error('لم يحتوِ الرابط على قنوات صالحة');
-  return {id,kind:'url',sourceKey:l.url,items,remoteText:ser(items)};
+  try{
+    const n=parseM3U(await getText(l.url));if(!n.length)throw 1;
+    const old=parseM3U(l.text),had=new Set(old.map(i=>i.url));
+    const out=merge(old,n,false);
+    l.text=ser(out);l.n=out.length;l.upd=Date.now();await saveLists();
+    if(id===active)openList(id);mgr();
+    setMsg('تم التحديث: '+n.filter(i=>!had.has(i.url)).length+' قناة جديدة، المجموع '+out.length+'.');
+  }catch(e){setMsg('تعذر التحديث من الرابط (قد يمنعه الموقع أو يكون الملف مشفّراً).',true)}
 }
-async function applyListUpdate(proposal,mode){
-  const l=proposal&&lists.find(x=>x.id===proposal.id);
-  if(!l||!window.WasslaSourceModel)throw new Error('تعذّر العثور على المصدر أو أداة التحديث');
-  const sourceKey=proposal.kind==='xtream'&&l.xt?JSON.stringify(l.xt):l.url;
-  if(!proposal.sourceKey||proposal.sourceKey!==sourceKey)throw new Error('تغير المصدر أثناء المراجعة؛ أعد المحاولة');
-  const local=parseM3U(l.text||''),hasBaseline=!!l.remoteText;
-  const base=parseM3U(hasBaseline?l.remoteText:l.text||'');
-  const items=window.WasslaSourceModel.reconcileRemote(base,local,proposal.items,mode,!hasBaseline);
-  l.remoteText=proposal.remoteText;l.text=ser(items);l.n=items.length;l.upd=Date.now();
-  await saveLists();
-  if(active===l.id)openList(l.id);
-  mgr();
-  setMsg('تم التحديث: '+items.length+' قناة بعد '+(mode==='replace'?'الاستبدال':'الدمج')+'.');
-  return true;
-}
-window.__fetchListUpdate=fetchListUpdate;
-window.__applyListUpdate=applyListUpdate;
 async function deleteList(id){
   if(id===FAV_LIST_ID){setMsg('لا يمكن حذف قائمة المفضلة.',true);return}
-  if(id==='builtin')LS.set('m3u_builtin_off',true);   // لا تعود القائمة المدمجة وحدها إلا بزر «استعادة»
   lists=lists.filter(x=>x.id!==id);
   if(active===id){tok++;stopAll();active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';if(active)openList(active);else showWelcome()}
   fillLists();mgr();await saveLists();
@@ -336,11 +236,8 @@ function render(){
   else if(g==='__avail')base=items.filter(i=>i.url&&i.url.trim());
   else if(g.startsWith('__k_')){const k=g.slice(4);base=items.filter(i=>detectKind(i)===k)}
   else if(g)base=items.filter(i=>(i.group||'بدون مجموعة')===g);
-  // واجهة القنوات للبث المباشر فقط: الأفلام والمسلسلات تُعرض في المكتبة
-  if(document.body.classList.contains('rcv')&&!g.startsWith('__k_'))base=base.filter(i=>{const k=i._k||(i._k=detectKind(i));return k!=='movie'&&k!=='series'});
   shown=base.filter(i=>!q||i.name.toLowerCase().includes(q));
   $('count').textContent='يعرض '+shown.length+' من '+items.length;
-  if(document.body.classList.contains('rcv')){favBtn();return}   // قائمة الصفحة مخفية في وضع الريسيفر: لا حاجة لبناء مئات العناصر عند كل تبديل
   const box=$('list');box.textContent='';
   const frag=document.createDocumentFragment();
   shown.slice(0,1500).forEach(it=>{
@@ -382,24 +279,18 @@ function modesFor(u){
 function play(it){
   curUrl=it.url;
   recs=[it.url].concat(recs.filter(u=>u!==it.url)).slice(0,30);LS.set('m3u_recs',recs);
-  if(document.body.classList.contains('cine-play')){
-    LS.set('m3u_last_was_vod',true);
-  }else{
-    LS.set('m3u_last_was_vod',false);
-    LS.set('m3u_last',{url:it.url,name:it.name,listId:active,ts:Date.now()});
-    window.__playCtx={listId:active,grp:$('grp').value,q:$('q').value};   // منطقة القناة العاملة: المصدر + المجموعة + البحث
-  }
+  LS.set('m3u_last',{url:it.url,name:it.name,listId:active,ts:Date.now()});
   $('now').textContent=it.name;
   setMsg('');favBtn();
   $('resumebar').classList.add('hide');
   
-    // Keep the receiver OSD name-only, matching the remote-control layout.
+  // إظهار رقم القناة في شاشة OSD
+  const channelIndex = shown.findIndex(i=>i.url===it.url) + 1;
   const osd = $('osd');
-    if(osd) {
-      osd.textContent = it.name;
+  if(osd && channelIndex > 0) {
+    osd.textContent = `القناة ${channelIndex} : ${it.name}`;
     osd.style.display = 'block';
-      clearTimeout(window.__osdTimer);
-      window.__osdTimer=setTimeout(() => { osd.style.display = 'none'; }, 5000);
+    setTimeout(() => { osd.style.display = 'none'; }, 3000); // إخفاء بعد 3 ثواني
   }
 
   const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0;
@@ -441,14 +332,13 @@ $('resumex').onclick=()=>$('resumebar').classList.add('hide');
 
 async function tryResume(){
   if(!LS.get('m3u_resume',true))return false;
-  if(LS.get('m3u_last_was_vod',false))return false;
   const last=LS.get('m3u_last');
   if(!last||!last.listId||!last.url)return false;
   const list=lists.find(l=>l.id===last.listId);
   if(!list)return false;
   const parsed=parseM3U(list.text);
   const item=parsed.find(i=>i.url===last.url);
-  if(!item||detectKind(item)!=='live')return false;
+  if(!item)return false;
   if(active!==list.id)openList(list.id);
   play(item);
   const v=$('v');
@@ -526,13 +416,7 @@ $('xt_add').onclick = () => {
   const user = $('xt_user').value.trim();
   const pass = $('xt_pass').value.trim();
   if(host && user && pass) {
-    if(window.xtAdd){
-      setMsg('جارٍ الاتصال بالسيرفر… (قد يستغرق لحظات)');
-      window.xtAdd(host, user, pass, 'سيرفر Extreme').then(ok=>{
-        if(ok){$('dlg').close();setMsg('تمت إضافة السيرفر: قنوات وأفلام ومسلسلات.')}
-        else setMsg('فشل الاتصال بسيرفر Xtream. تأكد من صحة البيانات والرابط.', true);
-      }).catch(()=>setMsg('فشل الاتصال بسيرفر Xtream. تأكد من صحة البيانات والرابط.', true));
-    } else loadXtreamCodes(host, user, pass, 'سيرفر Extreme');
+    loadXtreamCodes(host, user, pass, 'سيرفر Extreme');
   } else {
     setMsg('يرجى ملء جميع الحقول الخاصة بالسيرفر.', true);
   }
@@ -552,7 +436,7 @@ let gT;$('grp').onchange=()=>{clearTimeout(gT);gT=setTimeout(render,80)};
 document.addEventListener('drop',e=>{const a=[...e.dataTransfer.files];a.length&&addFiles(a)});
 
 /* ---------- فحص التحديثات من المدونة ---------- */
-const APP_VERSION=(window.Android&&Android.version())||'15.3.0';
+const APP_VERSION=(window.Android&&Android.version())||'1.6.0';
 const UPDATE_PAGE='https://wasslatv.blogspot.com/p/version.html';
 
 $('ver').textContent=APP_VERSION;$('ver2').textContent=APP_VERSION;$('fv').textContent=APP_VERSION;
@@ -568,6 +452,7 @@ function compareVer(a,b){
 }
 
 async function checkUpdates(silent){
+  if(window.Android)return;
   try{
     const r=await fetch(UPDATE_PAGE+'?t='+Date.now(),{cache:'no-store'});
     if(!r.ok){if(!silent)setMsg('تعذر الوصول لصفحة التحديثات.',true);return false}
@@ -610,12 +495,9 @@ $('checkupd').onclick=()=>checkUpdates(false);
   let d=null;try{d=await DB.get('lists')}catch(e){}
   if(d&&d.lists && d.lists.length > 0){
     lists=d.lists;active=d.active;
-  } else if(LS.get('m3u_builtin_off',false)){
-    // المستخدم حذف القائمة المدمجة عمداً: لا تُعاد تلقائياً
-    lists=[];active='';
   } else {
-    // قائمة مؤقتة حتى تُحمّل بيانات القنوات المعبأة من الأصول.
-    lists=[{id:'builtin',name:'القنوات',text:'#EXTM3U\n',url:'',n:0,upd:Date.now()}];
+    // إذا كان التطبيق جديداً، أضف القائمة المدمجة تلقائياً
+    lists=[{id:'builtin',name:'القنوات',text:window.Android?'#EXTM3U\n':BUILT_IN_M3U,url:'',n:window.Android?0:parseM3U(BUILT_IN_M3U).length,upd:Date.now()}];
     active='builtin';saveLists();
   }
   if(favs.size&&!lists.find(l=>l.id===FAV_LIST_ID)){
@@ -624,21 +506,9 @@ $('checkupd').onclick=()=>checkUpdates(false);
   if(active===FAV_LIST_ID)active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
   fillLists();
   const normals=lists.filter(l=>l.id!==FAV_LIST_ID);
-  const lastPlayed=LS.get('m3u_last',null),lastId=lastPlayed&&lastPlayed.listId;
-  if(normals.length)openList(normals.some(l=>l.id===lastId)?lastId:normals.some(l=>l.id===active)?active:normals[0].id);
+  if(normals.length)openList(normals.some(l=>l.id===active)?active:normals[0].id);
   else if(lists.find(l=>l.id===FAV_LIST_ID))openList(FAV_LIST_ID);
   else showWelcome();
   setTimeout(()=>tryResume(),250);
   setTimeout(()=>checkUpdates(true),1500);
-  if(window.Android&&Android.readAsset){
-    try{
-      const config=JSON.parse(Android.readAsset('source-config.json')||'{}');
-      const done=LS.get('m3u_packaged_sources',[]);
-      for(const account of (Array.isArray(config.accounts)?config.accounts:[])){
-        if(!account||!account.id||done.includes(account.id))continue;
-        const imported=await addList(account.content,account.name||'Xtream','');
-        if(imported){done.push(account.id);LS.set('m3u_packaged_sources',done)}
-      }
-    }catch(e){setMsg('تعذّر تحميل إعدادات المصادر المضمّنة.',true)}
-  }
 })();

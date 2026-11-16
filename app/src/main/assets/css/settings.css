@@ -48,15 +48,3 @@ body.stprev #player{background:transparent!important}
 #st .srow .sc.sw.on{background:#0e7c6b}
 #st .srow .sc.sw.on::after{inset-inline-start:27px;background:#f5b04c}
 #st .sep{padding:18px 8px 6px;font-size:16px;font-weight:800}
-#st .srow.para .sl{font-size:17px;font-weight:500;line-height:1.9;white-space:normal}
-#st .srow.para{align-items:flex-start}
-#st .srow.para.small{justify-content:center}
-#st .srow.para.small .sl{font-size:14px;font-weight:600;color:#9fcfc6;text-align:center;text-decoration:underline}
-
-/* حول التطبيق: كل المحتوى ظاهر بلا تحريك */
-#st .stb.about{overflow-y:hidden;gap:0}
-#st .stb.about .srow{padding-block:8px}
-#st .stb.about .srow .sl{font-size:18px}
-#st .stb.about .srow.para .sl{font-size:14px;line-height:1.6}
-#st .stb.about .srow.para.small .sl{font-size:13px}
-#st .stb.about .sep{padding:8px 8px 2px;font-size:14px}
