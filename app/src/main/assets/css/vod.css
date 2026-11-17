@@ -265,3 +265,103 @@ body.rcv #vod .vdetail-trailer{background:transparent}
   #vod .vdetail-head{grid-template-columns:1fr}
   #vod .vdetail-poster{width:132px}
 }
+
+@media (min-width:1200px) and (hover:hover) and (pointer:fine){
+  body:not(.tv):not(.rcv) #vod .vtop{gap:12px;padding:12px 28px}
+  body:not(.tv):not(.rcv) #vod .vhint{display:none}
+  body:not(.tv):not(.rcv) #vod .vhero{
+    position:relative;flex:0 0 clamp(230px,28vh,330px);min-height:0;margin:20px 24px 12px;padding:32px 42px;
+    align-items:flex-end;overflow:hidden;border:1px solid #ffffff2b;border-radius:22px;background:#08241f;
+    box-shadow:0 18px 48px #0005;
+  }
+  body:not(.tv):not(.rcv) #vod .vhero::after{
+    content:"";position:absolute;inset:0;z-index:0;
+    background:linear-gradient(90deg,#03110fec 0%,#06221ad9 42%,#06221a55 100%),linear-gradient(0deg,#03110fe8,#03110f00 75%);
+  }
+  body:not(.tv):not(.rcv) #vod .vhero img.vhero-art:not([hidden]){
+    position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;object-fit:cover;opacity:.72;
+  }
+  body:not(.tv):not(.rcv) #vod .vhtxt{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:min(900px,78%);min-width:0}
+  body:not(.tv):not(.rcv) #vod .vhero b{
+    display:-webkit-box;max-width:100%;margin:0;color:#fff;font-size:clamp(34px,3vw,54px);line-height:1.15;
+    -webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;
+  }
+  body:not(.tv):not(.rcv) #vod .vhero small{display:-webkit-box;max-width:100%;overflow:hidden;color:#e0efeb;font-size:16px;line-height:1.6;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  body:not(.tv):not(.rcv) #vod .vhero .vsp{display:none}
+  body:not(.tv):not(.rcv) #vod .vhero .vcount{position:absolute;top:22px;left:24px;z-index:1;margin:0;padding:7px 12px;border:1px solid #ffffff35;border-radius:999px;background:#061b18b8;color:#fff;font-size:14px}
+  body:not(.tv):not(.rcv) #vod .vhero-actions{display:flex;position:relative;z-index:1}
+  body:not(.tv):not(.rcv) #vod .vhero-actions button:not([hidden]){
+    display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 24px;
+    border:1px solid #ffd18a;border-radius:10px;background:#f5b04c;color:#17221e;font:inherit;font-size:17px;font-weight:800;cursor:pointer;
+  }
+  body:not(.tv):not(.rcv) #vod .vhero-actions button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  body:not(.tv):not(.rcv) #vod .vhero.empty{display:none}
+  body:not(.tv):not(.rcv) #vod .vbody.home{direction:rtl}
+  body:not(.tv):not(.rcv) #vod .vside{border-inline-start:0;border-inline-end:1px solid #1f8f7c66}
+  body:not(.tv):not(.rcv) #vod .vmain{scrollbar-gutter:stable}
+  body:not(.tv):not(.rcv) #vod .vdshelves{display:flex;flex-direction:column;gap:28px;padding:12px 24px 36px;direction:rtl}
+  body:not(.tv):not(.rcv) #vod .vdshelf{min-width:0}
+  body:not(.tv):not(.rcv) #vod .vdshelf-title{margin:0 10px 8px;color:#f5b04c;font-size:21px;font-weight:800}
+  body:not(.tv):not(.rcv) #vod .vdshelf-grid{
+    display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:8px 12px 22px;direction:ltr;
+    overscroll-behavior-x:contain;scroll-behavior:smooth;scrollbar-width:thin;
+  }
+  body:not(.tv):not(.rcv) #vod .vdshelf-grid .vc{flex:0 0 clamp(145px,10vw,170px);width:clamp(145px,10vw,170px);scroll-snap-align:start}
+  body:not(.tv):not(.rcv) #vod .vdshelf-grid .vp{border-radius:11px}
+  body:not(.tv):not(.rcv) #vod .vdshelf-grid .vn{font-size:15px}
+  body:not(.tv):not(.rcv) #vod .vdshelf-grid .vc:hover .vp{transform:translateY(-3px);outline:2px solid #ffffffa6;outline-offset:3px}
+  body:not(.tv):not(.rcv) #vod .vdshelf-grid .vc.sel .vp{transform:translateY(-3px)}
+  body:not(.tv):not(.rcv) #vod.vod-details .vdetails{padding:clamp(44px,6vh,76px) clamp(36px,6vw,104px)}
+  body:not(.tv):not(.rcv) #vod .vdetail-head{direction:ltr;grid-template-columns:clamp(230px,19vw,310px) minmax(0,1fr);align-items:center;gap:clamp(42px,5vw,88px)}
+  body:not(.tv):not(.rcv) #vod .vdetail-info{direction:rtl;align-items:flex-start}
+  body:not(.tv):not(.rcv) #vod .vdetail-info h2{max-width:100%;font-size:clamp(38px,4.2vw,64px)}
+  body:not(.tv):not(.rcv) #vod .vdetail-info p{max-width:900px;font-size:18px;line-height:1.7}
+  body:not(.tv):not(.rcv) #vod .vdetail-extra{max-width:1420px;margin-right:auto;margin-left:auto}
+  body:not(.tv):not(.rcv) #vod .vdetail-backdrop{height:min(78vh,900px);opacity:.24}
+  body:not(.tv):not(.rcv) #vod.vod-details .vbody{overflow:hidden}
+  body:not(.tv):not(.rcv) #vod.vod-details .vdetails{
+    height:100%;min-height:0;box-sizing:border-box;overflow:hidden;padding:clamp(24px,4vh,48px) clamp(36px,6vw,104px);
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-shell{
+    display:grid;height:100%;min-height:0;grid-template-rows:minmax(0,1fr) auto auto;gap:clamp(8px,1.4vh,14px);overflow:hidden;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-head{height:100%;min-height:0;align-items:stretch}
+  body:not(.tv):not(.rcv) #vod .vdetail-poster{
+    width:auto;height:clamp(200px,min(48vh,calc(100vh - 300px)),520px);max-height:100%;aspect-ratio:2/3;align-self:center;justify-self:start;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-info{min-height:0;justify-content:center;gap:clamp(10px,1.8vh,18px);overflow:hidden}
+  body:not(.tv):not(.rcv) #vod .vdetail-info h2{
+    display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.15;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-meta{max-height:72px;overflow:hidden}
+  body:not(.tv):not(.rcv) #vod .vdetail-actions{flex:none;gap:8px;margin-top:clamp(8px,1.8vh,20px)}
+  body:not(.tv):not(.rcv) #vod .vdetail-actions button{min-height:44px;padding:8px 14px;font-size:15px}
+  body:not(.tv):not(.rcv) #vod .vplay-action{display:inline-flex;align-items:center;gap:8px}
+  body:not(.tv):not(.rcv) #vod .vplay-icon{color:#075d3e;font-size:1.15em}
+  body:not(.tv):not(.rcv) #vod .vdetail-actions button.alt.vplay-action .vplay-icon{color:#22c55e}
+  body:not(.tv):not(.rcv) #vod .vdetail-extra{
+    grid-template-columns:minmax(0,1fr) minmax(240px,30%);grid-template-rows:auto auto auto;gap:4px 20px;
+    max-height:clamp(100px,18vh,194px);margin:0;overflow:hidden;align-content:center;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-overview{
+    grid-column:1;grid-row:1;max-width:none;overflow:hidden;font-size:clamp(14px,1.1vw,18px);line-height:1.45;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-facts{grid-column:1;grid-row:2;gap:4px 18px}
+  body:not(.tv):not(.rcv) #vod .vdetail-status{grid-column:1;grid-row:3}
+  body:not(.tv):not(.rcv) #vod .vdetail-alternatives{
+    grid-column:2;grid-row:1/4;min-width:0;flex-wrap:nowrap;align-items:center;overflow-x:auto;overflow-y:hidden;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-alternatives h3{flex:none;margin:0 0 0 8px;white-space:nowrap}
+  body:not(.tv):not(.rcv) #vod .vdetail-alternatives button{
+    flex:0 0 auto;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-trailer{
+    display:flex;height:clamp(52px,11vh,96px);max-height:100%;margin:0;align-items:center;gap:16px;overflow:hidden;
+  }
+  body:not(.tv):not(.rcv) #vod .vdetail-trailer[hidden]{display:none}
+  body:not(.tv):not(.rcv) #vod .vdetail-trailer h3{flex:0 0 auto;margin:0;font-size:16px}
+  body:not(.tv):not(.rcv) #vod .vtrailer-card{width:min(320px,34vw);height:100%;aspect-ratio:auto;align-items:center;justify-content:center;padding:8px}
+  body:not(.tv):not(.rcv) #vod .vtrailer-card span{padding:7px 12px;font-size:14px}
+  :root[data-eff="light"] body:not(.tv):not(.rcv) #vod .vside{border-inline-start:0;border-inline-end-color:rgba(14,124,107,.22)}
+}
