@@ -1,29 +1,11 @@
 /* ===== تشغيل الأفلام والمسلسلات بملء الشاشة ===== */
 body.cine-play section{position:fixed!important;inset:0;z-index:30;background:#000}
-body.cine-play #player{position:absolute;inset:0;display:block;padding:0;overflow:hidden}
-body.cine-play #player video{position:absolute;inset:0;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#000;border:0}
-body.cine-play #player .nowrow,body.cine-play #player .ctl{position:absolute;z-index:6;display:flex!important}
-body.cine-play #player .nowrow{top:clamp(12px,2vh,28px);inset-inline:clamp(12px,3vw,48px);min-width:0;background:rgba(0,0,0,.62)!important}
-body.cine-play #player .ctl{bottom:clamp(12px,3vh,32px);left:50%;justify-content:center;width:max-content;max-width:calc(100% - 24px);transform:translateX(-50%);background:rgba(0,0,0,.72)!important}
-body.cine-mini section{display:block!important;position:fixed!important;inset:auto 0 0!important;z-index:80;height:clamp(160px,24vh,220px);min-height:160px;padding:0;overflow:hidden;background:#000}
-body.cine-mini section>:not(#player){display:none!important}
-body.cine-mini #player{position:absolute;inset:0;display:grid!important;grid-template-columns:minmax(210px,32vw) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:8px;padding:10px}
-body.cine-mini #player video{grid-column:1;grid-row:1/3;min-height:0;width:100%;height:100%;max-height:none;object-fit:contain;background:#000;border:0;border-radius:8px}
-body.cine-mini #player .nowrow{grid-column:2;grid-row:1;display:flex!important;align-items:center;min-width:0;gap:8px;margin:0!important;padding:4px 8px!important}
-body.cine-mini #player .nowrow #now{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:18px}
-body.cine-mini #player .ctl{grid-column:2;grid-row:2;display:flex!important;align-items:center;align-content:center;gap:8px;min-width:0;margin:0!important;padding:4px 8px!important}
-body.cine-mini #player .ctl>button:not(#vodplaypause):not(#vodexpand):not(#vodclose){display:none!important}
-body.cine-mini #player .ctl>button{min-height:42px;padding:7px 12px;white-space:nowrap}
-body.cine-mini #player .nowrow #cback,body.cine-mini #player .nowrow #pf{display:none!important}
-body.cine-play #player .nowrow #cback,body.cine-play #player .nowrow #pf{display:none!important}
-body.cine-play #player .ctl #prev,body.cine-play #player .ctl #nextb{display:none!important}
-body.cine-mini #vodtrack{display:none!important}
-#vodexpand,#vodclose,#vodmini,#vodplaypause{display:none}
+body.cine-play #player{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;padding:12px}
+body.cine-play #player video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000;border:0}
 
 /* ===== مسار التشغيل (شريط التقدم) أثناء مشاهدة الأفلام والمسلسلات ===== */
 #vodtrack{display:none}
-body.cine-play #vodtrack{position:absolute;z-index:6;right:clamp(12px,3vw,48px);bottom:clamp(104px,12vh,142px);left:clamp(12px,3vw,48px);display:flex;align-items:center;gap:14px;direction:ltr;padding:10px 18px;border-radius:10px;background:rgba(0,0,0,.72);color:#fff;font-size:20px;font-variant-numeric:tabular-nums;transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s}
-body.cine-play.cine-track-hidden #vodtrack{visibility:hidden;opacity:0;pointer-events:none;transform:translateY(8px)}
+body.cine-play #vodtrack{display:flex;align-items:center;gap:14px;direction:ltr;padding:10px 18px;border-radius:10px;background:rgba(0,0,0,.62);color:#fff;font-size:20px;font-variant-numeric:tabular-nums}
 #vtstate{width:28px;text-align:center}
 #vtbar{position:relative;flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.22);cursor:pointer}
 #vtbar::before{content:"";position:absolute;left:0;right:0;top:-14px;bottom:-14px}
@@ -34,23 +16,3 @@ body.cine-play.cine-track-hidden #vodtrack{visibility:hidden;opacity:0;pointer-e
 #vtcur,#vtdur{min-width:64px}
 #vtleft{min-width:130px;text-align:right;direction:rtl;color:#cfeee7;font-size:16px}
 body.cine-play .nowrow #now{font-size:22px;line-height:1.4;white-space:normal}
-@media(max-width:700px){
-  body.cine-mini #player{grid-template-columns:minmax(90px,28vw) minmax(0,1fr);gap:5px;padding:7px}
-  body.cine-mini #player .ctl{gap:5px}
-  body.cine-mini #player .ctl>button{min-height:38px;padding:5px 8px;font-size:13px}
-  body.cine-mini #player .nowrow #now{font-size:15px}
-  body.cine-play #player .nowrow{inset-inline:10px}
-  body.cine-play #player .ctl{gap:5px;width:calc(100% - 20px);max-width:480px;flex-wrap:wrap}
-  body.cine-play #vodtrack{right:10px;bottom:clamp(128px,18vh,160px);left:10px;gap:6px;padding:8px;font-size:14px}
-  #vtstate{width:20px}
-  #vtcur,#vtdur{min-width:40px}
-  #vtleft{display:none}
-  #vtknob{width:16px;height:16px;margin:-8px 0 0 -8px}
-}
-@media(max-width:480px){
-  body.cine-mini section{height:clamp(195px,34vh,250px)}
-  body.cine-mini #player{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;gap:4px;padding:7px}
-  body.cine-mini #player video{grid-column:1;grid-row:1;width:100%;height:100%}
-  body.cine-mini #player .nowrow{grid-column:1;grid-row:2;justify-content:center;min-height:20px}
-  body.cine-mini #player .ctl{grid-column:1;grid-row:3;justify-content:center}
-}

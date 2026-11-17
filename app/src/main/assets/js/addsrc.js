@@ -110,7 +110,6 @@
       window.__onPicked=null;
       if(!ok){say('تعذّرت قراءة الملف أو أُلغي الاختيار','err');return}
       picked=A.pickedText();pickedName=A.pickedName();
-      if(!picked){say('الملف فارغ أو تعذّرت قراءته (الحد الأقصى 20 ميغابايت)','err');return}
       if(!vals.title)vals.title=base(pickedName);
       paintForm();sync();say(picked?'تم اختيار: '+pickedName:'الملف فارغ','');
     };
@@ -138,9 +137,8 @@
         if(ok&&ua){const l=lists.find(x=>x.id===active);if(l){l.ua=ua;await saveLists()}}
         if(!ok)err='لا توجد قنوات صالحة في هذا الرابط';
       }else if(m==='file'){
-        window.__lastImportError='';
         ok=await addList(picked,t||base(pickedName)||'قائمة','');
-        if(!ok)err=window.__lastImportError||'الملف لا يحتوي قنوات صالحة';
+        if(!ok)err='الملف لا يحتوي قنوات صالحة';
       }else if(m==='text'){
         ok=await addList(v.text,t||'قائمة','');
         if(!ok)err='النص لا يحتوي قنوات صالحة';
