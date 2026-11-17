@@ -154,8 +154,33 @@ class WebActivity : Activity() {
                 if (total > maxBytes) { tooBig = true; break }
                 out.write(buf, 0, n)
             }
-            if (tooBig) "" else String(out.toByteArray(), Charsets.UTF_8)
+            if (tooBig) "" else decodeText(out.toByteArray())
         }
+    }
+
+    private fun decodeText(bytes: ByteArray): String {
+        if (bytes.size >= 2) {
+            val first = bytes[0].toInt() and 0xff
+            val second = bytes[1].toInt() and 0xff
+            if (first == 0xff && second == 0xfe) return String(bytes, 2, bytes.size - 2, Charsets.UTF_16LE)
+            if (first == 0xfe && second == 0xff) return String(bytes, 2, bytes.size - 2, Charsets.UTF_16BE)
+        }
+
+        val sampleSize = minOf(bytes.size, 256)
+        var evenZeros = 0
+        var oddZeros = 0
+        for (index in 0 until sampleSize) {
+            if (bytes[index].toInt() == 0) {
+                if (index % 2 == 0) evenZeros++ else oddZeros++
+            }
+        }
+        if (oddZeros > sampleSize / 4 && oddZeros > evenZeros * 2) {
+            return String(bytes, Charsets.UTF_16LE)
+        }
+        if (evenZeros > sampleSize / 4 && evenZeros > oddZeros * 2) {
+            return String(bytes, Charsets.UTF_16BE)
+        }
+        return String(bytes, Charsets.UTF_8)
     }
 
     /** المجلدات المسموح بقراءة ملفات القنوات منها فقط. */
@@ -444,6 +469,26 @@ class WebActivity : Activity() {
                 web.evaluateJavascript("window.__zap&&window.__zap($d)", null)
             }
             return true
+        }
+        when (e.keyCode) {
+            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                if (e.action == KeyEvent.ACTION_DOWN && e.repeatCount == 0) {
+                    val seconds = if (e.keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) 10 else -10
+                    web.evaluateJavascript("window.__vodMediaSeek&&window.__vodMediaSeek($seconds)", null)
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                if (e.action == KeyEvent.ACTION_DOWN && e.repeatCount == 0) {
+                    val action = when (e.keyCode) {
+                        KeyEvent.KEYCODE_MEDIA_PLAY -> "play"
+                        KeyEvent.KEYCODE_MEDIA_PAUSE -> "pause"
+                        else -> "toggle"
+                    }
+                    web.evaluateJavascript("window.__vodMediaControl&&window.__vodMediaControl('$action')", null)
+                }
+                return true
+            }
         }
         val mapped = when (e.keyCode) {
             KeyEvent.KEYCODE_PROG_RED -> KeyEvent.KEYCODE_F1

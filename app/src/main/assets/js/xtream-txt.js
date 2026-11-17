@@ -96,11 +96,18 @@
   window.xtParseTxt=parse;
 
   window.addList=async function(text,name,url){
+    window.__lastImportError='';
     // M3U حقيقي أو رابط تنزيل أو نص كبير: المسار الأصلي بلا تغيير
     if(url||!text||text.length>20000||/#EXTM3U|#EXTINF/i.test(text))return origAdd(text,name,url);
     let acc=[];
-    try{acc=parse(text)}catch(e){}
-    if(!acc.length)return origAdd(text,name,url);
+    try{acc=parse(text)}catch(e){
+      window.__lastImportError='تعذّر قراءة بيانات الملف.';
+      return origAdd(text,name,url);
+    }
+    if(!acc.length){
+      window.__lastImportError='لم يتم التعرف على بيانات Xtream في الملف. استخدم أسطر server/username/password أو رابط get.php أو الصيغة: السيرفر | المستخدم | كلمة السر.';
+      return origAdd(text,name,url);
+    }
 
     const valid=[],failed=[];
     for(let i=0;i<acc.length;i++){
@@ -112,7 +119,11 @@
         valid.push({name:nm,prepared});
       }catch(e){failed.push({name:nm,reason:'فشل الاتصال أو لا يوجد محتوى صالح'})}
     }
-    if(valid.length&&window.__reviewXtreamAccounts)return window.__reviewXtreamAccounts(valid,failed);
+    if(valid.length&&window.__reviewXtreamAccounts){
+      const added=await window.__reviewXtreamAccounts(valid,failed);
+      if(!added)window.__lastImportError='تعذّرت إضافة حساب Xtream إلى القوائم.';
+      return added;
+    }
     if(valid.length){
       let ok=0;
       for(const account of valid){
@@ -120,9 +131,11 @@
         catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
       }
       if(failed.length&&typeof setMsg==='function')setMsg('تم التحقق من الحسابات؛ تعذّرت إضافة بعض الحسابات.',true);
+      window.__lastImportError=ok?'':'تعذّر الاتصال بسيرفر Xtream أو لم يُرجع محتوى صالحًا. تحقق من بيانات الحساب واتصال الإنترنت.';
       return ok>0;
     }
-    if(typeof setMsg==='function')setMsg('تعذّر الاتصال بسيرفر Xtream الموجود في الملف. تحقق من العنوان واسم المستخدم وكلمة السر.',true);
+    window.__lastImportError='تعذّر الاتصال بسيرفر Xtream أو لم يُرجع محتوى صالحًا. تحقق من بيانات الحساب واتصال الإنترنت.';
+    if(typeof setMsg==='function')setMsg(window.__lastImportError,true);
     return false;
   };
 })();
