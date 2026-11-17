@@ -16,7 +16,6 @@
 <link rel="stylesheet" href="css/android.css">
 <link rel="stylesheet" href="css/loading.css">
 <link rel="stylesheet" href="css/settings.css">
-<link rel="stylesheet" href="css/vod.css">
 <link rel="stylesheet" href="css/vodplay.css">
 <link rel="stylesheet" href="css/quickpanel.css">
 <link rel="stylesheet" href="css/fonts.css">
@@ -25,6 +24,7 @@
 <link rel="stylesheet" href="css/look.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/vod.css?v=20261116-4">
 </head>
 <body>
 <script>if(window.Android)document.documentElement.classList.add('droid');(function(){var h=document.documentElement,t='auto';try{t=JSON.parse(localStorage.getItem('m3u_theme'))||'auto'}catch(e){}var e=t;if(t!=='light'&&t!=='dark'){e=(window.Android&&Android.isTv&&Android.isTv())?'dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}h.setAttribute('data-eff',e)})()</script>
@@ -97,6 +97,7 @@
         <button type="button" id="vodnextnow">التشغيل الآن</button>
         <button type="button" class="alt" id="vodnextcancel">إلغاء</button>
       </div>
+      <div id="vodtrack" aria-hidden="true"><span id="vtstate">▶</span><span id="vtcur">0:00</span><div id="vtbar"><i id="vtbuf"></i><i id="vtfill"></i><b id="vtknob"></b></div><span id="vtdur">--:--</span><span id="vtleft"></span></div>
       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
         <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
         <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
