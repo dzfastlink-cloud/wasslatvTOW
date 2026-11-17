@@ -2,7 +2,6 @@
 (function(){
   const box=$('ldg'),v=$('v'),nm=$('ldgn'),st=$('ldgs'),lg=$('ldgl');
   let cur=null,slow=null,gone=null,stallTimer=null,watchdog=null,lastTime=0,lastAdvance=0,hasPlayed=false,autoReconnectUsed=false;
-  const isVodPlayback=()=>document.body.classList.contains('cine-play')||document.body.classList.contains('cine-mini');
   const clearWait=()=>{clearTimeout(slow);clearTimeout(gone);clearTimeout(stallTimer);slow=gone=stallTimer=null};
   const hide=()=>{
     box.classList.remove('on','bad');
@@ -14,7 +13,7 @@
     box.classList.add('on','bad');
   }
   function failed(msg){
-    if(!cur||isVodPlayback())return;
+    if(!cur)return;
     if(autoReconnectUsed){if(!gone)bad(msg);return}
     autoReconnectUsed=true;
     st.textContent='جارٍ إعادة الاتصال تلقائيًا…';
@@ -35,11 +34,10 @@
   }
   lg.onerror=()=>{lg.style.display='none'};
   v.addEventListener('playing',()=>{
-    if(isVodPlayback()){cur=null;hide();return}
     hasPlayed=true;lastTime=v.currentTime;lastAdvance=Date.now();hide();
   });
   function buffering(){
-    if(isVodPlayback()||!cur||v.paused||v.ended)return;
+    if(!cur||v.paused||v.ended)return;
     clearTimeout(stallTimer);
     stallTimer=setTimeout(()=>{
       if(cur&&!v.paused&&!v.ended&&v.readyState<3)failed('توقف البث');
@@ -47,22 +45,18 @@
   }
   v.addEventListener('waiting',buffering);
   v.addEventListener('stalled',buffering);
-  v.addEventListener('error',()=>{if(cur&&!isVodPlayback())failed('تعذّر تشغيل القناة')});
-  v.addEventListener('ended',()=>{if(cur&&!isVodPlayback())failed('انتهى البث')});
+  v.addEventListener('error',()=>{if(cur)failed('تعذّر تشغيل القناة')});
+  v.addEventListener('ended',()=>{if(cur)failed('انتهى البث')});
   v.addEventListener('timeupdate',()=>{
-    if(isVodPlayback()||!cur||v.paused||v.ended)return;
+    if(!cur||v.paused||v.ended)return;
     if(v.currentTime!==lastTime){lastTime=v.currentTime;lastAdvance=Date.now();}
   });
   watchdog=setInterval(()=>{
-    if(isVodPlayback()||!cur||!hasPlayed||v.paused||v.ended||box.classList.contains('bad'))return;
+    if(!cur||!hasPlayed||v.paused||v.ended||box.classList.contains('bad'))return;
     if(Date.now()-lastAdvance>15000)failed('توقف البث');
   },3000);
   const _p=play;
   play=function(it){
-    if(isVodPlayback()){
-      cur=null;hasPlayed=false;autoReconnectUsed=false;hide();
-      return _p(it);
-    }
     if(!(it&&it.url===curUrl&&!v.paused))show(it);
     return _p(it);
   };

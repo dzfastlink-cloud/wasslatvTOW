@@ -31,6 +31,28 @@ const DB={
   async del(k){const d=await this.open();return new Promise(ok=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=ok;t.onerror=ok})}
 };
 
+function parseM3U(text){
+  const out=[],lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
+  let meta=null;
+  for(const raw of lines){
+    const l=raw.trim();
+    if(!l)continue;
+    if(l.startsWith('#EXTINF')){
+      const attrs={};
+      l.replace(/([\w-]+)="([^"]*)"/g,(_,k,v)=>{attrs[k.toLowerCase()]=v});
+      const i=l.lastIndexOf(',');
+      meta={name:(i>-1?l.slice(i+1):'').trim()||attrs['tvg-name']||'',logo:attrs['tvg-logo']||'',group:attrs['group-title']||'',raw:l,extra:[]};
+    }else if(l.startsWith('#EXTGRP:')&&meta){meta.group=meta.group||l.slice(8).trim();meta.extra.push(l)}
+    else if(l.startsWith('#')){if(meta)meta.extra.push(l)}
+    else{
+      const m=meta||{name:'',logo:'',group:'',raw:'',extra:[]};
+      if(!m.name)m.name=l.split('/').pop().split('?')[0]||l;
+      m.url=l;out.push(m);meta=null;
+    }
+  }
+  return out;
+}
+
 function detectKind(item){
   const g=(item.group||'').toLowerCase();
   const u=(item.url||'').toLowerCase();
@@ -70,7 +92,7 @@ let favs=new Set(LS.get('m3u_favs',[])),recs=LS.get('m3u_recs',[]);
 const FAV_LIST_ID='__fav_list__';
 const FAV_LIST_NAME='⭐ المفضلة';
 
-const ser=serializeM3U;
+function ser(a){return '#EXTM3U\n'+a.map(i=>(i.raw?i.raw+'\n':'')+i.extra.join('\n')+(i.extra.length?'\n':'')+i.url).join('\n')+'\n'}
 function merge(oldI,newI,strict){
   const nm=new Map(newI.map(i=>[i.url,i])),seen=new Set(),out=[];
   oldI.forEach(i=>{if(nm.has(i.url)){if(!seen.has(i.url)){out.push(nm.get(i.url));seen.add(i.url)}}else if(!strict)out.push(i)});
@@ -139,8 +161,7 @@ applyDensity();
 
 function fillLists(){
   const visible=lists.filter(l=>l.id!==FAV_LIST_ID||l.n>0);
-  const s=$('lists');
-  s.classList.toggle('hide', !visible.length);
+  const s=$('lists');s.classList.add('hide');
   s.innerHTML=visible.map(l=>'<option value="'+l.id+'"'+(l.id===active?' selected':'')+'>'+esc(l.name)+'</option>').join('');
 }
 function fillGroups(keep){
@@ -355,11 +376,10 @@ function modesFor(u){
   if(/\.(ts|flv)(\?|$)/i.test(u))return['mpegts','hls','native'];
   return['native','hls','mpegts'];
 }
-function isVodPlayback(){return document.body.classList.contains('cine-play')||document.body.classList.contains('cine-mini')}
 function play(it){
   curUrl=it.url;
   recs=[it.url].concat(recs.filter(u=>u!==it.url)).slice(0,30);LS.set('m3u_recs',recs);
-  if(isVodPlayback()){
+  if(document.body.classList.contains('cine-play')){
     LS.set('m3u_last_was_vod',true);
   }else{
     LS.set('m3u_last_was_vod',false);
@@ -379,21 +399,12 @@ function play(it){
       window.__osdTimer=setTimeout(() => { osd.style.display = 'none'; }, 5000);
   }
 
-  const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0,started=false;
-  v.addEventListener('playing',()=>{if(my===tok)started=true},{once:true});
+  const v=$('v'),my=++tok,modes=modesFor(it.url);let i=0;
   const next=()=>{
     if(my!==tok)return;
     if(i>=modes.length){setMsg('تعذر تشغيل هذا الرابط. قد يكون متوقفاً أو محجوباً أو بصيغة لا يدعمها المتصفح.',true);return}
     const m=modes[i++];stopAll();
-    const fail=()=>{
-      if(my!==tok)return;
-      if(isVodPlayback()&&started){
-        const message='تعذّر استكمال تشغيل المحتوى. حاول التقديم مجدداً أو أعد تشغيله.';
-        if(window.__rcvToast)window.__rcvToast(message);else setMsg(message,true);
-        return;
-      }
-      next();
-    };
+    const fail=()=>{if(my===tok)next()};
     try{
       if(m==='hls'){
         if(!(window.Hls&&Hls.isSupported()))return next();
@@ -401,7 +412,7 @@ function play(it){
         hls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal)fail()});
       }else if(m==='mpegts'){
         if(!(window.mpegts&&mpegts.isSupported()))return next();
-        mp=mpegts.createPlayer({type:/\.flv(\?|$)/i.test(it.url)?'flv':'mpegts',isLive:!isVodPlayback(),url:it.url});
+        mp=mpegts.createPlayer({type:/\.flv(\?|$)/i.test(it.url)?'flv':'mpegts',isLive:true,url:it.url});
         mp.attachMediaElement(v);mp.load();
         mp.on(mpegts.Events.ERROR,fail);
       }else{

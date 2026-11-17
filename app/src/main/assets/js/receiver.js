@@ -13,7 +13,8 @@
   const stOn=()=>window.__stOn&&window.__stOn();
   im.onerror=()=>{im.style.display='none'};
 
-  /* ===== تصنيفات الريسيفر ===== */
+  /* ===== المصادر ← التصنيفات ← القنوات (ثلاثة مستويات، رجوع يتراجع خطوة) ===== */
+  let level='rows',nav=[],panel=[];
   const kcache=new Map();
   function kindsOf(l){
     const key=l.id+':'+(l.upd||0)+':'+(l.n||0);let c=kcache.get(key);if(c)return c;
@@ -39,6 +40,29 @@
     const nr=recs.filter(u=>items.some(i=>i.url===u)).length;if(nr)out.push({v:'__rec',ic:'🕘',nm:'آخر ما شاهدت',ct:nr+' قناة'});
     k.groups.forEach((c,g)=>out.push({v:g,ic:IC[g]||'📁',nm:g,ct:c+' قناة'}));
     return out;
+  }
+  function buildPanel(){
+    rows.textContent='';
+    const fr=document.createDocumentFragment();
+    panel.forEach((p,i)=>{
+      const r=document.createElement('div');r.className='r pn'+(p.v!==undefined&&p.v===$('grp').value?' cur':'');
+      r.innerHTML='<span class="n"></span><span class="t"><span class="chname"></span></span><span class="s"></span>';
+      r.children[0].textContent=p.ic||'›';r.children[1].firstChild.textContent=p.nm;r.children[2].textContent=p.ct||'';
+      r.onclick=e=>{e.stopPropagation();sel=i;mark();pickPanel()};
+      fr.appendChild(r);
+    });
+    rows.appendChild(fr);
+    const mg0=rm.querySelector('.mg');if(mg0)mg0.textContent='‹ التصنيفات › — '+panel.length+' تصنيف';
+  }
+  function showCats(){panel=catData();level='cats';buildPanel()}
+  function openCats(){
+    if(level==='cats'){setZone('rows');return}
+    nav.push(level);showCats();
+    const i=panel.findIndex(p=>p.v!==undefined&&p.v===$('grp').value);sel=Math.max(0,i);setZone('rows');
+  }
+  function pickPanel(){
+    const p=panel[sel];if(!p||level!=='cats')return;
+    $('grp').value=p.v;render();nav=['cats'];level='rows';build();sel=0;setZone('rows');
   }
   function goBack(){
     if($('grp').value==='__fav'){$('grp').value='';render();lastG=null;build();sel=Math.max(0,shown.findIndex(i=>i.url===curUrl));setZone('rows');toast('كل القنوات');return}
@@ -122,6 +146,7 @@
   }
   function build(){
     updateHeaderMeta();buildCards();
+    if(level==='cats'){panel=catData();return buildPanel()}
     const my=++bT,total=Math.min(shown.length,1500);
     rows.textContent='';
     const add=(a,b)=>{const fr=document.createDocumentFragment();for(let i=a;i<b;i++)fr.appendChild(rowEl(shown[i],i));rows.appendChild(fr)};
@@ -139,6 +164,7 @@
     const r=rows.children[sel];if(r)r.scrollIntoView({block:'nearest'});
     rows.querySelectorAll('.mq').forEach(x=>{x.classList.remove('mq');x.parentNode.classList.remove('mqc')});
     if(r){const tt=r.querySelector('.t'),sp=tt&&tt.querySelector('.chname');if(sp){const d=sp.scrollWidth-sp.clientWidth;if(d>2){sp.style.setProperty('--mq',(rtl()?d+8:-d-8)+'px');sp.classList.add('mq');tt.classList.add('mqc')}}}
+    if(level!=='rows')return;
     const it=shown[sel];
     if(it&&zone==='rows'&&open&&!/^__/.test($('grp').value)){const gg=it.group||'بدون مجموعة';if(gg!==lastG){lastG=gg;glowCard(gg)}}
   }
@@ -158,7 +184,7 @@
   }
   document.addEventListener('caps',renderHint);
   function setZone(z){const was=zone;zone=z;if(z==='head'&&was!=='head'){const k=[...headEl.children].findIndex(c=>c.classList.contains('cur'));hIdx=Math.max(0,k)}rm.classList.toggle('z-rows',z==='rows');rm.classList.toggle('z-head',z==='head');renderHead();mark();renderHint();updateHeaderMeta();}
-  function openL(){open=true;hIdx=0;lastG=null;rm.dataset.rs=LS.get('m3u_rowstyle','both');build();sel=Math.max(0,shown.findIndex(i=>i.url===curUrl));document.body.classList.add('menu');rm.classList.add('on');v.classList.add('pvid');rb.classList.remove('on');clock();place();setZone('rows');updateHeaderMeta();}
+  function openL(){open=true;level='rows';nav=[];hIdx=0;lastG=null;rm.dataset.rs=LS.get('m3u_rowstyle','both');build();sel=Math.max(0,shown.findIndex(i=>i.url===curUrl));document.body.classList.add('menu');rm.classList.add('on');v.classList.add('pvid');rb.classList.remove('on');clock();place();setZone('rows');updateHeaderMeta();}
   function closeL(keep){const was=open;open=false;rm.classList.remove('on');document.body.classList.remove('menu');v.classList.remove('pvid');v.style.cssText='';zone='rows';if(was&&!keep&&window.__restoreCtx)window.__restoreCtx()}
   function favSel(){const it=shown[sel];if(!it)return;const s=sel;toggleFav(it.url);toast(favs.has(it.url)?'★ أُضيفت إلى المفضلة':'☆ أُزيلت من المفضلة');build();sel=Math.min(s,Math.max(0,rows.children.length-1));mark()}
   function editSel(){const it=shown[sel];if(!it)return;closeL(true);if(!(window.__editChannel&&window.__editChannel(it)))toast('تعذّر فتح التعديل')}
@@ -187,12 +213,12 @@
     if(repeat)return;
     if(lpArmed&&Date.now()-lpAt<2000)return;
     lpArmed=true;lpFired=false;lpAt=Date.now();clearTimeout(lpT);
-    lpT=setTimeout(()=>{if(!lpArmed||!open||zone!=='rows')return;lpFired=true;favSel()},650);
+    lpT=setTimeout(()=>{if(!lpArmed||!open||level!=='rows')return;lpFired=true;favSel()},650);
   }
   function enterUp(){
     clearTimeout(lpT);lpArmed=false;
     if(lpFired){lpFired=false;return}
-    if(!open||zone!=='rows')return;
+    if(!open||level!=='rows')return;
     const it=shown[sel];if(it){closeL(true);play(it)}
   }
   document.addEventListener('keyup',e=>{
@@ -210,12 +236,12 @@
       else if(k==='ArrowDown'){sel=Math.min(Math.max(0,n-1),sel+1);mark()}
       else if(k==='PageUp'||k==='Home')setZone('head');
       else if(k==='PageDown') {sel=Math.min(Math.max(0,n-1),sel+8);mark()}
-      else if(k===next)cycleGroup(1);
-      else if(k===prev)cycleGroup(-1);
+      else if(k===next){if(level==='rows')cycleGroup(1)}
+      else if(k===prev){if(level==='rows')cycleGroup(-1)}
       else if(k==='Enter'){enterDown(repeat)}
       else if(k==='Escape'||k==='Backspace')goBack();
-      else if(k==='F1')favSel();
-      else if(k==='F3'||k==='i'||k==='I'||k==='ContextMenu')editSel();
+      else if(k==='F1'&&level==='rows')favSel();
+      else if((k==='F3'||k==='i'||k==='I'||k==='ContextMenu')&&level==='rows')editSel();
     }else{
       if(k===next){hIdx=Math.min(headEl.children.length-1,hIdx+1);renderHead()}
       else if(k===prev){hIdx=Math.max(0,hIdx-1);renderHead()}
