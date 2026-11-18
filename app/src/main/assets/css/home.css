@@ -1,6 +1,0 @@
-/* ===== إشعارات التطبيق (الشاشة الرئيسية القديمة استُبدلت بالقائمة السريعة) ===== */
-#wnotify{position:fixed;z-index:500;top:max(16px,env(safe-area-inset-top,0px));inset-inline-start:50%;transform:translate(50%,-24px);max-width:86%;padding:12px 24px;border-radius:12px;border:2px solid #3dc9ae;background:#04201bf2;color:#fff;font-size:clamp(14px,1.6vw,20px);text-align:center;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
-#wnotify.on{opacity:1;transform:translate(50%,0)}
-#wnotify.err{border-color:#e0674f;background:#2b0f0af2}
-html[dir=ltr] #wnotify{transform:translate(-50%,-24px)}
-html[dir=ltr] #wnotify.on{transform:translate(-50%,0)}
