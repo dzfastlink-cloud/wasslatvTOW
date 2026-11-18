@@ -3,6 +3,64 @@
 #vod.on{display:flex}
 body.cine-play #vod{display:none!important}
 body.cine-mini #vod{bottom:clamp(160px,24vh,220px)}
+body.cine-mini.vod-detail-play #vod{bottom:0}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage,
+body.cine-mini.vod-detail-play #vod .vdetail-shell{
+  position:relative;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage{
+  width:100%;
+  max-width:1420px;
+  margin:0 auto clamp(18px,3vh,36px);
+  border-radius:14px;
+  overflow:hidden;
+  background:#000;
+  box-shadow:0 16px 44px #0008;
+}
+body.cine-mini.vod-detail-play #player{
+  position:relative!important;
+  inset:auto!important;
+  z-index:auto!important;
+  display:flex!important;
+  width:100%;
+  min-height:0;
+  height:auto;
+  flex-direction:column;
+  gap:0;
+  padding:0;
+  background:#000;
+  overflow:hidden;
+}
+body.cine-mini.vod-detail-play #player .nowrow{
+  position:absolute;
+  top:0;
+  inset-inline:0;
+  z-index:3;
+  min-height:48px;
+  background:linear-gradient(180deg,#000b,transparent);
+  border-radius:0;
+}
+body.cine-mini.vod-detail-play #player video{
+  display:block;
+  width:100%;
+  height:min(58vh,620px);
+  max-height:none;
+  flex:none;
+  border:0;
+  border-radius:0;
+  object-fit:contain;
+  background:#000;
+}
+body.cine-mini.vod-detail-play #player .ctl{
+  justify-content:center;
+  min-height:50px;
+  border-radius:0;
+  background:#07110f;
+}
+body.cine-mini.vod-detail-play #vodtrack{
+  border-radius:0;
+  background:#07110f;
+}
 #vod .vtop{display:flex;align-items:center;gap:18px;padding:12px 28px;background:linear-gradient(90deg,#0a5448,#0e7c6b)}
 #vod .vsource-label{display:flex;align-items:center;gap:8px;color:#d2efe9;font-size:14px}
 #vodsource{max-width:220px;padding:7px 12px;border:2px solid transparent;border-radius:8px;background:#ffffff1f;color:#fff;font:inherit}
@@ -370,6 +428,26 @@ body.rcv #vod .vdetail-trailer{background:transparent}
 #vod[data-density="compact"] .vgrid{grid-template-columns:repeat(auto-fill,minmax(clamp(88px,5.5vw,120px),1fr));gap:14px 8px}
 #vod[data-density="balanced"] .vgrid{grid-template-columns:repeat(auto-fill,minmax(clamp(100px,6.5vw,140px),1fr));gap:16px 10px}
 #vod[data-density="comfortable"] .vgrid{grid-template-columns:repeat(auto-fill,minmax(clamp(120px,8vw,165px),1fr));gap:20px 14px}
+
+/* مشغل الفيلم المضمّن داخل صفحة التفاصيل */
+body.cine-mini.vod-detail-play #vod.vod-details .vbody{overflow:auto}
+body.cine-mini.vod-detail-play #vod.vod-details .vdetails{
+  height:auto;
+  min-height:100%;
+  overflow:visible;
+  box-sizing:border-box;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-shell{
+  display:block;
+  height:auto;
+  min-height:0;
+  overflow:visible;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-head{
+  height:auto;
+  min-height:0;
+  align-items:start;
+}
 #vod[data-title-size="small"] .vc .vn{font-size:14px}
 #vod[data-title-size="medium"] .vc .vn{font-size:16px}
 #vod[data-title-size="large"] .vc .vn{font-size:18px}

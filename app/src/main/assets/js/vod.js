@@ -5,6 +5,7 @@
    التنقل: ↑ ↓ بين الصفوف · ← → داخل الصف · OK فتح · رجوع خطوة للخلف. */
 (function(){
   const el=$('vod'),bodyEl=$('vodb'),tabsEl=$('vtabs'),B=document.body;
+  const playerHost=$('player').parentElement;
   let srcId='',query='',on=false,idx=null,idxSig='',filter='all',view=[],gi=0,cat='',rendered=0,gcols=1,gridEl=null,io=null,zone='rows',tIdx=0,scroller=null,sideEl=null,sideIdx=0,sideItems=[],sort='recent';
   let desktopShelves=new Map(),desktopRows=[],renderedDesktop=false;
   let screen='home',detailReturn='home',detailOrigin='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null,playerBackground='home',playerScrollTop=0;
@@ -462,6 +463,11 @@
     const panel=document.createElement('section');panel.className='vdetails';
     const backdrop=document.createElement('img');backdrop.className='vdetail-backdrop';backdrop.alt='';backdrop.setAttribute('aria-hidden','true');if(card.logo)backdrop.src=card.logo;
     const shell=document.createElement('div');shell.className='vdetail-shell';
+    if(playerFromDetails&&playing&&playing.card===card){
+      const playerStage=document.createElement('div');playerStage.className='vdetail-player-stage';
+      playerStage.appendChild($('player'));
+      shell.appendChild(playerStage);
+    }
     const head=document.createElement('div');head.className='vdetail-head';
     const poster=document.createElement('div');poster.className='vdetail-poster';
     if(card.logo){const cover=document.createElement('img');cover.className='vdetail-cover';cover.alt='';cover.src=card.logo;cover.onerror=()=>cover.remove();poster.appendChild(cover)}
@@ -517,6 +523,7 @@
   }
   function returnFromDetails(){
     cancelDetailRequest();
+    restorePlayerFromDetails();
     el.classList.remove('vod-details');
     if(detailReturn==='series'&&cur){screen='series';zone='eps';paintSeries();return}
     $('vodh').classList.remove('hide');
@@ -730,6 +737,9 @@
     catch(e){if(notify!==false)toast('التقديم غير مدعوم لهذا المصدر');return false}
   }
   function showPlayerBackground(focusPlayer){
+    if(playerFromDetails&&playing){
+      screen='details';zone='details';showDetails(playing.card,playerDetailOrigin||detailOrigin);return;
+    }
     if(playerBackground==='series'&&cur&&cur.kind==='series'){
       screen='series';zone=focusPlayer?'player':'eps';paintSeries();
     }else{
@@ -739,6 +749,7 @@
   }
   function expandPlayer(){
     if(!playing)return;
+    restorePlayerFromDetails();
     B.classList.remove('cine-mini');B.classList.add('cine-play');screen='player';paintTrack();revealTrack();
   }
   function minimizePlayer(){
@@ -748,6 +759,10 @@
   function closeMiniPlayer(){
     if(!playing)return;
     stopPlay();showPlayerBackground(false);
+  }
+  function restorePlayerFromDetails(){
+    const player=$('player');
+    if(player&&player.parentElement!==playerHost)playerHost.appendChild(player);
   }
   function playItem(it,eps,i,card,position,fromDetails){
     const wasPlaying=B.classList.contains('cine-play')||B.classList.contains('cine-mini');
@@ -769,7 +784,10 @@
     if(expanded){B.classList.remove('cine-mini');B.classList.add('cine-play');screen='player'}
     else{
       B.classList.remove('cine-play');B.classList.add('cine-mini');
-      if(!wasPlaying)showPlayerBackground(true);
+      if(!wasPlaying){
+        if(playerFromDetails)showDetails(playing.card,playerDetailOrigin||detailOrigin);
+        else showPlayerBackground(true);
+      }
     }
     const v=$('v');v.controls=false;
     const restorePosition=()=>{if(position>0&&Number.isFinite(v.duration)&&v.duration>position)setSeekTime(position,false);v.removeEventListener('loadedmetadata',restorePosition)};
@@ -802,7 +820,7 @@
     clearTimeout(nextTimer);nextTimer=null;nextCard=null;nextEpisode=null;
     $('vodnext').classList.add('hide');
   }
-  function stopPlay(){saveProgress();clearInterval(progressTimer);progressTimer=null;clearTrackTimer();clearNext();tok++;stopAll();B.classList.remove('cine-play','cine-mini','cine-track-hidden','vod-detail-play');playerFromDetails=false;$('v').controls=!B.classList.contains('rcv');playing=null;updatePlayPause();paintTabs()}
+  function stopPlay(){saveProgress();clearInterval(progressTimer);progressTimer=null;clearTrackTimer();clearNext();tok++;stopAll();B.classList.remove('cine-play','cine-mini','cine-track-hidden','vod-detail-play');restorePlayerFromDetails();playerFromDetails=false;$('v').controls=!B.classList.contains('rcv');playing=null;updatePlayPause();paintTabs()}
   function updatePlaybackActions(){
     const c=playing&&playing.card;
     $('vodwatched').style.display=c?'':'none';
@@ -850,7 +868,11 @@
   $('vodclose').onclick=closeMiniPlayer;
   $('vodbackdetails').onclick=()=>{
     if(!playing)return;
-    const card=playing.card,backTo=playerFromDetails?playerDetailOrigin:detailReturn;
+    if(playerFromDetails){
+      minimizePlayer();
+      return;
+    }
+    const card=playing.card,backTo=detailReturn;
     stopPlay();detailReturn=backTo;showDetails(card,backTo);
   };
   $('vodwatched').onclick=setCurrentWatched;
@@ -974,6 +996,7 @@
     const k=e.key;
     if(B.classList.contains('cine-play'))playKey(k);
     else if(screen==='trailer'&&(k==='Escape'||k==='Backspace'))closeTrailer();
+    else if(B.classList.contains('cine-mini')&&playerFromDetails&&(k==='Escape'||k==='Backspace')){showDetails(playing.card,playerDetailOrigin||detailOrigin)}
     else if((k==='Escape'||k==='Backspace')&&screen==='details')returnFromDetails();
     else if((k==='Escape'||k==='Backspace')&&screen==='series'){zone='rows';paintHome()}
     else if(B.classList.contains('cine-mini')&&(k==='Escape'||k==='Backspace'))closeMiniPlayer();
