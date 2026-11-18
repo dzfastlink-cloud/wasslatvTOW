@@ -141,10 +141,43 @@
     const T=[['auto','تلقائي','يتبع نظام الجهاز على الهاتف، ويبقى ليلياً على التلفاز'],['light','نهاري','خلفيات فاتحة هادئة للإضاءة القوية'],['dark','ليلي','خلفيات داكنة مريحة للعين في الإضاءة الخافتة']];
     show('السمة البصرية',T.map(([id,l,sub])=>({sw:id,label:l,sub,check:theme===id,run:()=>{setTheme(id);toast('تم تطبيق السمة: '+l);rerender()}})),keep);
   }
+  const LIBRARY_DENSITIES=[
+    {id:'compact',label:'مضغوط',sub:'بطاقات أصغر وعدد أكبر في الصف'},
+    {id:'balanced',label:'متوازن',sub:'توازن بين عدد البطاقات ووضوحها'},
+    {id:'comfortable',label:'مريح',sub:'بطاقات أكبر وأسهل قراءة'}
+  ];
+  const LIBRARY_TITLE_SIZES=[
+    {id:'small',label:'صغير',sub:'يعرض مساحة أكبر من العنوان'},
+    {id:'medium',label:'متوسط',sub:'الحجم الافتراضي المتوازن'},
+    {id:'large',label:'كبير',sub:'أوضح من مسافة أبعد'}
+  ];
+  function libraryLayout(keep){
+    const density=LIBRARY_DENSITIES.find(x=>x.id===LS.get('m3u_vod_density','balanced'))||LIBRARY_DENSITIES[1];
+    const titleSize=LIBRARY_TITLE_SIZES.find(x=>x.id===LS.get('m3u_vod_title_size','medium'))||LIBRARY_TITLE_SIZES[1];
+    show('تنظيم المكتبة',[
+      {icon:'▦',label:'كثافة بطاقات المكتبة',sub:'عدد الملصقات المعروضة في الصف',val:density.label,run:()=>push(libraryDensityPick)},
+      {icon:'🔠',label:'حجم عناوين الأفلام',sub:'ينطبق على الأفلام والمسلسلات',val:titleSize.label,run:()=>push(libraryTitlePick)}
+    ],keep);
+  }
+  function libraryDensityPick(keep){
+    const current=LS.get('m3u_vod_density','balanced');
+    show('كثافة بطاقات المكتبة',LIBRARY_DENSITIES.map(option=>({
+      sw:option.id,label:option.label,sub:option.sub,check:current===option.id,
+      run:()=>{LS.set('m3u_vod_density',option.id);if(window.__applyVodAppearance)window.__applyVodAppearance();toast('تم تطبيق كثافة المكتبة: '+option.label);back()}
+    })),keep);
+  }
+  function libraryTitlePick(keep){
+    const current=LS.get('m3u_vod_title_size','medium');
+    show('حجم عناوين المكتبة',LIBRARY_TITLE_SIZES.map(option=>({
+      sw:option.id,label:option.label,sub:option.sub,check:current===option.id,
+      run:()=>{LS.set('m3u_vod_title_size',option.id);if(window.__applyVodAppearance)window.__applyVodAppearance();toast('تم تطبيق حجم العناوين: '+option.label);back()}
+    })),keep);
+  }
   function appearanceSec(keep){
     show('المظهر',[
       {icon:'🌗',label:'السمة البصرية',sub:'اختر: تلقائي · نهاري · ليلي — تُطبَّق فوراً على كل الشاشات',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>push(themePick)},
-      {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}}
+      {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}},
+      {icon:'🎞',label:'تنظيم المكتبة',sub:'كثافة الملصقات وحجم عناوينها',run:()=>push(libraryLayout)}
     ],keep);
   }
   function channelsSec(keep){
@@ -303,9 +336,11 @@
       const name=A.pickedName(),text=A.pickedText(),base=name.replace(/\.[^.]+$/,'');
       const nm=await kbPrompt('اسم هذا المصدر',base);
       if(nm===null)return;
+      if(!text.trim()){toast('الملف فارغ أو تعذّرت قراءته (الحد الأقصى 20 ميغابايت)');return}
+      window.__lastImportError='';
       toast('جارٍ إضافة المصدر…');
       const added=await addList(text,nm.trim()||base,'');
-      toast(added?'تمت إضافة «'+(nm.trim()||base)+'»':'الملف لا يحتوي قنوات صالحة');
+      toast(added?'تمت إضافة «'+(nm.trim()||base)+'»':window.__lastImportError||'الملف لا يحتوي قنوات صالحة');
       if(added){stack=[home];home()}
     };
     A.pickFile();
@@ -614,7 +649,6 @@
     show(it.name,rows,keep);
     pvPlay(it,true);
   }
-  const setName=(it,v)=>{it.name=v;if(it.raw){const i=it.raw.lastIndexOf(',');it.raw=(i>-1?it.raw.slice(0,i):it.raw)+','+v}else it.raw='#EXTINF:-1,'+v};
   function setGroup(it,g){
     g=g.replace(/"/g,'');it.group=g;
     if(!it.raw)it.raw='#EXTINF:-1,'+it.name;
@@ -648,7 +682,7 @@
       rememberBuiltin();
       window.__chSet(window.__chKey(it),{[field]:val});
     }else{
-      if(field==='name')setName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
+      if(field==='name')setM3UName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
       await saveItems(id,its);
     }
     toast('تم الحفظ');rerender();

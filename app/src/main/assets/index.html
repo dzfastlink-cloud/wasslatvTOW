@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="css/android.css">
 <link rel="stylesheet" href="css/loading.css">
 <link rel="stylesheet" href="css/settings.css">
-<link rel="stylesheet" href="css/vodplay.css">
+<link rel="stylesheet" href="css/vodplay.css?v=20261117-1">
 <link rel="stylesheet" href="css/quickpanel.css">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/idle.css">
@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="css/look.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/theme.css">
-<link rel="stylesheet" href="css/vod.css?v=20261116-4">
+<link rel="stylesheet" href="css/vod.css?v=20261118-1">
 </head>
 <body>
 <script>if(window.Android)document.documentElement.classList.add('droid');(function(){var h=document.documentElement,t='auto';try{t=JSON.parse(localStorage.getItem('m3u_theme'))||'auto'}catch(e){}var e=t;if(t!=='light'&&t!=='dark'){e=(window.Android&&Android.isTv&&Android.isTv())?'dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}h.setAttribute('data-eff',e)})()</script>
@@ -101,6 +101,10 @@
       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
         <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
         <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
+        <button class="alt" id="vodplaypause" type="button">⏸ إيقاف</button>
+        <button class="alt" id="vodexpand" type="button">⛶ توسيع</button>
+        <button class="alt" id="vodmini" type="button">▣ تصغير</button>
+        <button class="alt" id="vodclose" type="button">✕ إغلاق</button>
         <button class="alt" id="prev" style="color:white; border-color:#555;" title="القناة السابقة (↑)">⏮ السابقة</button>
         <button class="alt" id="nextb" style="color:white; border-color:#555;" title="القناة التالية (↓)">التالية ⏭</button>
         <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶ ملء الشاشة</button>
@@ -118,8 +122,8 @@
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
 <div id="vod">
-  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><button id="vodsort" class="vt" type="button">⇅ الأحدث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
-  <div class="vhero" id="vodh"><img id="vpimg" alt=""><div class="vhtxt"><b id="vpt"></b><small id="vps"></small></div><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
+  <div class="vtop"><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><button id="vodsort" class="vt" type="button">⇅ الأحدث</button><label class="vsource-label">المصدر <select id="vodsource"></select></label><button id="vodplayer" class="vt hide" type="button">▶ المشغل المصغر</button><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
+  <div class="vhero" id="vodh"><img class="vhero-art" id="vpimg" alt="" aria-hidden="true" hidden><div class="vhtxt"><b id="vpt"></b><small id="vps"></small><div class="vhero-actions"><button id="vodheroaction" type="button" hidden>▶ عرض التفاصيل</button></div></div><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
   <div class="vbody" id="vodb"></div>
 </div>
 <dialog id="kb" data-nav="grid">
@@ -225,23 +229,27 @@
 <script src="js/boot.js"></script>
 <script src="js/libs.js"></script>
 <script src="js/source-model.js"></script>
-<script src="js/app.js"></script>
+<script src="js/m3u.js?v=20261116-1"></script>
+<script src="js/update-manifest.js?v=20261117-1"></script>
+<script src="js/app.js?v=20261117-1"></script>
 <script src="js/home.js"></script>
 <script src="js/remote.js"></script>
-<script src="js/receiver.js?v=home-20261114"></script>
+<script src="js/receiver.js?v=home-20261116-1"></script>
 <script src="js/modes.js"></script>
-<script src="js/channels.js"></script>
+<script src="js/channels.js?v=20261117-1"></script>
 <script src="js/android.js"></script>
 <script src="js/tvnav.js"></script>
 <script src="js/nav.js"></script>
-<script src="js/loading.js"></script>
+<script src="js/loading.js?v=20261116-1"></script>
 <script src="js/quickpanel.js"></script>
 <script src="js/keyboard.js"></script>
-<script src="js/settings.js"></script>
+<script src="js/settings.js?v=20261118-1"></script>
 <script src="js/xtream.js"></script>
 <script src="js/xtream-txt.js"></script>
 <script src="js/vod-model.js"></script>
-<script src="js/vod.js"></script>
+<script src="js/vod-playback.js?v=20261116-1"></script>
+<script src="js/vod-metadata.js?v=20261116-2"></script>
+<script src="js/vod.js?v=20261118-1"></script>
 <script src="js/newfiles.js"></script>
 <script src="js/idle.js"></script>
 <script src="js/splash.js"></script>
