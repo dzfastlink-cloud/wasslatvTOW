@@ -81,6 +81,12 @@ class WebActivity : Activity() {
         val ui = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         isTv = ui.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // كانت في theme (res/values) وصارت من الكود حتى لا يتوقف البناء إن غاب ذلك المجلد
+        window.setBackgroundDrawableResource(R.drawable.splash_bg)
+        if (Build.VERSION.SDK_INT >= 21) {
+            window.statusBarColor = Color.TRANSPARENT
+            window.navigationBarColor = Color.BLACK
+        }
 
         web = WebView(this)
         web.setBackgroundColor(Color.BLACK)

@@ -14,10 +14,10 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:banner="@drawable/tv_banner"
-        android:label="@string/app_name"
+        android:label="وصلة TV"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.WasslaTV">
+        android:theme="@android:style/Theme.Material.NoActionBar">
 
         <activity
             android:name=".WebActivity"
