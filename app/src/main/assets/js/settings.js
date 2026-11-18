@@ -115,6 +115,7 @@
   function close(){pvStop();st.classList.remove('on');stack=[];if(document.activeElement)document.activeElement.blur()}
   window.__openSettings=open;
   window.__stOn=()=>st.classList.contains('on');
+  window.__stToast=toast;
   window.__stBack=function(){if(!st.classList.contains('on'))return false;back();return true};
   $('stback').onclick=()=>back();
 
