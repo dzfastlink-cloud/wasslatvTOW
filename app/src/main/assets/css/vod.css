@@ -11,7 +11,7 @@ body.cine-mini.vod-detail-play #vod .vdetail-shell{
 body.cine-mini.vod-detail-play #vod .vdetail-player-stage{
   width:100%;
   max-width:1420px;
-  margin:0 auto clamp(18px,3vh,36px);
+  margin:0 auto;
   border-radius:14px;
   overflow:hidden;
   background:#000;
@@ -43,7 +43,7 @@ body.cine-mini.vod-detail-play #player .nowrow{
 body.cine-mini.vod-detail-play #player video{
   display:block;
   width:100%;
-  height:min(58vh,620px);
+  height:min(46vh,500px);
   max-height:none;
   flex:none;
   border:0;
@@ -58,8 +58,47 @@ body.cine-mini.vod-detail-play #player .ctl{
   background:#07110f;
 }
 body.cine-mini.vod-detail-play #vodtrack{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  direction:ltr;
+  min-height:44px;
+  padding:8px 18px;
+  color:#fff;
+  font-size:18px;
+  font-variant-numeric:tabular-nums;
   border-radius:0;
   background:#07110f;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage .vdetail-trailer{
+  display:flex;
+  height:58px;
+  margin:0;
+  align-items:center;
+  gap:10px;
+  padding:6px 10px;
+  overflow:hidden;
+  background:#07110f;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage .vdetail-trailer[hidden]{display:none}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage .vdetail-trailer h3{
+  flex:0 0 auto;
+  margin:0;
+  font-size:14px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage .vtrailer-card{
+  width:112px;
+  height:46px;
+  min-height:46px;
+  aspect-ratio:auto;
+  padding:4px;
+  border-radius:8px;
+  align-items:center;
+  justify-content:center;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage .vtrailer-card span{
+  padding:4px 7px;
+  font-size:12px;
 }
 #vod .vtop{display:flex;align-items:center;gap:18px;padding:12px 28px;background:linear-gradient(90deg,#0a5448,#0e7c6b)}
 #vod .vsource-label{display:flex;align-items:center;gap:8px;color:#d2efe9;font-size:14px}
@@ -95,7 +134,7 @@ body.cine-mini.vod-detail-play #vodtrack{
 #vod .vsi.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);color:#04201b;border-color:#f5b04c;font-weight:800}
 #vod .vsi.sel em{background:#04201b33;color:#04201b}
 /* شبكة ملصقات 2:3 — عنوان تحت الملصق وشارة تقييم؛ بلا تمويه ولا ظلال ثقيلة (أخف على صناديق Android TV) */
-#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:24px 16px;padding:18px 24px 30px;align-content:start;direction:ltr}
+#vod .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:24px 16px;padding:18px 24px 30px;align-content:start;direction:rtl}
 #vod .vc{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0;width:auto;height:auto;border:0;border-radius:0;background:none;overflow:visible;cursor:pointer}
 #vod .vp{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#0e7c6b,#0a3b34)}
 #vod .vp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .2s}
@@ -106,7 +145,7 @@ body.cine-mini.vod-detail-play #vodtrack{
 #vod .vp i{position:absolute;top:8px;left:8px;z-index:2;font-style:normal;font-size:11px;font-weight:800;background:#f5b04c;color:#04201b;border-radius:7px;padding:2px 8px}
 #vod .vwatched{position:absolute;right:8px;bottom:10px;z-index:2;max-width:calc(100% - 16px);padding:3px 7px;border-radius:7px;background:#075746ed;color:#fff;font-size:12px;font-style:normal;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #vod .vp .vprogress{position:absolute;inset-inline:0;bottom:0;height:5px;background:linear-gradient(to right,#f5b04c var(--progress),#ffffff55 var(--progress));z-index:2}
-#vod .vc .vn{position:static;padding:0;background:none;font-size:15.5px;line-height:1.4;text-align:center;color:#d2efe9;word-break:break-word}
+#vod .vc .vn{position:static;width:100%;padding:0;background:none;font-size:15.5px;line-height:1.4;text-align:right;color:#d2efe9;direction:rtl;word-break:break-word}
 #vod .vc.sel .vp{transform:translateY(-5px);outline:3px solid #f5b04c;outline-offset:3px}
 #vod .vc.sel .vn{color:#f5b04c}
 #vod .vc.sel{transform:none;border:0;box-shadow:none}
@@ -199,7 +238,7 @@ body.cine-mini #vodplayer{display:inline-flex}
 /* شبكة ملصقات أكثف مع عناوين مقروءة وتحديد ذهبي بارز */
 #vod .vgrid{grid-template-columns:repeat(auto-fill,minmax(clamp(100px,6.5vw,140px),1fr));gap:16px 10px;padding:22px var(--w-safe,28px) 36px}
 #vod .vp{border-radius:16px}
-#vod .vc .vn{display:block;font-size:16px;font-weight:700;line-height:1.35;color:#fff;min-height:0;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal}
+#vod .vc .vn{display:block;width:100%;font-size:16px;font-weight:700;line-height:1.35;text-align:right;direction:rtl;color:#fff;min-height:0;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal}
 #vod .vc.sel .vp{transform:translateY(-3px) scale(1.02);outline:4px solid #f5b04c;outline-offset:3px;box-shadow:0 10px 22px rgba(0,0,0,.5)}
 #vod .vc.sel .vn{color:#f5b04c}
 #vod .vr{top:10px;right:10px;padding:3px 10px;font-size:16px;background:rgba(0,0,0,.8)}
@@ -294,6 +333,32 @@ body.cine-mini #vodplayer{display:inline-flex}
 .vtrailer-close{justify-self:start;min-height:44px;padding:8px 16px;border:1px solid #ffffff55;border-radius:9px;background:#222;color:#fff;font-size:16px}
 .vtrailer-stage iframe{width:min(96vw,1600px);height:min(82vh,900px);border:0;border-radius:10px;background:#000}
 .vtrailer-close:focus-visible{outline:3px solid #f5b04c;outline-offset:3px}
+body.cine-mini.vod-detail-play #vod .vtrailer-inline{
+  position:relative;
+  width:100%;
+  height:min(34vh,280px);
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  background:#07110f;
+  box-sizing:border-box;
+}
+body.cine-mini.vod-detail-play #vod .vtrailer-inline iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  border-radius:8px;
+  background:#000;
+}
+body.cine-mini.vod-detail-play #vod .vtrailer-inline .vtrailer-close{
+  align-self:start;
+  min-height:38px;
+  padding:6px 10px;
+  font-size:13px;
+  white-space:nowrap;
+}
 body.vod-detail-play.cine-play section{z-index:110!important}
 :root[data-eff="light"] #vod.vod-details .vbody{background:#f4f4f2}
 :root[data-eff="light"] #vod.vod-details .vdetails{background:linear-gradient(180deg,#f8f6f2,#f4f4f2)}
@@ -361,7 +426,7 @@ body.rcv #vod .vdetail-trailer{background:transparent}
   body:not(.tv):not(.rcv) #vod .vdshelf{min-width:0}
   body:not(.tv):not(.rcv) #vod .vdshelf-title{margin:0 10px 8px;color:#f5b04c;font-size:21px;font-weight:800}
   body:not(.tv):not(.rcv) #vod .vdshelf-grid{
-    display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:8px 12px 22px;direction:ltr;
+    display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:8px 12px 22px;direction:rtl;
     overscroll-behavior-x:contain;scroll-behavior:smooth;scrollbar-width:thin;
   }
   body:not(.tv):not(.rcv) #vod .vdshelf-grid .vc{flex:0 0 clamp(125px,8vw,150px);width:clamp(125px,8vw,150px);scroll-snap-align:start}
@@ -430,23 +495,95 @@ body.rcv #vod .vdetail-trailer{background:transparent}
 #vod[data-density="comfortable"] .vgrid{grid-template-columns:repeat(auto-fill,minmax(clamp(120px,8vw,165px),1fr));gap:20px 14px}
 
 /* مشغل الفيلم المضمّن داخل صفحة التفاصيل */
-body.cine-mini.vod-detail-play #vod.vod-details .vbody{overflow:auto}
+body.cine-mini.vod-detail-play #vod.vod-details .vbody{overflow:hidden}
 body.cine-mini.vod-detail-play #vod.vod-details .vdetails{
-  height:auto;
-  min-height:100%;
-  overflow:visible;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
   box-sizing:border-box;
 }
 body.cine-mini.vod-detail-play #vod .vdetail-shell{
-  display:block;
-  height:auto;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  gap:10px;
+  height:100%;
   min-height:0;
-  overflow:visible;
+  overflow:hidden;
 }
 body.cine-mini.vod-detail-play #vod .vdetail-head{
   height:auto;
   min-height:0;
   align-items:start;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-head{
+  direction:ltr;
+  display:grid;
+  grid-template-columns:clamp(150px,16vw,220px) minmax(0,1fr);
+  gap:clamp(18px,3vw,36px);
+  max-width:1420px;
+  margin:0 auto;
+  height:100%;
+  min-height:0;
+  padding:12px 0 0;
+  overflow:hidden;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-poster{
+  width:100%;
+  height:auto;
+  max-height:none;
+  align-self:start;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-info{
+  direction:rtl;
+  align-items:stretch;
+  min-width:0;
+  height:100%;
+  gap:12px;
+  justify-content:flex-start;
+  overflow:hidden;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-info h2{
+  font-size:clamp(25px,2.6vw,38px);
+  line-height:1.2;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-extra{
+  display:grid;
+  gap:10px;
+  max-height:none;
+  margin:0;
+  overflow:visible;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-summary-heading{
+  margin:0;
+  color:#f5b04c;
+  font-size:20px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-overview{
+  display:block;
+  max-width:none;
+  margin:0;
+  overflow:visible;
+  font-size:16px;
+  line-height:1.6;
+  -webkit-line-clamp:unset;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-facts{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  max-width:none;
+  gap:8px 16px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-actions{
+  margin:4px 0 0;
+}
+@media(max-width:700px){
+  body.cine-mini.vod-detail-play #vod .vdetail-head{
+    grid-template-columns:105px minmax(0,1fr);
+    gap:14px;
+  }
+  body.cine-mini.vod-detail-play #vod .vdetail-info h2{font-size:22px}
+  body.cine-mini.vod-detail-play #vod .vdetail-overview{font-size:14px;line-height:1.5}
+  body.cine-mini.vod-detail-play #vod .vdetail-facts{grid-template-columns:minmax(0,1fr)}
 }
 #vod[data-title-size="small"] .vc .vn{font-size:14px}
 #vod[data-title-size="medium"] .vc .vn{font-size:16px}
