@@ -169,7 +169,7 @@
   async function editUrl(){
     const it=(groups[gi]||{items:[]}).items[ci];if(!it)return;
     const v=await kbPrompt('رابط القناة',it.url,'en');if(v===null)return;
-    const nv=v.trim();if(!/^(https?|rtmp|rtsp|udp):\/\//i.test(nv)){say('رابط غير صالح');return}
+    const nv=v.trim();if(!/^(https?|rtmp|rtsp|udp|stalker):\/\//i.test(nv)){say('رابط غير صالح');return}
     it.url=nv;mark();
   }
   function deleteChan(){

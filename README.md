@@ -14,9 +14,9 @@
 ### بيانات التوقيع (لا تُكتب في الكود)
 **على GitHub:** أضف في Settings > Secrets and variables > Actions:
 - `WASSLA_STORE_PASSWORD` (مطلوب)، و`WASSLA_KEY_ALIAS` و`WASSLA_KEY_PASSWORD` (اختياريان، الافتراضي alias=`wasslatv` وكلمة مرور المفتاح = كلمة مرور المخزن)
-- `WASSLA_KEYSTORE_BASE64` (مطلوب لبناء APK موقّع): محتوى ملف JKS بصيغة base64. لا يُحفظ ملف التوقيع في المستودع، ويفشل سير العمل إذا لم يُوفّر المفتاح.
+- `WASSLA_KEYSTORE_BASE64` (اختياري): محتوى ملف jks بصيغة base64. إن غاب يُستعمل `app/wasslatv.jks` الموجود في المستودع (فاجعل المستودع **خاصًا Private**).
 
-**محليًا:** انسخ `keystore.properties.example` إلى `keystore.properties` واملأه بمسار ملف المفتاح وكلمات المرور. لا يُوقّع البناء المحلي عند غياب بيانات توقيع صالحة.
+**محليًا:** انسخ `keystore.properties.example` إلى `keystore.properties` واملأه.
 
 ## نشر تحديث Android
 - مستودع التنزيلات العام المستخدم هو `dzfastlink-cloud/wasslatv-downloads`.

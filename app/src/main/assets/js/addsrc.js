@@ -1,4 +1,4 @@
-/* ===== نافذة «إضافة القائمة»: رابط M3U · ملف M3U · Xtream · نص m3u خام · اكتشاف تلقائي ===== */
+/* ===== نافذة «إضافة القائمة»: رابط M3U · ملف M3U · Xtream · Stalker · نص m3u خام · اكتشاف تلقائي ===== */
 (function(){
   const dlg=$('addsrc'),grid=$('asg'),form=$('asf'),msg=$('asm'),addB=$('asadd'),A=window.Android;
   const tv=!!(A&&A.isTv&&A.isTv());
@@ -9,6 +9,8 @@
     {id:'file',i:'📁',t:'ملف M3U',d:'حمّل قائمة تشغيل من جهازك',f:[{k:'title',l:'عنوان القائمة'}],file:1},
     {id:'xtream',i:'🔑',t:'بيانات اعتماد Xtream',d:'اتصل باستخدام المضيف واسم المستخدم وكلمة المرور',
       f:[{k:'host',l:'عنوان السيرفر*',ltr:1,ph:'http://domain.com:8080'},{k:'user',l:'اسم المستخدم*',ltr:1},{k:'pass',l:'كلمة المرور*',ltr:1},{k:'title',l:'عنوان القائمة'}]},
+    {id:'stalker',i:'📡',t:'بوابة Stalker',d:'رابط البوابة وعنوان MAC',
+      f:[{k:'portal',l:'رابط البوابة*',ltr:1,ph:'http://portal.example.com/c/'},{k:'mac',l:'عنوان MAC*',ltr:1,ph:'00:1A:79:XX:XX:XX'},{k:'title',l:'عنوان القائمة'}]},
     {id:'text',i:'📝',t:'نص m3u الخام',d:'للقوائم العابرة أو عندما يتوفر لديك النص فقط',
       f:[{k:'text',l:'محتوى القائمة*',area:1,ph:'#EXTM3U\n#EXTINF:-1,قناة\nhttp://…'},{k:'title',l:'عنوان القائمة'}]},
     {id:'auto',i:'✨',t:'اكتشاف تلقائي',d:'الصق رسالة مزود الخدمة وسنكتشف نوعها',
@@ -23,6 +25,11 @@
   function detect(text){
     text=String(text||'');
     const urls=text.match(/https?:\/\/[^\s"'<>]+/gi)||[];
+    const mac=(text.match(/\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/)||[])[0];
+    if(mac&&urls.length){
+      const portal=urls.find(u=>/\/c\/?$|stalker|portal/i.test(u))||urls[0];
+      return{type:'stalker',portal,mac:mac.toUpperCase().replace(/-/g,':')};
+    }
     if(window.xtParseTxt){
       try{const a=window.xtParseTxt(text);if(a.length)return{type:'xtream',host:a[0].host,user:a[0].user,pass:a[0].pass,title:a[0].name}}catch(e){}
     }
@@ -31,7 +38,7 @@
     if(m)return{type:'url',url:m};
     return null;
   }
-  const NAMES={url:'رابط M3U',xtream:'Xtream',text:'نص M3U'};
+  const NAMES={url:'رابط M3U',xtream:'Xtream',stalker:'Stalker',text:'نص M3U'};
 
   /* ---------- التحقق ---------- */
   function valid(){
@@ -40,6 +47,7 @@
       case 'url':return /^https?:\/\//i.test((v.url||'').trim());
       case 'file':return !!picked;
       case 'xtream':return !!((v.host||'').trim()&&(v.user||'').trim()&&(v.pass||'').trim());
+      case 'stalker':return !!((v.portal||'').trim()&&/^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/.test((v.mac||'').trim()));
       case 'text':return (v.text||'').trim().length>10;
       case 'auto':return !!found;
     }
@@ -137,12 +145,17 @@
       }else if(m==='xtream'){
         ok=await window.xtAdd(v.host.trim(),v.user.trim(),v.pass.trim(),t||'Xtream');
         if(!ok)err='تعذّر الاتصال أو لا توجد قنوات — تحقق من العنوان والبيانات';
+      }else if(m==='stalker'){
+        const r=await window.stAdd(v.portal.trim(),v.mac.trim(),t||'Stalker');
+        ok=r.ok;if(!ok)err=window.stWhy(r.err);
       }
     }catch(e){err=m==='url'?'تعذّر تنزيل القائمة من هذا الرابط (قد يتطلب وكيل مستخدم محدداً)':'حدث خطأ غير متوقع'}
     setBusy(false);
     if(ok){
       dlg.close();
       if(window.__rcvToast)__rcvToast('تمت إضافة المصدر');
+      if(window.__stToast)__stToast('تمت إضافة المصدر');
+      if(window.__stRefresh)__stRefresh();
     }else say(err||'تعذّرت الإضافة','err');
   }
 
