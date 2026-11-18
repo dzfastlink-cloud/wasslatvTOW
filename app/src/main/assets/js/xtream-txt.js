@@ -100,7 +100,11 @@
     if(url||!text||text.length>20000||/#EXTM3U|#EXTINF/i.test(text))return origAdd(text,name,url);
     let acc=[];
     try{acc=parse(text)}catch(e){}
-    if(!acc.length)return origAdd(text,name,url);
+    if(!acc.length){
+      window.__lastImportError='لم يتم التعرف على بيانات Xtream في هذا الملف';
+      if(typeof setMsg==='function')setMsg(window.__lastImportError,true);
+      return false;
+    }
 
     const valid=[],failed=[];
     for(let i=0;i<acc.length;i++){
@@ -122,7 +126,8 @@
       if(failed.length&&typeof setMsg==='function')setMsg('تم التحقق من الحسابات؛ تعذّرت إضافة بعض الحسابات.',true);
       return ok>0;
     }
-    if(typeof setMsg==='function')setMsg('تعذّر الاتصال بسيرفر Xtream الموجود في الملف. تحقق من العنوان واسم المستخدم وكلمة السر.',true);
+    window.__lastImportError='تعذّر الاتصال بسيرفر Xtream الموجود في الملف';
+    if(typeof setMsg==='function')setMsg(window.__lastImportError+'؛ تحقق من العنوان واسم المستخدم وكلمة السر.',true);
     return false;
   };
 })();

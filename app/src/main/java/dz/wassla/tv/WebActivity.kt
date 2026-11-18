@@ -81,12 +81,6 @@ class WebActivity : Activity() {
         val ui = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         isTv = ui.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        // كانت في theme (res/values) وصارت من الكود حتى لا يتوقف البناء إن غاب ذلك المجلد
-        window.setBackgroundDrawableResource(R.drawable.splash_bg)
-        if (Build.VERSION.SDK_INT >= 21) {
-            window.statusBarColor = Color.TRANSPARENT
-            window.navigationBarColor = Color.BLACK
-        }
 
         web = WebView(this)
         web.setBackgroundColor(Color.BLACK)
@@ -193,9 +187,23 @@ class WebActivity : Activity() {
     /** عناوين content:// المسموحة: ما كان تحت المجلد الذي اختاره المستخدم فقط. */
     private fun isAllowedUri(uriStr: String): Boolean {
         val saved = getSharedPreferences("wassla", MODE_PRIVATE).getString("tree", null) ?: return false
-        return uriStr.startsWith(saved.trimEnd('/') + "/document/") && isChannelFile(
-            Uri.parse(uriStr).lastPathSegment?.substringAfterLast('/')?.substringAfterLast(':') ?: ""
-        )
+        return try {
+            val tree = Uri.parse(saved)
+            val uri = Uri.parse(uriStr)
+            if (uri.scheme != "content" || uri.authority != tree.authority) return false
+
+            val treeId = DocumentsContract.getTreeDocumentId(tree)
+            if (DocumentsContract.getTreeDocumentId(uri) != treeId) return false
+
+            val documentId = DocumentsContract.getDocumentId(uri)
+            if (!documentId.startsWith("$treeId/")) return false
+            val relativePath = documentId.removePrefix("$treeId/")
+            if (relativePath.split('/').any { it.isBlank() || it == "." || it == ".." }) return false
+
+            isChannelFile(relativePath.substringAfterLast('/').substringAfterLast(':'))
+        } catch (_: Exception) {
+            false
+        }
     }
 
     inner class Bridge {

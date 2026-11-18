@@ -10,7 +10,7 @@
   let srcId='',query='',on=false,idx=null,idxSig='',filter='all',view=[],gi=0,cat='',rendered=0,gcols=1,gridEl=null,io=null,zone='rows',tIdx=0,scroller=null,sideEl=null,sideIdx=0,sideItems=[],sort='recent';
   let desktopShelves=new Map(),desktopRows=[],renderedDesktop=false,stopArmedAt=0;
   let screen='home',detailReturn='home',detailOrigin='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null,playerBackground='home',playerScrollTop=0;
-  let nextTimer=null,nextCard=null,nextEpisode=null,progressTimer=null,trackHideTimer=null,detailScrollTop=0,detailRowScroll=[],detailIndex=0,detailToken=0,detailController=null,playerFromDetails=false,playerDetailOrigin='home',trailerFocus=null;
+  let nextTimer=null,nextCard=null,nextEpisode=null,progressTimer=null,trackHideTimer=null,detailScrollTop=0,detailRowScroll=[],detailIndex=0,detailToken=0,detailController=null,playerFromDetails=false,playerDetailOrigin='home',trailerFocus=null,positionRestoreCancel=null;
   const detailCache=new Map();
   const CHUNK=60;
   const Model=window.WasslaVodModel;
@@ -805,6 +805,11 @@
     const player=$('player');
     if(player&&player.parentElement!==playerHost)playerHost.appendChild(player);
   }
+  function clearPositionRestore(){
+    const cancel=positionRestoreCancel;
+    positionRestoreCancel=null;
+    if(cancel)cancel();
+  }
   function playItem(it,eps,i,card,position,fromDetails){
     const wasPlaying=B.classList.contains('cine-play')||B.classList.contains('cine-mini');
     const expanded=B.classList.contains('cine-play');
@@ -827,8 +832,9 @@
     if(goFull){B.classList.remove('cine-mini');B.classList.add('cine-play');screen='player'}
     else{B.classList.remove('cine-play');B.classList.add('cine-mini')}
     const v=$('v');v.controls=false;
-    const restorePosition=()=>{if(position>0&&Number.isFinite(v.duration)&&v.duration>position)setSeekTime(position,false);v.removeEventListener('loadedmetadata',restorePosition)};
-    if(position>0)v.addEventListener('loadedmetadata',restorePosition);
+    clearPositionRestore();
+    positionRestoreCancel=Playback.deferPositionRestore(v,position,time=>setSeekTime(time,false),()=>{positionRestoreCancel=null});
+    const player=$('player');if(player)player.classList.remove('hide');
     play(it);
     $('now').textContent=niceTitle(it.name||(playing.card&&playing.card.title)||'')||it.name;
     updatePlaybackActions();updatePlayPause();paintTrack();if(goFull)revealTrack();
@@ -857,7 +863,7 @@
     clearTimeout(nextTimer);nextTimer=null;nextCard=null;nextEpisode=null;
     $('vodnext').classList.add('hide');
   }
-  function stopPlay(){saveProgress();clearInterval(progressTimer);progressTimer=null;clearTrackTimer();clearNext();tok++;stopAll();B.classList.remove('cine-play','cine-mini','cine-track-hidden','vod-detail-play');restorePlayerFromDetails();playerFromDetails=false;$('v').controls=!B.classList.contains('rcv');playing=null;updatePlayPause();paintTabs()}
+  function stopPlay(){saveProgress();clearPositionRestore();clearInterval(progressTimer);progressTimer=null;clearTrackTimer();clearNext();tok++;stopAll();B.classList.remove('cine-play','cine-mini','cine-track-hidden','vod-detail-play');restorePlayerFromDetails();playerFromDetails=false;$('v').controls=!B.classList.contains('rcv');playing=null;updatePlayPause();paintTabs()}
   function updatePlaybackActions(){
     const c=playing&&playing.card;
     $('vodwatched').style.display=c?'':'none';
