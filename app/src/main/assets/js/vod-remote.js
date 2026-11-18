@@ -2,10 +2,9 @@
 (function(){
   function routeKey(state,key){
     if(state.fullscreen)return 'fullscreen';
-    if(state.detailMini){
-      if(key==='Escape'||key==='Backspace')return 'leave-details';
-      if(key==='MediaFastForward'||key==='MediaRewind'||key==='MediaPlayPause'||key==='PageDown'||key==='PageUp')return 'media';
-    }
+    const media=key==='MediaFastForward'||key==='MediaRewind'||key==='MediaPlayPause';
+    if(state.mini&&media)return 'media';
+    if(state.detailMini&&(key==='PageDown'||key==='PageUp'))return 'media';
     if(state.details)return 'details';
     if(state.series)return 'series';
     return 'home';

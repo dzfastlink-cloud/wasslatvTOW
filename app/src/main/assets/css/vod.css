@@ -122,10 +122,10 @@ body.cine-mini.vod-detail-play #vod .vdetail-player-stage .vtrailer-card span{
 #vod .vhero small{color:#9fcfc6;font-size:15px}
 #vod .vhero.hide{display:none}
 #vod .vbody{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:auto;overscroll-behavior:contain;padding-bottom:24px}
-#vod .vbody.home{display:flex;overflow:hidden;padding-bottom:0;direction:ltr}
+#vod .vbody.home{display:flex;overflow:hidden;padding-bottom:0;direction:rtl}
 #vod .vmain{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:auto;overscroll-behavior:contain;direction:rtl}
 /* عمود التصنيفات الجانبي */
-#vod .vside{flex:0 0 clamp(210px,24%,330px);overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 24px;background:#04120fd9;border-inline-start:1px solid #1f8f7c66;direction:rtl}
+#vod .vside{flex:0 0 clamp(210px,24%,330px);overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 24px;background:#04120fd9;border-inline-start:0;border-inline-end:1px solid #1f8f7c66;direction:rtl}
 #vod .vsi{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:3px;border-radius:12px;border:2px solid transparent;font-size:17px;cursor:pointer;color:#d2efe9}
 #vod .vsi span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;flex:1;min-width:0;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:normal;overflow-wrap:anywhere}
 #vod .vsi em{font-style:normal;flex:none;min-width:38px;text-align:center;padding:1px 8px;border-radius:999px;background:#ffffff1a;font-size:13px;color:#9fcfc6}
@@ -435,7 +435,7 @@ body.rcv #vod .vdetail-trailer{background:transparent}
   body:not(.tv):not(.rcv) #vod .vdshelf-grid .vc:hover .vp{transform:translateY(-3px);outline:2px solid #ffffffa6;outline-offset:3px}
   body:not(.tv):not(.rcv) #vod .vdshelf-grid .vc.sel .vp{transform:translateY(-3px)}
   body:not(.tv):not(.rcv) #vod.vod-details .vdetails{padding:clamp(44px,6vh,76px) clamp(36px,6vw,104px)}
-  body:not(.tv):not(.rcv) #vod .vdetail-head{direction:ltr;grid-template-columns:clamp(230px,19vw,310px) minmax(0,1fr);align-items:center;gap:clamp(42px,5vw,88px)}
+  body:not(.tv):not(.rcv) #vod .vdetail-head{direction:rtl;grid-template-columns:clamp(230px,19vw,310px) minmax(0,1fr);align-items:center;gap:clamp(42px,5vw,88px)}
   body:not(.tv):not(.rcv) #vod .vdetail-info{direction:rtl;align-items:flex-start}
   body:not(.tv):not(.rcv) #vod .vdetail-info h2{max-width:100%;font-size:clamp(38px,4.2vw,64px)}
   body:not(.tv):not(.rcv) #vod .vdetail-info p{max-width:900px;font-size:18px;line-height:1.7}
@@ -516,10 +516,11 @@ body.cine-mini.vod-detail-play #vod .vdetail-head{
   align-items:start;
 }
 body.cine-mini.vod-detail-play #vod .vdetail-head{
-  direction:ltr;
+  direction:rtl;
   display:grid;
   grid-template-columns:clamp(150px,16vw,220px) minmax(0,1fr);
   gap:clamp(18px,3vw,36px);
+  width:100%;
   max-width:1420px;
   margin:0 auto;
   height:100%;
@@ -528,11 +529,17 @@ body.cine-mini.vod-detail-play #vod .vdetail-head{
   overflow:hidden;
 }
 body.cine-mini.vod-detail-play #vod .vdetail-poster{
-  width:100%;
-  height:auto;
+  width:auto;
+  height:100%;
+  max-width:100%;
+  aspect-ratio:2/3;
   max-height:none;
   align-self:start;
+  justify-self:start;
+  overflow:hidden;
+  border-radius:12px;
 }
+body.cine-mini.vod-detail-play #vod .vdetail-actions{flex-wrap:wrap}
 body.cine-mini.vod-detail-play #vod .vdetail-info{
   direction:rtl;
   align-items:stretch;
