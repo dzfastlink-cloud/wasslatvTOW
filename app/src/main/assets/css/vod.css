@@ -50,7 +50,7 @@ body.cine-mini #vod{bottom:clamp(160px,24vh,220px)}
 #vod .vp .vprogress{position:absolute;inset-inline:0;bottom:0;height:5px;background:linear-gradient(to right,#f5b04c var(--progress),#ffffff55 var(--progress));z-index:2}
 #vod .vc .vn{position:static;padding:0;background:none;font-size:15.5px;line-height:1.4;text-align:center;color:#d2efe9;word-break:break-word}
 #vod .vc.sel .vp{transform:translateY(-5px);outline:3px solid #f5b04c;outline-offset:3px}
-#vod .vc.sel .vn{color:#f5b04c;font-weight:800}
+#vod .vc.sel .vn{color:#f5b04c}
 #vod .vc.sel{transform:none;border:0;box-shadow:none}
 #vod .vdetails{display:flex;align-items:flex-start;gap:28px;max-width:1100px;margin:5vh auto;padding:24px;width:calc(100% - 48px);max-height:80%;overflow:auto;background:#ffffff0b;border:1px solid #ffffff20;border-radius:18px}
 #vod .vdetail-cover{flex:0 0 auto;width:210px;max-height:315px;object-fit:cover;border-radius:12px;background:#ffffff1f}
@@ -143,7 +143,7 @@ body.cine-mini #vodplayer{display:inline-flex}
 #vod .vp{border-radius:16px}
 #vod .vc .vn{display:block;font-size:16px;font-weight:700;line-height:1.35;color:#fff;min-height:0;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal}
 #vod .vc.sel .vp{transform:translateY(-3px) scale(1.02);outline:4px solid #f5b04c;outline-offset:3px;box-shadow:0 10px 22px rgba(0,0,0,.5)}
-#vod .vc.sel .vn{color:#f5b04c;font-weight:800}
+#vod .vc.sel .vn{color:#f5b04c}
 #vod .vr{top:10px;right:10px;padding:3px 10px;font-size:16px;background:rgba(0,0,0,.8)}
 #vod .vp i{top:10px;left:10px;font-size:13px;padding:3px 10px}
 #vod .vp .vprogress{height:6px}
