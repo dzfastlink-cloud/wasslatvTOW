@@ -1832,3 +1832,15 @@ body.cine-mini #vodplayer{display:inline-flex}
 :root[data-eff="light"] #vod .vrec-ext-reason{color:#274742}
 :root[data-eff="light"] #vod .vrec-ext-btn{background:rgba(14,124,107,.12);border-color:rgba(14,124,107,.32);color:#0d4f44}
 :root[data-eff="light"] #vod .vrec-ext-btn:hover{background:rgba(14,124,107,.22);border-color:#0e7c6b}
+
+/* ===== شاشات التلفاز/البوكس القصيرة: شريط علوي مضغوط ومساحة أكبر للمحتوى ===== */
+@media (max-height:620px){
+  #vod .vtop{gap:5px 8px;padding:5px 16px}
+  #vod .vt{min-height:34px;padding:3px 12px;font-size:14px}
+  #vod .vlogo{font-size:16px}
+  #vod .vhint{display:none}
+  #vod .vhero{min-height:0;padding:5px 16px}
+  #vod .vhero b{font-size:18px;margin:0}
+  #vod .vhero small{font-size:12.5px}
+  body.cine-mini:not(.vod-detail-play) #vod{bottom:132px}
+}

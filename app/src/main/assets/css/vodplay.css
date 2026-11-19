@@ -218,3 +218,24 @@ body.cine-play #vodtrack{
   body.cine-play #vodtrack{gap:8px;padding:10px 12px 4px;font-size:14px}
   #vtleft{display:none}
 }
+
+/* ===== إصلاح الشريط المصغّر: يُعرض المشغّل وحده داخل الشريط =====
+   كانت بطاقة #load وبقية عناصر الريسيفر تسبقه داخل section فتدفعه خارج الشاشة
+   فيظهر شريط فارغ أو بطاقة «وصلة TV» بدل الفيديو. */
+body.cine-mini:not(.vod-detail-play) section>:not(#player){display:none!important}
+body.cine-mini:not(.vod-detail-play) #player{overflow:hidden}
+
+/* شاشات التلفاز/البوكس القصيرة (960×540 وما شابه) */
+@media (max-height:620px){
+  body.cine-mini:not(.vod-detail-play) section{height:132px}
+  body.cine-mini:not(.vod-detail-play) #player{padding:8px 14px;row-gap:4px;column-gap:12px;grid-template-columns:clamp(150px,20vw,230px) minmax(0,1fr)}
+  body.cine-mini:not(.vod-detail-play) #player #now{font-size:15px}
+  body.cine-mini:not(.vod-detail-play) #player .ctl{gap:6px;flex-wrap:wrap}
+  body.cine-mini:not(.vod-detail-play) #player .ctl button{padding:4px 10px;font-size:13px}
+  body.cine-mini:not(.vod-detail-play) #vodtrack{font-size:13px;padding:0}
+}
+
+/* في الشريط المصغّر: تحكّم مختصر يناسب ريموت التلفاز (إيقاف/توسيع/إغلاق/التفاصيل) والباقي في صفحة التفاصيل */
+body.cine-mini:not(.vod-detail-play) #vodwatched,
+body.cine-mini:not(.vod-detail-play) #vodfav,
+body.cine-mini #vodmini{display:none!important}
