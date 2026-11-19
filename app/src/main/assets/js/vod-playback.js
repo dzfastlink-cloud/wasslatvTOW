@@ -8,22 +8,25 @@
     const current=Number.isFinite(currentTime)?currentTime:0;
     return Math.max(0,Math.min(duration,current+delta));
   }
-  function deferPositionRestore(video,position,restore,onComplete){
-    if(!Number.isFinite(position)||position<=0)return null;
+  function deferPositionRestore(video,position,onRestore){
+    if(!video || !Number.isFinite(position) || position<=0){
+      return ()=>{};
+    }
     let active=true;
-    const cleanup=()=>{
+    const listener=()=>{
       if(!active)return;
       active=false;
-      video.removeEventListener('loadedmetadata',onMetadata);
-      if(onComplete)onComplete();
+      video.removeEventListener('loadedmetadata',listener);
+      if(Number.isFinite(video.duration)&&video.duration>position){
+        if(typeof onRestore==='function')onRestore(position);
+      }
     };
-    const onMetadata=()=>{
-      try{
-        if(Number.isFinite(video.duration)&&video.duration>position)restore(position);
-      }finally{cleanup()}
+    video.addEventListener('loadedmetadata',listener);
+    return ()=>{
+      if(!active)return;
+      active=false;
+      video.removeEventListener('loadedmetadata',listener);
     };
-    video.addEventListener('loadedmetadata',onMetadata);
-    return cleanup;
   }
   return{seekTarget,deferPositionRestore};
 });

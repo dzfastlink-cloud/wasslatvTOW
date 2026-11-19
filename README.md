@@ -9,12 +9,20 @@
 
 ## البناء
 - عبر GitHub Actions (`.github/workflows/tow.yml`) أو محليًا بـ `gradle assembleRelease` (Gradle 8.9 وJDK 17).
-- يبنى المشروع كـ APK غير موقّع ولا يعتمد على JKS أو أسرار توقيع. يرفع GitHub Actions الـ Artifact مع تحذير إذا كان غير موقّع، دون إفشال البناء.
-- تثبيت تحديث فوق نسخة سابقة يتطلب توقيع APK بمفتاح الإصدار السابق نفسه؛ APK غير الموقّع لا يصلح كتحديث مباشر.
+- الـ APK يجب أن يكون موقّعًا بنفس المفتاح دائمًا حتى يُثبَّت كل إصدار فوق السابق.
+
+### بيانات التوقيع (لا تُكتب في الكود)
+**على GitHub:** أضف في Settings > Secrets and variables > Actions:
+- `WASSLA_STORE_PASSWORD` (مطلوب)، و`WASSLA_KEY_ALIAS` و`WASSLA_KEY_PASSWORD` (اختياريان، الافتراضي alias=`wasslatv` وكلمة مرور المفتاح = كلمة مرور المخزن)
+- `WASSLA_KEYSTORE_BASE64` (اختياري): محتوى ملف jks بصيغة base64. إن غاب يُستعمل `app/wasslatv.jks` الموجود في المستودع (فاجعل المستودع **خاصًا Private**).
+
+**محليًا:** انسخ `keystore.properties.example` إلى `keystore.properties` واملأه.
 
 ## نشر تحديث Android
 - مستودع التنزيلات العام المستخدم هو `dzfastlink-cloud/wasslatv-downloads`.
-- بعد زيادة `versionName` و`versionCode` في `app/build.gradle.kts`، ادفع وسمًا مطابقًا بصيغة `app-v<versionName>`، مثل `app-v16.0.0`.
+- بعد زيادة `versionName` و`versionCode` في `app/build.gradle.kts`، ادفع وسمًا مطابقًا بصيغة `app-v<versionName>`، مثل `app-v16.0.0`. سيبني GitHub Actions APK موقّعًا، وينشره في إصدار `android-v<versionName>`، ويحدّث `android-update.json` الذي يقرأه التطبيق.
+- أضف السر `DOWNLOADS_REPO_TOKEN` في إعدادات Actions للمستودع الحالي. يجب أن يملك رمز الوصول صلاحية **Contents: read and write** للمستودع `dzfastlink-cloud/wasslatv-downloads`. لا تضع الرمز في الملفات أو المحادثة.
+- يبقى رابط المدونة مسارًا احتياطيًا إذا تعذّر الوصول إلى بيان GitHub. لن يُنشر تحديث قبل توفر APK موقّع ونجاح خطوة النشر.
 - تحديث القنوات عن بُعد متوقف مؤقتًا حتى تتوفر روابط بث عامة ومصرّح بها؛ لا تنشر ملفات تحتوي بيانات دخول ضمن روابط البث.
 
 ## ملاحظات

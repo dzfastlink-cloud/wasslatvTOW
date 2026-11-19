@@ -263,8 +263,8 @@
   }
   function setMode(m,silent){on=m;document.body.classList.toggle('rcv',m);LS.set('m3u_rcv',m);v.controls=!m;closeL(true);rb.classList.remove('on');if(m){$('q').value='';$('grp').value='';render();if(!silent&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{})}else if(document.fullscreenElement===document.documentElement)document.exitFullscreen().catch(()=>{})}
   rx.onclick=e=>{e.stopPropagation();if(window.WasslaHome)WasslaHome.open()};
-  $('player').addEventListener('click',()=>{if(on)open?closeL():openL()});
-  document.addEventListener('mousemove',()=>{if(!on)return;rx.classList.add('on');clearTimeout(xT);xT=setTimeout(()=>rx.classList.remove('on'),3000)});
+  $('player').addEventListener('click',()=>{if(!on||(window.__vodOn&&window.__vodOn()))return;open?closeL():openL()});
+  document.addEventListener('mousemove',()=>{if(!on||(window.__vodOn&&window.__vodOn())){rx.classList.remove('on');return}rx.classList.add('on');clearTimeout(xT);xT=setTimeout(()=>rx.classList.remove('on'),3000)});
   document.addEventListener('keydown',e=>{
     const t=e.target.tagName;
     if(/INPUT|TEXTAREA|SELECT/.test(t)||document.querySelector('dialog[open]')||stOn()||(window.WasslaHome&&WasslaHome.isOn())||(window.__vodOn&&window.__vodOn())||(window.__qpOn&&window.__qpOn())||e.ctrlKey||e.altKey||e.metaKey)return;
@@ -278,7 +278,7 @@
     else if(k==='ArrowUp'||k==='ArrowDown'){stop();zapByNumber(k==='ArrowUp'?1:-1)}
     else if(e.code==='KeyI'){stop();const it=shown.find(i=>i.url===curUrl);if(it)banner(it)}
   },true);
-  const _play=play;play=function(it){_play(it);if(on)banner(it)};
+  const _play=play;play=function(it){_play(it);if(on&&!(window.__vodOn&&window.__vodOn()))banner(it)};
   window.__rcv={set:setMode};window.__rcvState=()=>({on,open,zone});window.__rcvOpen=function(){if($('grp').value==='__fav'){$('grp').value='';render()}openL()};window.__rcvOpenFav=function(){if(!favs.size){toast('لا توجد قنوات مفضلة');return}$('grp').value='__fav';render();lastG=null;openL();toast('وضع المفضلة — رجوع للخروج منه')};window.__rcvOpenCats=function(){openL();setZone('head')};window.__rcvOpenSources=window.__rcvOpenCats;window.__rcvNumpad=function(){closeL();openNumpad()};window.__rcvClose=closeL;window.__rcvToast=toast;window.__zapNum=zapByNumber;
   window.__rcvRefresh=()=>{if(open){build();sel=Math.min(sel,Math.max(0,rows.children.length-1));mark()}};
 
