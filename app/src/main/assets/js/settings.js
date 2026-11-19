@@ -109,12 +109,11 @@
   function setTop(fn,keep){stack[stack.length-1]=fn;fn(keep)}
   function open(which){
     st.classList.add('on');sec=(which==='sources'||which==='addsource')?'sources':'general';stack=[home];home();
-    if(which==='addsource'&&window.__addSource)window.__addSource();else if(which==='addsource')push(addScreen);
+    if(which==='addsource')push(addScreen);
     if(!LS.get('m3u_tip_settings',false)){LS.set('m3u_tip_settings',true);toast('استخدم قسم المصادر لإدارة القوائم، وقسم التشغيل لضبط تجربة المشاهدة.')}
   }
   function close(){pvStop();st.classList.remove('on');stack=[];if(document.activeElement)document.activeElement.blur()}
   window.__openSettings=open;
-  window.__stRefresh=()=>{if(st.classList.contains('on')){stack=[home];home()}};
   window.__stOn=()=>st.classList.contains('on');
   window.__stToast=toast;
   window.__stBack=function(){if(!st.classList.contains('on'))return false;back();return true};
@@ -142,10 +141,43 @@
     const T=[['auto','تلقائي','يتبع نظام الجهاز على الهاتف، ويبقى ليلياً على التلفاز'],['light','نهاري','خلفيات فاتحة هادئة للإضاءة القوية'],['dark','ليلي','خلفيات داكنة مريحة للعين في الإضاءة الخافتة']];
     show('السمة البصرية',T.map(([id,l,sub])=>({sw:id,label:l,sub,check:theme===id,run:()=>{setTheme(id);toast('تم تطبيق السمة: '+l);rerender()}})),keep);
   }
+  const LIBRARY_DENSITIES=[
+    {id:'compact',label:'مضغوط',sub:'بطاقات أصغر وعدد أكبر في الصف'},
+    {id:'balanced',label:'متوازن',sub:'توازن بين عدد البطاقات ووضوحها'},
+    {id:'comfortable',label:'مريح',sub:'بطاقات أكبر وأسهل قراءة'}
+  ];
+  const LIBRARY_TITLE_SIZES=[
+    {id:'small',label:'صغير',sub:'يعرض مساحة أكبر من العنوان'},
+    {id:'medium',label:'متوسط',sub:'الحجم الافتراضي المتوازن'},
+    {id:'large',label:'كبير',sub:'أوضح من مسافة أبعد'}
+  ];
+  function libraryLayout(keep){
+    const density=LIBRARY_DENSITIES.find(x=>x.id===LS.get('m3u_vod_density','balanced'))||LIBRARY_DENSITIES[1];
+    const titleSize=LIBRARY_TITLE_SIZES.find(x=>x.id===LS.get('m3u_vod_title_size','medium'))||LIBRARY_TITLE_SIZES[1];
+    show('تنظيم المكتبة',[
+      {icon:'▦',label:'كثافة بطاقات المكتبة',sub:'عدد الملصقات المعروضة في الصف',val:density.label,run:()=>push(libraryDensityPick)},
+      {icon:'🔠',label:'حجم عناوين الأفلام',sub:'ينطبق على الأفلام والمسلسلات',val:titleSize.label,run:()=>push(libraryTitlePick)}
+    ],keep);
+  }
+  function libraryDensityPick(keep){
+    const current=LS.get('m3u_vod_density','balanced');
+    show('كثافة بطاقات المكتبة',LIBRARY_DENSITIES.map(option=>({
+      sw:option.id,label:option.label,sub:option.sub,check:current===option.id,
+      run:()=>{LS.set('m3u_vod_density',option.id);if(window.__applyVodAppearance)window.__applyVodAppearance();toast('تم تطبيق كثافة المكتبة: '+option.label);back()}
+    })),keep);
+  }
+  function libraryTitlePick(keep){
+    const current=LS.get('m3u_vod_title_size','medium');
+    show('حجم عناوين المكتبة',LIBRARY_TITLE_SIZES.map(option=>({
+      sw:option.id,label:option.label,sub:option.sub,check:current===option.id,
+      run:()=>{LS.set('m3u_vod_title_size',option.id);if(window.__applyVodAppearance)window.__applyVodAppearance();toast('تم تطبيق حجم العناوين: '+option.label);back()}
+    })),keep);
+  }
   function appearanceSec(keep){
     show('المظهر',[
       {icon:'🌗',label:'السمة البصرية',sub:'اختر: تلقائي · نهاري · ليلي — تُطبَّق فوراً على كل الشاشات',val:(MTXT[theme]||'').replace(/^\S+\s/,''),run:()=>push(themePick)},
-      {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}}
+      {icon:'🔠',label:'حجم الواجهة',sub:'كبير · متوسط · صغير',val:window.densityLabel(),run:()=>{window.cycleDensity();rerender()}},
+      {icon:'🎞',label:'تنظيم المكتبة',sub:'كثافة الملصقات وحجم عناوينها',run:()=>push(libraryLayout)}
     ],keep);
   }
   function channelsSec(keep){
@@ -211,7 +243,7 @@
       sub:(l.n||0)+' قناة'+(l.url?' · من رابط':''),
       run:()=>push(k=>source(l.id,k))
     }));
-    rows.push({sep:''},{icon:'➕',label:'إضافة مصدر جديد',sub:'رابط M3U · ملف · حساب Xtream',run:()=>{if(window.__addSource)window.__addSource();else push(addScreen)}});
+    rows.push({sep:''},{icon:'➕',label:'إضافة مصدر جديد',sub:'ملف · رابط M3U · Xtream',run:()=>push(addScreen)});
     if(user().length)rows.push({icon:'🗑',label:'حذف مصدر',sub:'اختر المصدر المراد حذفه (حتى المدمج)',danger:true,run:()=>push(delPick)});
     if(!lists.find(x=>x.id==='builtin')&&window.__chRestore)rows.push({icon:'↺',label:'استعادة القائمة المدمجة',sub:'القنوات المضمّنة مع التطبيق',run:async()=>{toast('جارٍ الاستعادة…');const ok=await window.__chRestore();toast(ok?'تمت الاستعادة':'تعذّر تحميل القائمة المدمجة');rerender()}});
     show('المصادر',rows,keep);
@@ -304,9 +336,11 @@
       const name=A.pickedName(),text=A.pickedText(),base=name.replace(/\.[^.]+$/,'');
       const nm=await kbPrompt('اسم هذا المصدر',base);
       if(nm===null)return;
+      if(!text.trim()){toast('الملف فارغ أو تعذّرت قراءته (الحد الأقصى 20 ميغابايت)');return}
+      window.__lastImportError='';
       toast('جارٍ إضافة المصدر…');
       const added=await addList(text,nm.trim()||base,'');
-      toast(added?'تمت إضافة «'+(nm.trim()||base)+'»':'الملف لا يحتوي قنوات صالحة');
+      toast(added?'تمت إضافة «'+(nm.trim()||base)+'»':window.__lastImportError||'الملف لا يحتوي قنوات صالحة');
       if(added){stack=[home];home()}
     };
     A.pickFile();
@@ -615,7 +649,6 @@
     show(it.name,rows,keep);
     pvPlay(it,true);
   }
-  const setName=(it,v)=>{it.name=v;if(it.raw){const i=it.raw.lastIndexOf(',');it.raw=(i>-1?it.raw.slice(0,i):it.raw)+','+v}else it.raw='#EXTINF:-1,'+v};
   function setGroup(it,g){
     g=g.replace(/"/g,'');it.group=g;
     if(!it.raw)it.raw='#EXTINF:-1,'+it.name;
@@ -649,7 +682,7 @@
       rememberBuiltin();
       window.__chSet(window.__chKey(it),{[field]:val});
     }else{
-      if(field==='name')setName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
+      if(field==='name')setM3UName(it,val);else if(field==='group')setGroup(it,val);else it.url=val;
       await saveItems(id,its);
     }
     toast('تم الحفظ');rerender();

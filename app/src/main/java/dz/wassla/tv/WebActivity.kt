@@ -46,7 +46,6 @@ class WebActivity : Activity() {
     private var lastBack = 0L
     private var pickedName = ""
     private var pickedText = ""
-    private val httpRes = java.util.concurrent.ConcurrentHashMap<String, String>()
 
     private val reqPick = 4101
     private val reqTree = 4102
@@ -245,40 +244,6 @@ class WebActivity : Activity() {
                 imm.showSoftInput(web, 0)
             }
         }
-
-        /* ---------- طلب HTTP أصلي لتحديد وكيل المستخدم (User-Agent) عند تنزيل القوائم ---------- */
-        @JavascriptInterface
-        fun httpGet(id: String, url: String, headersJson: String) {
-            Thread {
-                var ok = false
-                var code = 0
-                var body = ""
-                try {
-                    val u = java.net.URL(url)
-                    if (u.protocol != "http" && u.protocol != "https") throw IllegalArgumentException("scheme")
-                    val c = u.openConnection() as java.net.HttpURLConnection
-                    c.connectTimeout = 15000
-                    c.readTimeout = 25000
-                    c.instanceFollowRedirects = true
-                    val h = JSONObject(if (headersJson.isBlank()) "{}" else headersJson)
-                    val keys = h.keys()
-                    while (keys.hasNext()) {
-                        val key = keys.next()
-                        c.setRequestProperty(key, h.optString(key))
-                    }
-                    code = c.responseCode
-                    val ins = if (code in 200..399) c.inputStream else c.errorStream
-                    body = readLimited(ins)
-                    ok = code in 200..299
-                    c.disconnect()
-                } catch (_: Exception) { }
-                httpRes[id] = body
-                js("window.__onHttp&&window.__onHttp(" + JSONObject.quote(id) + "," + ok + "," + code + ")")
-            }.start()
-        }
-
-        @JavascriptInterface
-        fun httpBody(id: String): String = httpRes.remove(id) ?: ""
 
         /* ---------- اختيار ملف من الجهاز ---------- */
         @JavascriptInterface
