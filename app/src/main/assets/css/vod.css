@@ -181,8 +181,8 @@ body.cine-mini.vod-detail-play #vod{bottom:0}
 /* شبكة الملصقات */
 #vod .vgrid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(clamp(108px,7vw,148px),1fr));
-  gap:18px 12px;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(92px,6vw,128px),1fr));
+  gap:12px 8px;
   padding:20px var(--w-safe,28px) 36px;
   align-content:start;
   direction:rtl;
@@ -1565,11 +1565,11 @@ body.cine-mini #vodplayer{display:inline-flex}
 #vod.vod-details .vdetail-head{
   flex:none;
   min-height:0;
-  max-height:min(54vh,430px);
+  max-height:min(38vh,330px);
   grid-template-columns:clamp(150px,18vw,220px) minmax(0,1fr);
   align-items:stretch;
   margin:0;
-  padding:16px;
+  padding:10px;
   border:1px solid rgba(127,243,220,.18);
   border-radius:16px;
   background:rgba(4,22,18,.92);
@@ -1577,19 +1577,86 @@ body.cine-mini #vodplayer{display:inline-flex}
   box-sizing:border-box;
   overflow:hidden;
 }
-#vod.vod-details .vdetail-poster{height:100%;max-height:398px}
+#vod.vod-details .vdetail-poster{height:100%;max-height:310px}
 #vod.vod-details .vdetail-info{
   min-height:0;
-  max-height:398px;
+  max-height:310px;
+  gap:8px;
   overflow-y:auto;
   overscroll-behavior:contain;
   padding-inline-end:6px;
 }
 #vod.vod-details .vdetail-overview{
-  max-height:112px;
+  max-height:76px;
   overflow-y:auto;
   overscroll-behavior:contain;
 }
+#vod.vod-details .vdetail-extra,
+#vod.vod-details .vdetail-alternatives,
+#vod.vod-details .vdetail-trailer{
+  display:none!important;
+}
+#vod.vod-details .vdetail-actions{
+  gap:8px;
+  margin:0;
+}
+#vod.vod-details .vdetail-actions button{
+  width:44px;
+  min-width:44px;
+  height:44px;
+  min-height:44px;
+  padding:0;
+  justify-content:center;
+  border-radius:50%;
+  overflow:hidden;
+  font-size:0;
+}
+#vod.vod-details .vdetail-actions .vplay-label{display:none}
+#vod.vod-details .vdetail-actions .vplay-icon,
+#vod.vod-details .vdetail-actions .vfav-action{
+  display:inline-grid;
+  place-items:center;
+  font-size:18px;
+  line-height:1;
+}
+body[dir="rtl"] #vod,
+body[dir="rtl"] #vod button,
+body[dir="rtl"] #vod input,
+body[dir="rtl"] #vod select{
+  direction:rtl;
+  font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+#vod .vc .vn{
+  min-height:2.6em;
+  max-height:2.6em;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-height:1.3;
+  text-overflow:ellipsis;
+  font-size:clamp(13px,1.05vw,15px);
+}
+#vod .vdetail-info h2{
+  font-size:clamp(20px,2.2vw,34px);
+  line-height:1.18;
+  max-height:2.36em;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+#vod .vdetail-meta{gap:5px}
+#vod .vdetail-chip{min-height:26px;padding:3px 8px;font-size:12px}
+#vod .vdetail-actions{gap:6px;margin-top:0}
+#vod .vdetail-actions button{min-height:38px;padding:6px 10px;font-size:13.5px}
+#vod .vdetail-card-box{gap:8px;padding:10px 12px}
+#vod .vdetail-card-head{padding-bottom:7px}
+#vod .vdetail-card-heading{font-size:16px}
+#vod .vdetail-facts{gap:6px 8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+#vod .vdetail-fact{gap:2px;padding:6px 8px}
+#vod .vdetail-fact span{font-size:11.5px}
+#vod .vdetail-fact strong{font-size:13px}
 
 body.cine-mini.vod-detail-play #vod .vdetail-player-stage{
   flex:none;
@@ -1833,6 +1900,11 @@ body.cine-mini.vod-detail-play #vodclose{
 #vod[data-title-size="small"] .vc .vn{font-size:14px}
 #vod[data-title-size="medium"] .vc .vn{font-size:15.5px}
 #vod[data-title-size="large"] .vc .vn{font-size:18px}
+#vod[data-density="compact"] .vgrid,
+#vod[data-density="balanced"] .vgrid{
+  grid-template-columns:repeat(auto-fill,minmax(clamp(82px,5.2vw,118px),1fr));
+  gap:10px 7px;
+}
 @media (min-width:1200px) and (hover:hover) and (pointer:fine){
   body:not(.tv) #vod[data-density="compact"] .vdshelf-grid .vc{flex-basis:clamp(108px,7vw,128px);width:clamp(108px,7vw,128px)}
   body:not(.tv) #vod[data-density="balanced"] .vdshelf-grid .vc{flex-basis:clamp(128px,8.5vw,154px);width:clamp(128px,8.5vw,154px)}
