@@ -12,14 +12,19 @@
     }
   }
   function load(src,done){
-    var s=document.createElement('script');s.async=true;s.src=src;
-    s.onload=function(){done(true)};s.onerror=function(){done(false)};
+    var s=document.createElement('script'),finished=false,timer=setTimeout(function(){finish(false)},8000);
+    function finish(ok){if(finished)return;finished=true;clearTimeout(timer);done(ok)}
+    s.async=true;s.src=src;
+    s.onload=function(){finish(true)};s.onerror=function(){finish(false)};
     document.head.appendChild(s);
   }
+  window.__mediaLibraryPromises=Object.create(null);
   L.forEach(function(p){
-    load(p.local,function(ok){
-      if(ok&&window[p.g]){configure(p.g);return}
-      load(p.cdn,function(){configure(p.g)});
+    window.__mediaLibraryPromises[p.g]=new Promise(function(resolve){
+      load(p.local,function(ok){
+        if(ok&&window[p.g]){configure(p.g);resolve(true);return}
+        load(p.cdn,function(cdnOk){configure(p.g);resolve(!!cdnOk&&!!window[p.g])});
+      });
     });
   });
 })();
