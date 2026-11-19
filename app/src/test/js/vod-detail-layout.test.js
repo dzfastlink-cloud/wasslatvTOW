@@ -47,3 +47,12 @@ test('returning from details closes detail-origin mini playback', () => {
     assert.match(js, /function returnFromDetails\(\)[\s\S]*if\(playerFromDetails&&B\.classList\.contains\('cine-mini'\)\)[\s\S]*stopPlay\(\)/);
   }
 });
+
+test('remote detail focus and favorite state use the active detail overlay', () => {
+  for (const js of [webJs, androidJs]) {
+    assert.match(js, /const root=detailOverlay\|\|bodyEl/);
+    assert.match(js, /\(detailOverlay\|\|bodyEl\)\.querySelector\('\[data-act="vod-fav"\]'\)/);
+    assert.match(js, /actions\.appendChild\(addPlayAction/);
+    assert.match(js, /favBtn\.appendChild\(favIcon\)/);
+  }
+});
