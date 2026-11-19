@@ -244,12 +244,96 @@
     }
     return (l.n||0)+' قناة'+(l.url?' · من رابط':'');
   }
+  function sourceActiveBadges(l){
+    const badges=[];
+    if(window.__liveSources&&window.__liveSources.isSelected(l.id))badges.push('📺 القنوات');
+    if(window.__vodSources&&window.__vodSources.isSelected(l.id))badges.push('🎬 المكتبة');
+    return badges;
+  }
+  function liveSourcesPicker(keep){
+    const api=window.__liveSources;
+    if(!api){back();return}
+    const cands=api.candidates();
+    const selSet=new Set(api.getSelected());
+    const allChecked=cands.length>0&&cands.every(c=>selSet.has(c.id));
+    const rows=[];
+    if(cands.length>1){
+      rows.push({
+        icon:allChecked?'☑':'☐',
+        label:allChecked?'إلغاء تحديد كل مصادر القنوات':'تحديد كل مصادر القنوات',
+        sub:selSet.size+' من '+cands.length+' مصدر محدد للقنوات فقط (مستقل عن المكتبة)',
+        on:allChecked,
+        run:()=>{if(allChecked)api.clear();else api.selectAll();rerender()}
+      });
+      rows.push({sep:'مصادر البث المباشر'});
+    }
+    if(!cands.length){
+      rows.push({para:'لا توجد مصادر بث مباشر متاحة. أضف مصدراً أو استعد القائمة المدمجة.'});
+    }else{
+      cands.forEach(c=>{
+        const checked=selSet.has(c.id);
+        rows.push({
+          icon:checked?'☑':'☐',
+          label:c.name,
+          sub:(checked?'مؤشّر عليه في القنوات':'غير مؤشّر عليه')+' · '+c.liveCount+' قناة',
+          on:checked,
+          run:()=>{api.toggle(c.id);rerender()}
+        });
+      });
+    }
+    show('📺 مصادر القنوات (تأشير متعدد)',rows,keep);
+  }
+  function vodSourcesPicker(keep){
+    const api=window.__vodSources;
+    if(!api){back();return}
+    const cands=api.candidates();
+    const selSet=new Set(api.getSelected());
+    const allChecked=cands.length>0&&cands.every(c=>selSet.has(c.id));
+    const rows=[];
+    if(cands.length>1){
+      rows.push({
+        icon:allChecked?'☑':'☐',
+        label:allChecked?'إلغاء تحديد كل مصادر المكتبة':'تحديد كل مصادر المكتبة',
+        sub:selSet.size+' من '+cands.length+' مصدر محدد للمكتبة فقط (مستقل عن القنوات)',
+        on:allChecked,
+        run:()=>{if(allChecked)api.clear();else api.selectAll();rerender()}
+      });
+      rows.push({sep:'مصادر الأفلام والمسلسلات'});
+    }
+    if(!cands.length){
+      rows.push({para:'لا توجد مصادر تحتوي على أفلام أو مسلسلات حالياً.'});
+    }else{
+      cands.forEach(c=>{
+        const checked=selSet.has(c.id);
+        const parts=[];if(c.movies)parts.push(c.movies+' فيلم');if(c.series)parts.push(c.series+' مسلسل');
+        rows.push({
+          icon:checked?'☑':'☐',
+          label:c.name,
+          sub:(checked?'مؤشّر عليه في المكتبة':'غير مؤشّر عليه')+(parts.length?' · '+parts.join(' و '):''),
+          on:checked,
+          run:()=>{api.toggle(c.id);rerender()}
+        });
+      });
+    }
+    show('🎬 مصادر المكتبة (تأشير متعدد)',rows,keep);
+  }
   function sources(keep){
-    const rows=user().map(l=>({
-      icon:l.id===active?'✔':'📄',label:l.name,
-      sub:sourceStatsSub(l),
-      run:()=>push(k=>source(l.id,k))
-    }));
+    const liveSelCount=window.__liveSources?window.__liveSources.getSelected().length:(active?1:0);
+    const vodSelCount=window.__vodSources?window.__vodSources.getSelected().length:0;
+    const rows=[
+      {icon:'📺',label:'مصادر القنوات (البث المباشر)',sub:(window.__liveSources?window.__liveSources.summary():'—')+' · اختيار مستقل',val:liveSelCount+' محدد',run:()=>push(liveSourcesPicker)},
+      {icon:'🎬',label:'مصادر المكتبة (الأفلام والمسلسلات)',sub:(window.__vodSources?window.__vodSources.summary():'—')+' · اختيار مستقل',val:vodSelCount+' محدد',run:()=>push(vodSourcesPicker)},
+      {sep:'إدارة كل مصدر ('+user().length+')'}
+    ];
+    user().forEach(l=>{
+      const badges=sourceActiveBadges(l);
+      const isOn=badges.length?true:(l.id===active);
+      rows.push({
+        icon:isOn?'☑':'📄',label:l.name,
+        sub:(badges.length?badges.join(' + ')+' · ':'')+sourceStatsSub(l),
+        run:()=>push(k=>source(l.id,k))
+      });
+    });
     rows.push({sep:''},{icon:'➕',label:'إضافة مصدر جديد',sub:'ملف · رابط M3U · Xtream',run:()=>push(addScreen)});
     if(user().length)rows.push({icon:'🗑',label:'حذف مصدر',sub:'اختر المصدر المراد حذفه (حتى المدمج)',danger:true,run:()=>push(delPick)});
     if(!lists.find(x=>x.id==='builtin')&&window.__chRestore)rows.push({icon:'↺',label:'استعادة القائمة المدمجة',sub:'القنوات المضمّنة مع التطبيق',run:async()=>{toast('جارٍ الاستعادة…');const ok=await window.__chRestore();toast(ok?'تمت الاستعادة':'تعذّر تحميل القائمة المدمجة');rerender()}});
@@ -260,14 +344,45 @@
   }
   function source(id,keep){
     const l=lists.find(x=>x.id===id);if(!l){back();return}
-    const rows=[
-      {icon:'▶',label:'استعمال هذا المصدر',sub:l.id===active?'مفعّل الآن':'',run:()=>{openList(id);toast('تم تفعيل «'+l.name+'»');rerender()}},
+    const stStats=window.__sourceStatsOf?window.__sourceStatsOf(l):null;
+    const canLive=id==='builtin'||!stStats||((stStats.live||0)+(stStats.radio||0)>0)||!((stStats.movies||0)+(stStats.series||0));
+    const canVod=id!=='builtin'&&!!stStats&&((stStats.movies||0)+(stStats.series||0)>0);
+    const liveOn=window.__liveSources?window.__liveSources.isSelected(id):(l.id===active);
+    const vodOn=window.__vodSources?window.__vodSources.isSelected(id):false;
+    const rows=[];
+    if(canLive){
+      rows.push({
+        icon:liveOn?'☑':'☐',
+        label:'عرض في القنوات (البث المباشر)',
+        sub:liveOn?'مؤشّر عليه في القنوات — مستقل عن المكتبة':'غير مؤشّر في القنوات — اضغط للتأشير مع المصادر الأخرى',
+        on:liveOn,
+        run:()=>{
+          if(window.__liveSources)window.__liveSources.toggle(id);else openList(id);
+          toast(!liveOn?'تم تأشير «'+l.name+'» في القنوات':'تم إلغاء تأشير «'+l.name+'» من القنوات');
+          rerender();
+        }
+      });
+    }
+    if(canVod){
+      rows.push({
+        icon:vodOn?'☑':'☐',
+        label:'عرض في المكتبة (الأفلام والمسلسلات)',
+        sub:vodOn?'مؤشّر عليه في المكتبة — مستقل عن القنوات':'غير مؤشّر في المكتبة — اضغط للتأشير مع المصادر الأخرى',
+        on:vodOn,
+        run:()=>{
+          if(window.__vodSources)window.__vodSources.toggle(id);
+          toast(!vodOn?'تم تأشير «'+l.name+'» في المكتبة':'تم إلغاء تأشير «'+l.name+'» من المكتبة');
+          rerender();
+        }
+      });
+    }
+    rows.push(
       {icon:'📊',label:'إحصائيات محتوى المصدر',sub:sourceStatsSub(l),run:()=>{if(window.WasslaSourceLoader)window.WasslaSourceLoader.showInspect(l)}},
       {icon:'✎',label:'إعادة التسمية',sub:l.name,run:async()=>{
         const v=await kbPrompt('اسم المصدر',l.name);
-        if(v&&v.trim()){l.name=v.trim();await saveLists();fillLists();rerender()}
+        if(v&&v.trim()){l.name=v.trim();await saveLists();if(window.__liveSources)window.__liveSources.refreshIfActive(id);else fillLists();rerender()}
       }}
-    ];
+    );
     if(l.xt)rows.push({icon:'⟳',label:'مراجعة تحديث Xtream',sub:l.xt.host,run:()=>reviewSourceUpdate(id)});
     if(l.url)rows.push({icon:'⟳',label:'مراجعة تحديث الرابط',sub:l.url,run:()=>reviewSourceUpdate(id)});
     if((sourceUndo.get(id)||[]).length)rows.push({icon:'↶',label:'تراجع عن آخر تعديل',sub:'استعادة حالة المصدر السابقة',run:async()=>{await undoSource(id);rerender()}});
@@ -297,7 +412,7 @@
         rememberSource(id,l.text);
         l.text=ser(items);l.n=items.length;l.upd=Date.now();
         await saveLists();
-        if(active===id)openList(id);
+        if(window.__liveSources)window.__liveSources.refreshIfActive(id);else if(active===id)openList(id);
         toast('تمت استعادة نسخة الخادم');back();
       }},
       {icon:'↩',label:'إلغاء',run:()=>back()}
@@ -605,14 +720,14 @@
     }else{
       l.text=entry.value;l.n=parseM3U(l.text).length;l.upd=Date.now();
       await saveLists();
-      if(active===id)openList(id);
+      if(window.__liveSources)window.__liveSources.refreshIfActive(id);else if(active===id)openList(id);
     }
     toast('تم التراجع عن آخر تعديل');
     return true;
   }
   function editorPick(keep){
     show('تعديل القنوات — اختر المصدر',user().map(l=>({
-      icon:l.id===active?'✔':'📄',label:l.name,sub:(l.n||0)+' قناة',run:()=>push(k=>groupsScreen(l.id,k))
+      icon:(window.__liveSources?window.__liveSources.isSelected(l.id):l.id===active)?'☑':'📄',label:l.name,sub:sourceStatsSub(l),run:()=>push(k=>groupsScreen(l.id,k))
     })),keep);
   }
   /* شاشة المجموعات: بحث · كل القنوات · مجموعة بمجموعة (تعديل/إعادة تسمية/حذف) */
@@ -818,7 +933,7 @@
     rememberSource(id,l.text);
     l.text=ser(its);l.n=its.length;l.upd=Date.now();
     await saveLists();
-    if(active===id)openList(id);
+    if(window.__liveSources)window.__liveSources.refreshIfActive(id);else if(active===id)openList(id);
   }
   async function editField(id,idx,field){
     const its=itemsOf(id),it=its[idx];if(!it)return;
@@ -887,7 +1002,7 @@
   /* تعديل سريع لقناة من قائمة المشاهدة (INFO أو الزر الأصفر) */
   window.__editChannel=function(it){
     if(!it)return false;
-    const ids=[active].concat(lists.map(l=>l.id)).filter((v,i,a)=>v&&v!==FAV_LIST_ID&&a.indexOf(v)===i);
+    const ids=[it._listId,active].concat(lists.map(l=>l.id)).filter((v,i,a)=>v&&v!==FAV_LIST_ID&&a.indexOf(v)===i);
     for(const id of ids){
       const its=itemsOf(id);
       let i=its.findIndex(x=>x.url===it.url&&x.name===it.name);

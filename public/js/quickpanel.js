@@ -7,23 +7,31 @@
   const userLists=()=>(lists||[]).filter(l=>l.id!==FAV_LIST_ID);
   const notify=(t,err)=>{if(window.WasslaNotify)WasslaNotify(t,{err:!!err})};
 
-  /* عدّاد القنوات للمصدر المفعّل وعدّاد المكتبة عبر كل المصادر المضافة */
+  /* عدّاد القنوات للمصادر المؤشّر عليها في القنوات، وعدّاد المكتبة لمصادرها المستقلة */
   function counts(){
     const all=userLists();
-    const l=all.find(x=>x.id===active);
-    const key=(active||'')+'|'+all.map(x=>x.id+':'+(x.upd||0)+':'+(x.n||0)).join(',');
+    const liveSel=window.__liveSources?window.__liveSources.getSelected():(active?[active]:[]);
+    const vodSel=window.__vodSources?window.__vodSources.getSelected():null;
+    const key=liveSel.join(',')+'|'+(vodSel?vodSel.join(','):'all')+'|'+all.map(x=>x.id+':'+(x.upd||0)+':'+(x.n||0)).join(',');
     if(cnt&&cntKey===key)return cnt;
     const c={live:0,vod:0};
-    if(l){
-      try{parseM3U(l.text).forEach(it=>{const k=detectKind(it);if(k!=='movie'&&k!=='series')c.live++})}catch(e){}
-    }
     all.forEach(src=>{
-      if(src.id==='builtin')return;
-      try{parseM3U(src.text).forEach(it=>{const k=detectKind(it);if(k==='movie'||k==='series')c.vod++})}catch(e){}
+      if(!liveSel.includes(src.id))return;
+      try{parseM3U(src.text).forEach(it=>{const k=detectKind(it);if(k!=='movie'&&k!=='series')c.live++})}catch(e){}
     });
+    if(window.__vodSources&&typeof window.__vodSources.count==='function'){
+      c.vod=window.__vodSources.count();
+    }else{
+      const vodSet=vodSel?new Set(vodSel):null;
+      all.forEach(src=>{
+        if(src.id==='builtin')return;
+        if(vodSet&&!vodSet.has(src.id))return;
+        try{parseM3U(src.text).forEach(it=>{const k=detectKind(it);if(k==='movie'||k==='series')c.vod++})}catch(e){}
+      });
+    }
     cnt=c;cntKey=key;return c;
   }
-  const srcName=()=>((lists||[]).find(l=>l.id===active)||{name:'لا يوجد مصدر'}).name;
+  const srcName=()=>window.__liveSources?window.__liveSources.summary():((lists||[]).find(l=>l.id===active)||{name:'لا يوجد مصدر'}).name;
 
   const close=()=>{on=false;closeDd();el.classList.remove('on');clearInterval(clkT);hintLive()};
   function closeDd(){ddOn=false;dd.classList.remove('on');dd.textContent=''}
@@ -36,13 +44,19 @@
     }
     const tick=()=>{const d=new Date();if(clk)clk.textContent=pad(d.getHours())+':'+pad(d.getMinutes())+' · '+d.toLocaleDateString('ar-DZ',{weekday:'long',day:'numeric',month:'long'})};
     tick();clearInterval(clkT);clkT=setInterval(tick,20000);
+    const hintBar=el.querySelector('.qph');
+    if(hintBar){
+      hintBar.textContent=ddOn
+        ?'↑ ↓ تنقل · OK تأشير / إلغاء · رجوع: إغلاق قائمة المصادر'
+        :'← → تنقل · OK فتح · رجوع / Esc: إغلاق';
+    }
   }
 
   /* ===== الأيقونات ===== */
   const items_=[
     {id:'ch',i:'📺',l:'القنوات',cls:'ch',sub:()=>counts().live+' قناة',
       run:()=>{close();if(window.__rcvOpen)__rcvOpen()}},
-    {id:'src',i:'🛰',l:'المصدر',cls:'src',sub:()=>srcName(),
+    {id:'src',i:'🛰',l:'مصادر القنوات',cls:'src',sub:()=>srcName(),
       run:()=>toggleDd()},
     {id:'vod',i:'🎬',l:'المكتبة',cls:'vod',sub:()=>counts().vod?counts().vod+' عنصر':'تصفّح أو أضف مصدراً',
       dim:()=>false,
@@ -74,40 +88,75 @@
     const s=row.children[idx];if(s&&!ddOn)s.scrollIntoView({block:'nearest',inline:'nearest'});
   }
 
-  /* ===== قائمة المصادر المنسدلة ===== */
+  /* ===== قائمة مصادر القنوات (تأشير متعدد مستقل عن المكتبة) ===== */
+  function liveCands(){
+    if(window.__liveSources)return window.__liveSources.candidates();
+    return userLists().map(l=>({id:l.id,name:l.name,liveCount:l.n||0}));
+  }
   function ddRows(){
-    const r=userLists().map(l=>({id:l.id,name:l.name,sub:(l.n||0)+' قناة',cur:l.id===active}));
-    r.push({add:true,name:'إضافة مصدر',sub:'ملف · رابط · Xtream'});
+    const cands=liveCands();
+    const selSet=new Set(window.__liveSources?window.__liveSources.getSelected():(active?[active]:[]));
+    const allChecked=cands.length>0&&cands.every(c=>selSet.has(c.id));
+    const r=[];
+    if(cands.length>1){
+      r.push({toggleAll:true,allChecked,name:allChecked?'إلغاء تحديد كل مصادر القنوات':'تحديد كل مصادر القنوات',sub:selSet.size+' من '+cands.length});
+    }
+    cands.forEach(c=>{
+      r.push({id:c.id,chk:true,name:c.name,sub:c.liveCount+' قناة',cur:selSet.has(c.id)});
+    });
+    r.push({add:true,name:'إضافة مصدر جديد',sub:'ملف · رابط · Xtream'});
     return r;
   }
   function paintDd(){
     const rs=ddRows();dd.textContent='';
+    const head=document.createElement('div');head.className='qpdd-head';
+    head.innerHTML='<span>📺 مصادر القنوات (تأشير متعدد)</span><small>مستقلة عن المكتبة</small>';
+    dd.appendChild(head);
     rs.forEach((x,k)=>{
       const d=document.createElement('button');d.type='button';
-      d.className='qd'+(x.add?' add':'')+(x.cur?' cur':'')+(k===ddIdx?' sel':'');
-      d.innerHTML='<em></em><span class="qdn"></span><small class="qds"></small>';
-      d.children[0].textContent=x.add?'＋':(x.cur?'✓':'');
-      d.children[1].textContent=x.name;d.children[2].textContent=x.sub||'';
+      d.className='qd'+(x.add?' add':'')+(x.toggleAll?' all-toggle':'')+(x.cur?' cur':'')+(k===ddIdx?' sel':'');
+      d.setAttribute('aria-pressed',x.cur?'true':'false');
+      const mark=document.createElement('span');
+      mark.className=x.chk?'qd-chk'+(x.cur?' on':''):'qd-ico';
+      mark.textContent=x.chk?(x.cur?'✓':''):(x.add?'＋':(x.allChecked?'☑':'☐'));
+      const nm=document.createElement('span');nm.className='qdn';nm.textContent=x.name;
+      const sb=document.createElement('small');sb.className='qds';sb.textContent=x.sub||'';
+      d.append(mark,nm,sb);
       d.onclick=()=>{ddIdx=k;pickDd()};
       dd.appendChild(d);
     });
-    const s=dd.children[ddIdx];if(s)s.scrollIntoView({block:'nearest'});
+    const btns=dd.querySelectorAll('.qd');
+    const s=btns[ddIdx];if(s)s.scrollIntoView({block:'nearest'});
   }
   function toggleDd(){
-    if(ddOn){closeDd();paint();return}
+    if(ddOn){closeDd();syncMeta();paint();return}
     ddOn=true;dd.classList.add('on');
-    const rs=ddRows();ddIdx=Math.max(0,rs.findIndex(x=>x.cur));
-    paintDd();paint();
+    const rs=ddRows();
+    const firstCur=rs.findIndex(x=>x.cur);
+    ddIdx=firstCur>=0?firstCur:0;
+    syncMeta();paintDd();paint();
   }
   function pickDd(){
-    const x=ddRows()[ddIdx];if(!x)return;
+    const rs=ddRows(),x=rs[ddIdx];if(!x)return;
     if(x.add){close();if(window.__openSettings)__openSettings('addsource');return}
-    if(x.id!==active)openList(x.id);       /* تفعيل فوري بلا تأكيد: العلامة ✓ تنتقل إلى المصدر */
-    ddIdx=ddRows().findIndex(r=>r.id===x.id);
+    if(x.toggleAll){
+      if(window.__liveSources){
+        if(x.allChecked)window.__liveSources.clear();
+        else window.__liveSources.selectAll();
+      }
+      cnt=null;paintDd();paint();syncMeta();
+      return;
+    }
+    if(window.__liveSources){
+      window.__liveSources.toggle(x.id);
+    }else if(x.id!==active){
+      openList(x.id);
+    }
+    cnt=null;
     paintDd();paint();syncMeta();
   }
 
-  function open(){on=true;idx=0;ddOn=false;dd.classList.remove('on');el.classList.add('on');syncMeta();paint()}
+  function open(){on=true;idx=0;ddOn=false;dd.classList.remove('on');el.classList.add('on');cnt=null;syncMeta();paint()}
 
   document.addEventListener('keydown',e=>{
     if(!on)return;
@@ -117,7 +166,7 @@
     if(ddOn){
       const n=ddRows().length;
       if(k==='ArrowDown'){ddIdx=Math.min(n-1,ddIdx+1);paintDd()}
-      else if(k==='ArrowUp'){if(ddIdx>0){ddIdx--;paintDd()}else{closeDd();paint()}}
+      else if(k==='ArrowUp'){if(ddIdx>0){ddIdx--;paintDd()}else{closeDd();syncMeta();paint()}}
       else if(k==='Enter'){if(!e.repeat)pickDd()}
       return;
     }
@@ -130,6 +179,8 @@
     paint();
   },true);
 
+  document.addEventListener('wassla:lists-changed',()=>{cnt=null;if(on){if(ddOn)paintDd();paint();syncMeta()}});
+
   /* تلميح قصير للبث المباشر */
   function hintLive(){
     if(!hint)return;
@@ -137,6 +188,6 @@
     hint.classList.add('on');clearTimeout(hT);hT=setTimeout(()=>hint.classList.remove('on'),6000);
   }
   /* رجوع واحد يغلق القائمة المنسدلة أولاً */
-  window.__qpBack=()=>{if(on&&ddOn){closeDd();paint();return true}return false};
+  window.__qpBack=()=>{if(on&&ddOn){closeDd();syncMeta();paint();return true}return false};
   window.__openQuick=open;window.__quickClose=function(dismiss){close();if(dismiss&&window.__restoreCtx)window.__restoreCtx()};window.__qpOn=()=>on;window.__hintLive=hintLive;
 })();

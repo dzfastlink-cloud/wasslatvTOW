@@ -1,4 +1,6 @@
-/* ===== تشغيل الأفلام والمسلسلات بملء الشاشة والمشغل المصغّر ===== */
+/* ===== تشغيل الأفلام والمسلسلات بملء الشاشة (مشغل السينما) والمشغل المصغّر ===== */
+.vod-engine-badge,.vod-touch-zones,.vod-seek-pill,.vod-stall-badge,.vod-opts{display:none}
+
 body.cine-play section{
   position:fixed!important;
   inset:0;
@@ -8,18 +10,18 @@ body.cine-play section{
 body.cine-play #player{
   position:absolute;
   inset:0;
-  display:flex!important;
-  flex-direction:column;
-  gap:0;
+  display:block!important;
   padding:0;
   background:#000;
+  overflow:hidden;
   cursor:default;
 }
 body.cine-play #player video{
-  flex:1 1 0;
-  height:0!important;
+  position:absolute;
+  inset:0;
+  width:100%!important;
+  height:100%!important;
   min-height:0;
-  width:100%;
   max-height:none;
   object-fit:contain;
   background:#000;
@@ -27,57 +29,124 @@ body.cine-play #player video{
   border-radius:0;
   box-shadow:none;
   display:block;
+  transition:transform .22s ease;
 }
+body.cine-play.vod-fit-contain #player video{object-fit:contain;transform:none}
+body.cine-play.vod-fit-cover #player video{object-fit:cover;transform:none}
+body.cine-play.vod-fit-zoom #player video{object-fit:cover;transform:scale(1.14)}
+
 body.cine-play #player .nowrow{
   position:absolute;
   top:0;
   inset-inline:0;
-  z-index:4;
+  z-index:6;
   display:flex!important;
   align-items:center;
   gap:12px;
-  padding:14px 22px 26px!important;
+  padding:16px var(--w-safe,26px) 34px!important;
   border-radius:0!important;
-  background:linear-gradient(180deg,rgba(3,13,11,.88),rgba(3,13,11,.45) 65%,transparent)!important;
-  transition:opacity .25s ease;
+  background:linear-gradient(180deg,rgba(2,12,10,.92),rgba(2,12,10,.55) 60%,transparent)!important;
+  transition:opacity .22s ease,transform .22s ease;
 }
 body.cine-play .nowrow #now{
+  flex:1;
+  min-width:0;
   font-size:clamp(18px,2vw,24px);
-  font-weight:700;
-  line-height:1.35;
-  white-space:normal;
+  font-weight:800;
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
   color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,.65);
+}
+body.cine-play .vod-engine-badge:not(.hide){
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:8px;
+  border:1px solid rgba(47,209,176,.4);
+  background:rgba(4,24,20,.84);
+  color:#9ef5e2;
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:.03em;
+  direction:ltr;
+  white-space:nowrap;
+}
+
+body.cine-play #vodtrack{
+  position:absolute;
+  bottom:68px;
+  inset-inline:0;
+  z-index:6;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  direction:ltr;
+  padding:30px var(--w-safe,26px) 10px;
+  border-radius:0;
+  background:linear-gradient(0deg,rgba(2,12,10,.94),rgba(2,12,10,.72) 60%,transparent);
+  color:#fff;
+  font-size:17px;
+  font-variant-numeric:tabular-nums;
+  transition:opacity .22s ease,transform .22s ease;
 }
 body.cine-play #player .ctl{
+  position:absolute;
+  bottom:0;
+  inset-inline:0;
+  z-index:6;
+  min-height:68px;
   display:flex!important;
   align-items:center;
   justify-content:center;
   flex-wrap:wrap;
   gap:8px;
-  padding:8px 18px 14px!important;
+  padding:6px var(--w-safe,26px) 16px!important;
   border-radius:0!important;
-  background:linear-gradient(0deg,rgba(3,13,11,.94),rgba(3,13,11,.78))!important;
-  transition:opacity .25s ease;
+  background:rgba(2,12,10,.95)!important;
+  transition:opacity .22s ease,transform .22s ease;
 }
+
 body.cine-play #player .ctl button,
 body.cine-play #player .nowrow button,
 body.cine-mini #player .ctl button,
 body.cine-mini #player .nowrow button{
-  color:#fff;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.22);
+  color:#eefaf7;
+  background:rgba(13,48,41,.78);
+  border:1.5px solid rgba(61,201,174,.28);
   border-radius:10px;
+  min-height:42px;
   padding:7px 14px;
   font-size:15px;
-  font-weight:600;
+  font-weight:700;
   cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,transform .14s ease,box-shadow .15s ease;
 }
 body.cine-play #player .ctl button:hover,
 body.cine-play #player .nowrow button:hover,
 body.cine-mini #player .ctl button:hover,
 body.cine-mini #player .nowrow button:hover{
-  background:rgba(61,201,174,.28);
-  border-color:#3dc9ae;
+  background:rgba(47,209,174,.26);
+  border-color:#2fd1b0;
+}
+body.cine-play #player .ctl button.on{
+  background:rgba(245,176,76,.22);
+  border-color:#f5b04c;
+  color:#ffe2a8;
+}
+body.cine-play #player .ctl button.sel,
+body.cine-play #player .ctl button:focus-visible,
+body.cine-play #player .nowrow button:focus-visible{
+  background:linear-gradient(135deg,#2fd1b0,#0e8a76);
+  color:#031c17;
+  border-color:#f5b04c;
+  outline:3px solid #f5b04c;
+  outline-offset:2px;
+  box-shadow:0 0 0 6px rgba(47,209,176,.28);
+  transform:scale(1.04);
 }
 body.cine-play #player #prev,
 body.cine-play #player #nextb,
@@ -86,15 +155,221 @@ body.cine-mini #player #prev,
 body.cine-mini #player #nextb,
 body.cine-mini #player #pf,
 body.cine-mini #player #fsb,
-body.cine-mini #player #pipb{
+body.cine-mini #player #pipb,
+body.cine-mini #vodoptsbtn,
+body.cine-mini #vodprevep,
+body.cine-mini #vodnextep{
   display:none!important;
 }
-body.cine-play.cine-track-hidden #player .nowrow,
+body.cine-play.cine-track-hidden #player .nowrow{
+  opacity:0;
+  transform:translateY(-10px);
+  pointer-events:none;
+}
 body.cine-play.cine-track-hidden #player #vodtrack,
 body.cine-play.cine-track-hidden #player .ctl{
   opacity:0;
+  transform:translateY(12px);
   pointer-events:none;
 }
+
+/* شارة القفز التفاعلي وسط الشاشة وحالة التعليق */
+body.cine-play .vod-seek-pill:not(.hide){
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:8;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 24px;
+  border-radius:16px;
+  border:1.5px solid rgba(245,176,76,.65);
+  background:rgba(3,17,14,.9);
+  color:#fff;
+  font-size:clamp(20px,2.4vw,28px);
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  box-shadow:0 12px 32px rgba(0,0,0,.6);
+  pointer-events:none;
+}
+body.cine-play .vod-stall-badge:not(.hide){
+  position:absolute;
+  top:72px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:8;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  border-radius:12px;
+  border:1px solid rgba(47,209,176,.45);
+  background:rgba(4,22,18,.9);
+  color:#cfece5;
+  font-size:14.5px;
+  font-weight:700;
+  pointer-events:none;
+}
+
+/* مناطق اللمس للهواتف */
+body.cine-play .vod-touch-zones:not(.hide){
+  position:absolute;
+  inset:64px 0 118px;
+  z-index:5;
+  display:grid;
+  grid-template-columns:1fr 1.2fr 1fr;
+}
+body.cine-play .vtz{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  -webkit-user-select:none;
+}
+body.cine-play .vtz span{
+  opacity:0;
+  padding:10px 16px;
+  border-radius:14px;
+  background:rgba(3,17,14,.84);
+  border:1px solid rgba(61,201,174,.45);
+  color:#fff;
+  font-size:17px;
+  font-weight:800;
+  transform:scale(.92);
+  transition:opacity .16s ease,transform .16s ease;
+  pointer-events:none;
+}
+body.cine-play .vtz.flash span{opacity:1;transform:scale(1)}
+
+/* لوحة خيارات المشغل السريعة */
+body.cine-play .vod-opts:not(.hide){
+  position:absolute;
+  bottom:128px;
+  inset-inline-end:var(--w-safe,26px);
+  z-index:10;
+  width:min(420px,calc(100% - 32px));
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:14px;
+  border-radius:16px;
+  border:1.5px solid rgba(61,201,174,.42);
+  background:linear-gradient(160deg,rgba(6,31,26,.96),rgba(3,14,12,.96));
+  box-shadow:0 18px 42px rgba(0,0,0,.68);
+}
+.vod-opts-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  color:#f5b04c;
+  font-size:16px;
+  font-weight:800;
+}
+.vod-opts-close{
+  min-width:34px;
+  min-height:34px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+.vopt-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+  min-height:46px;
+  padding:9px 12px;
+  border-radius:11px;
+  border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);
+  color:#eefaf7;
+  font:inherit;
+  font-size:15px;
+  text-align:start;
+  cursor:pointer;
+  transition:background .14s ease,border-color .14s ease;
+}
+.vopt-row:hover{background:rgba(47,209,174,.16);border-color:rgba(47,209,174,.45)}
+.vopt-row.sel,.vopt-row:focus-visible{
+  background:linear-gradient(90deg,rgba(47,209,174,.28),rgba(14,124,107,.38));
+  border-color:#f5b04c;
+  outline:2px solid #f5b04c;
+  outline-offset:1px;
+}
+.vopt-lbl{color:#bfe6de;font-weight:600}
+.vopt-val{color:#f5b04c;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* بطاقة الحلقة التالية */
+body.cine-play .vod-next:not(.hide){
+  position:absolute;
+  top:auto;
+  inset-inline-start:auto;
+  inset-inline-end:var(--w-safe,26px);
+  bottom:136px;
+  z-index:9;
+  width:min(380px,calc(100% - 32px));
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:14px 16px;
+  border:1.5px solid rgba(245,176,76,.65);
+  border-radius:15px;
+  background:linear-gradient(155deg,rgba(7,35,30,.96),rgba(3,15,12,.96));
+  color:#fff;
+  box-shadow:0 16px 38px rgba(0,0,0,.65);
+}
+body.cine-play .vod-next span{
+  flex-basis:100%;
+  text-align:start;
+  font-size:16px;
+  font-weight:700;
+  line-height:1.4;
+}
+.vod-next-bar{
+  flex-basis:100%;
+  height:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,.16);
+  overflow:hidden;
+}
+.vod-next-bar i{
+  display:block;
+  height:100%;
+  width:100%;
+  background:linear-gradient(90deg,#2fd1b0,#f5b04c);
+  transition:width .9s linear;
+}
+.vod-next button{
+  min-height:42px;
+  padding:8px 16px;
+  border-radius:10px;
+  border:1px solid #ffd18a;
+  background:#f5b04c;
+  color:#08201b;
+  font:inherit;
+  font-size:14.5px;
+  font-weight:800;
+  cursor:pointer;
+}
+.vod-next button.alt{
+  background:rgba(255,255,255,.1);
+  border-color:rgba(255,255,255,.28);
+  color:#fff;
+}
+
+/* ترجمة أكبر عند تفعيل حجم الترجمة الكبير */
+body.vod-sub-large video::cue{font-size:1.35em}
 
 /* ===== المشغل المصغّر العائم أسفل المكتبة ===== */
 body.cine-mini:not(.vod-detail-play) section{
@@ -184,28 +459,15 @@ body.cine-mini:not(.vod-detail-play) #player .ctl button{
 
 /* ===== مسار التشغيل (شريط التقدم) أثناء مشاهدة الأفلام والمسلسلات ===== */
 #vodtrack{display:none}
-body.cine-play #vodtrack{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  direction:ltr;
-  padding:12px 22px 6px;
-  border-radius:0;
-  background:rgba(3,13,11,.82);
-  color:#fff;
-  font-size:18px;
-  font-variant-numeric:tabular-nums;
-  transition:opacity .25s ease;
-}
 #vtstate{width:24px;text-align:center;flex:none}
 #vtbar{position:relative;flex:1;height:8px;border-radius:6px;background:rgba(255,255,255,.22);cursor:pointer}
-#vtbar::before{content:"";position:absolute;left:0;right:0;top:-14px;bottom:-14px}
+#vtbar::before{content:"";position:absolute;left:0;right:0;top:-16px;bottom:-16px}
 #vtbar i{position:absolute;top:0;bottom:0;left:0;width:0;border-radius:6px}
 #vtbuf{background:rgba(255,255,255,.3)}
 #vtfill{background:linear-gradient(90deg,#2fd1b0,#f5b04c)}
 #vtknob{position:absolute;top:50%;left:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#f5b04c;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)}
 #vtcur,#vtdur{min-width:56px;flex:none}
-#vtleft{min-width:110px;text-align:right;direction:rtl;color:#cfeee7;font-size:14px;flex:none}
+#vtleft{min-width:110px;text-align:right;direction:rtl;color:#cfeee7;font-size:14px;flex:none;white-space:nowrap}
 
 @media(max-width:700px){
   body.cine-mini:not(.vod-detail-play) section{height:164px}
@@ -215,13 +477,15 @@ body.cine-play #vodtrack{
     column-gap:10px;
   }
   body.cine-mini:not(.vod-detail-play) #vtleft{display:none}
-  body.cine-play #vodtrack{gap:8px;padding:10px 12px 4px;font-size:14px}
+  body.cine-play #vodtrack{bottom:96px;gap:8px;padding:24px 12px 6px;font-size:13.5px}
+  body.cine-play #player .ctl{min-height:96px;padding:6px 10px 12px!important;gap:6px}
+  body.cine-play #player .ctl button{min-height:40px;padding:6px 10px;font-size:13.5px}
+  body.cine-play .vod-opts:not(.hide){bottom:154px;inset-inline:12px;width:auto}
+  body.cine-play .vod-next:not(.hide){bottom:154px;inset-inline:12px;width:auto}
   #vtleft{display:none}
 }
 
-/* ===== إصلاح الشريط المصغّر: يُعرض المشغّل وحده داخل الشريط =====
-   كانت بطاقة #load وبقية عناصر الريسيفر تسبقه داخل section فتدفعه خارج الشاشة
-   فيظهر شريط فارغ أو بطاقة «وصلة TV» بدل الفيديو. */
+/* ===== إصلاح الشريط المصغّر: يُعرض المشغّل وحده داخل الشريط ===== */
 body.cine-mini:not(.vod-detail-play) section>:not(#player){display:none!important}
 body.cine-mini:not(.vod-detail-play) #player{overflow:hidden}
 
@@ -233,9 +497,12 @@ body.cine-mini:not(.vod-detail-play) #player{overflow:hidden}
   body.cine-mini:not(.vod-detail-play) #player .ctl{gap:6px;flex-wrap:wrap}
   body.cine-mini:not(.vod-detail-play) #player .ctl button{padding:4px 10px;font-size:13px}
   body.cine-mini:not(.vod-detail-play) #vodtrack{font-size:13px;padding:0}
+  body.cine-play #vodtrack{bottom:58px;padding:18px 18px 6px;font-size:14px}
+  body.cine-play #player .ctl{min-height:58px;padding:4px 16px 10px!important}
+  body.cine-play #player .ctl button{min-height:36px;padding:5px 11px;font-size:13.5px}
 }
 
-/* في الشريط المصغّر: تحكّم مختصر يناسب ريموت التلفاز (إيقاف/توسيع/إغلاق/التفاصيل) والباقي في صفحة التفاصيل */
+/* في الشريط المصغّر: تحكّم مختصر يناسب ريموت التلفاز */
 body.cine-mini:not(.vod-detail-play) #vodwatched,
 body.cine-mini:not(.vod-detail-play) #vodfav,
 body.cine-mini #vodmini{display:none!important}

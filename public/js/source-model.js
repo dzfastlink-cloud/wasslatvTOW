@@ -37,5 +37,59 @@
     });
     return output;
   }
-  return {reconcileRemote};
+  function normalizeSelection(selectedIds,validIds,defaultAll){
+    const valid=Array.isArray(validIds)?validIds.filter(Boolean):[];
+    const validSet=new Set(valid);
+    if(selectedIds===null||selectedIds===undefined){
+      return defaultAll?[...valid]:[];
+    }
+    const input=Array.isArray(selectedIds)?selectedIds:[...selectedIds];
+    const out=[],seen=new Set();
+    for(let i=0;i<input.length;i++){
+      const id=input[i];
+      if(!id||!validSet.has(id)||seen.has(id))continue;
+      seen.add(id);
+      out.push(id);
+    }
+    return out;
+  }
+  function toggleSelection(selectedIds,id,validIds){
+    const current=normalizeSelection(selectedIds,validIds,false);
+    const validSet=new Set(Array.isArray(validIds)?validIds:[]);
+    if(!id||!validSet.has(id))return current;
+    if(current.includes(id))return current.filter(x=>x!==id);
+    return current.concat(id);
+  }
+  function reconcileAddedSource(selectedIds,knownIds,validIds,shouldIncludeFn){
+    const valid=Array.isArray(validIds)?validIds.filter(Boolean):[];
+    const hasInit=Array.isArray(selectedIds);
+    const known=new Set(Array.isArray(knownIds)?knownIds:[]);
+    let next=normalizeSelection(selectedIds,valid,true);
+    if(hasInit){
+      for(let i=0;i<valid.length;i++){
+        const id=valid[i];
+        if(known.has(id))continue;
+        if((!shouldIncludeFn||shouldIncludeFn(id))&&!next.includes(id)){
+          next=next.concat(id);
+        }
+      }
+    }
+    return {selected:next,known:[...valid]};
+  }
+  function summarizeSelection(selectedIds,candidates,emptyText){
+    const list=Array.isArray(candidates)?candidates:[];
+    const selSet=new Set(Array.isArray(selectedIds)?selectedIds:[]);
+    const picked=list.filter(c=>c&&selSet.has(c.id));
+    if(!picked.length)return emptyText||'لا يوجد مصدر محدد';
+    if(picked.length===1)return picked[0].name||'مصدر واحد';
+    if(picked.length===list.length)return 'كل المصادر ('+picked.length+')';
+    return picked.length+' مصادر من '+list.length;
+  }
+  return {
+    reconcileRemote,
+    normalizeSelection,
+    toggleSelection,
+    reconcileAddedSource,
+    summarizeSelection
+  };
 });
