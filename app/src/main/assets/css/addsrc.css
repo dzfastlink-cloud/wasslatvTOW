@@ -2,8 +2,8 @@
 #addsrc{width:min(860px,95vw);max-width:none;max-height:94vh;padding:24px 26px 20px;border-radius:28px;border:1px solid var(--t-line);background:var(--t-bg);color:var(--t-ink);box-shadow:0 30px 80px rgba(0,0,0,.55);-webkit-backdrop-filter:none;backdrop-filter:none;overflow:auto}
 #addsrc .as-head h3{margin:0 0 4px;font-size:26px;font-weight:800;color:var(--t-ink)}
 #addsrc .as-head p{margin:0 0 16px;color:var(--t-mute);font-size:15px}
-#addsrc .as-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-#addsrc .as-c{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:start;min-height:112px;padding:14px 16px;border-radius:18px;border:2px solid var(--t-line2);background:var(--t-card);color:var(--t-ink);font-weight:500;transition:background .15s,border-color .15s}
+#addsrc .as-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+#addsrc .as-c{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:start;min-height:124px;padding:16px 18px;border-radius:18px;border:2px solid var(--t-line2);background:var(--t-card);color:var(--t-ink);font-weight:500;transition:background .15s,border-color .15s}
 #addsrc .as-c i{font-style:normal;display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--t-card2);font-size:18px}
 #addsrc .as-c b{font-size:16.5px;font-weight:800}
 #addsrc .as-c small{color:var(--t-mute);font-size:13px;line-height:1.5}

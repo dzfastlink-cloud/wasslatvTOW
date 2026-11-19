@@ -8,7 +8,7 @@
 - `app/src/main/assets/js/lib/` : مكتبات التشغيل (راجع README داخله).
 
 ## البناء
-- عبر GitHub Actions (`.github/workflows/tow.yml`) أو محليًا بـ `gradle assembleRelease` (Gradle 8.9 وJDK 17).
+- عبر GitHub Actions (`.github/workflows/build.yml`) أو محليًا بـ `gradle assembleRelease` (Gradle 8.9 وJDK 17).
 - الـ APK يجب أن يكون موقّعًا بنفس المفتاح دائمًا حتى يُثبَّت كل إصدار فوق السابق.
 
 ### بيانات التوقيع (لا تُكتب في الكود)
@@ -18,15 +18,8 @@
 
 **محليًا:** انسخ `keystore.properties.example` إلى `keystore.properties` واملأه.
 
-## نشر تحديث Android
-- مستودع التنزيلات العام المستخدم هو `dzfastlink-cloud/wasslatv-downloads`.
-- بعد زيادة `versionName` و`versionCode` في `app/build.gradle.kts`، ادفع وسمًا مطابقًا بصيغة `app-v<versionName>`، مثل `app-v16.0.0`. سيبني GitHub Actions APK موقّعًا، وينشره في إصدار `android-v<versionName>`، ويحدّث `android-update.json` الذي يقرأه التطبيق.
-- أضف السر `DOWNLOADS_REPO_TOKEN` في إعدادات Actions للمستودع الحالي. يجب أن يملك رمز الوصول صلاحية **Contents: read and write** للمستودع `dzfastlink-cloud/wasslatv-downloads`. لا تضع الرمز في الملفات أو المحادثة.
-- يبقى رابط المدونة مسارًا احتياطيًا إذا تعذّر الوصول إلى بيان GitHub. لن يُنشر تحديث قبل توفر APK موقّع ونجاح خطوة النشر.
-- تحديث القنوات عن بُعد متوقف مؤقتًا حتى تتوفر روابط بث عامة ومصرّح بها؛ لا تنشر ملفات تحتوي بيانات دخول ضمن روابط البث.
-
 ## ملاحظات
-- التحقق من التحديث يقرأ `android-update.json` من مستودع التنزيلات، مع الرجوع إلى `https://wasslatv.blogspot.com/p/version.html` عند تعذّر ذلك.
+- التحقق من التحديث يقرأ `https://wasslatv.blogspot.com/p/version.html` (عناصر `ver` و`dl` و`notes`).
 - ملفات القنوات الخارجية: حد أقصى 20 م.ب، وتُقرأ من التنزيلات/المستندات/ذاكرة USB/المجلد الذي يختاره المستخدم فقط.
 
 ## إضافة حساب Xtream من ملف txt

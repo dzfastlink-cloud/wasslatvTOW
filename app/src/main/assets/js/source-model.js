@@ -33,6 +33,7 @@
     });
     fetched.forEach((item,url)=>{
       if(emitted.has(url))return;
+      if(base.has(url)&&!local.has(url))return;
       output.push(item);emitted.add(url);
     });
     return output;

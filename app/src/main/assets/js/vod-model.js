@@ -22,11 +22,11 @@
     return ay==null||by==null||ay===by;
   }
   function progressPercent(record){
-    if(!record||record.watched||!Number.isFinite(record.position)||!Number.isFinite(record.duration)||record.duration<=0||record.position<=0)return 0;
-    return Math.max(1,Math.min(99,Math.round(record.position/record.duration*100)));
+    if(!record||record.watched||!Number.isFinite(record.position)||!Number.isFinite(record.duration)||record.duration<=0)return 0;
+    return Math.max(0,Math.min(100,Math.floor(record.position/record.duration*100)));
   }
   function shouldResume(record){
-    return !!record&&!record.watched&&Number.isFinite(record.position)&&record.position>=5&&
+    return !!record&&!record.watched&&Number.isFinite(record.position)&&record.position>=30&&
       Number.isFinite(record.duration)&&record.duration>0&&record.position<record.duration*0.95;
   }
   return {normalizeSearch,normalizeTitle,yearOf,sameTitle,progressPercent,shouldResume};

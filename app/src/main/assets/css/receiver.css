@@ -1,11 +1,11 @@
 /* ===== وضع الريسيفر (شكل ريسيفر فضائي كلاسيكي) ===== */
-body.rcv header,body.rcv footer,body.rcv aside,body.rcv #updbar,body.rcv:not(.cine-play):not(.cine-mini) .nowrow,body.rcv:not(.cine-play):not(.cine-mini) .ctl,body.rcv #osd{display:none!important}
+body.rcv header,body.rcv footer,body.rcv aside,body.rcv #updbar,body.rcv .nowrow,body.rcv .ctl,body.rcv #osd{display:none!important}
 body.rcv main{display:block}
-body.rcv:not(.cine-play):not(.cine-mini) section{position:fixed!important;inset:0;background:#000;z-index:5}
-body.rcv.menu:not(.cine-play):not(.cine-mini) section{background:linear-gradient(160deg,#0e7c6b,#0a3b34 55%,#04120f)}
-body.rcv:not(.cine-play):not(.cine-mini) #player{position:absolute;inset:0;display:block;cursor:pointer}
+body.rcv section{position:fixed!important;inset:0;background:#000;z-index:5}
+body.rcv.menu section{background:linear-gradient(160deg,#0e7c6b,#0a3b34 55%,#04120f)}
+body.rcv #player{position:absolute;inset:0;display:block;cursor:pointer}
 body.rcv #player.hide{display:none!important}
-body.rcv:not(.cine-play):not(.cine-mini) #player video{width:100%;height:100%;max-height:none;object-fit:contain;background:#000;border:0;border-radius:0;box-shadow:none;display:block}
+body.rcv #player video{width:100%;height:100%;max-height:none;object-fit:contain;background:#000;border:0;border-radius:0;box-shadow:none;display:block}
 body.rcv #player video.pvid{border:3px solid #3dc9ae;border-radius:4px;box-shadow:0 0 0 2px #06332c,0 10px 30px #000a;object-fit:cover}
 body.rcv.menu #player video.pvid{z-index:44;pointer-events:none}
 body.rcv #msg{position:absolute;bottom:150px;inset-inline:0;text-align:center;z-index:30}

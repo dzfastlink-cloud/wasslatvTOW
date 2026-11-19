@@ -7,20 +7,13 @@
   const userLists=()=>(lists||[]).filter(l=>l.id!==FAV_LIST_ID);
   const notify=(t,err)=>{if(window.WasslaNotify)WasslaNotify(t,{err:!!err})};
 
-  /* عدّاد القنوات للمصدر المفعّل وعدّاد المكتبة عبر كل المصادر المضافة */
+  /* عدّاد القنوات والأفلام للمصدر المفعّل (يُخزَّن حتى يتغير المصدر) */
   function counts(){
-    const all=userLists();
-    const l=all.find(x=>x.id===active);
-    const key=(active||'')+'|'+all.map(x=>x.id+':'+(x.upd||0)+':'+(x.n||0)).join(',');
+    const l=(lists||[]).find(x=>x.id===active);if(!l)return {live:0,vod:0};
+    const key=l.id+':'+(l.upd||0)+':'+(l.n||0);
     if(cnt&&cntKey===key)return cnt;
     const c={live:0,vod:0};
-    if(l){
-      try{parseM3U(l.text).forEach(it=>{const k=detectKind(it);if(k!=='movie'&&k!=='series')c.live++})}catch(e){}
-    }
-    all.forEach(src=>{
-      if(src.id==='builtin')return;
-      try{parseM3U(src.text).forEach(it=>{const k=detectKind(it);if(k==='movie'||k==='series')c.vod++})}catch(e){}
-    });
+    try{parseM3U(l.text).forEach(it=>{const k=detectKind(it);if(k==='movie'||k==='series')c.vod++;else c.live++})}catch(e){}
     cnt=c;cntKey=key;return c;
   }
   const srcName=()=>((lists||[]).find(l=>l.id===active)||{name:'لا يوجد مصدر'}).name;
@@ -44,9 +37,9 @@
       run:()=>{close();if(window.__rcvOpen)__rcvOpen()}},
     {id:'src',i:'🛰',l:'المصدر',cls:'src',sub:()=>srcName(),
       run:()=>toggleDd()},
-    {id:'vod',i:'🎬',l:'المكتبة',cls:'vod',sub:()=>counts().vod?counts().vod+' عنصر':'تصفّح أو أضف مصدراً',
-      dim:()=>false,
-      run:()=>{close();if(window.__openVod)__openVod()}},
+    {id:'vod',i:'🎬',l:'المكتبة',cls:'vod',sub:()=>counts().vod?counts().vod+' عنصر':'لا يوجد محتوى بعد',
+      dim:()=>!counts().vod,
+      run:()=>{if(!counts().vod){notify('لا توجد أفلام أو مسلسلات في هذا المصدر بعد');return}close();if(window.__openVod)__openVod()}},
     {id:'fav',i:'★',l:'المفضلة',cls:'fav',sub:()=>favs.size?favs.size+' قناة':'فارغة',
       dim:()=>!favs.size,
       run:()=>{
@@ -57,8 +50,8 @@
       run:()=>{close();if(window.__rcvNumpad)__rcvNumpad()}},
     {id:'set',i:'⚙',l:'الإعدادات',cls:'set',sub:()=>'التشغيل والمظهر',
       run:()=>{close();if(window.__openSettings)__openSettings()}},
-    {id:'exit',i:'⏻',l:'خروج',cls:'exit',sub:()=>window.Android?'':'العودة للبث',
-      run:()=>{if(window.Android&&Android.exitApp)Android.exitApp();else close()}}
+    {id:'exit',i:'⏻',l:'خروج',cls:'exit',sub:()=>'',
+      run:()=>{if(window.Android&&Android.exitApp)Android.exitApp()}}
   ];
 
   function paint(){

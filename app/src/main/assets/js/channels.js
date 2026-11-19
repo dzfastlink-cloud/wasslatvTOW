@@ -106,15 +106,9 @@
     }else setOv(editKey,{n:num,name,url,group,logo});
     $('chedit').close();apply(true);
   };
-  let delArmed=0,delTimer=null;
   $('cedel').onclick=()=>{
     if(editKey==null)return;
-    if(!delArmed){
-      delArmed=1;$('cedel').textContent='تأكيد الحذف؟';
-      clearTimeout(delTimer);delTimer=setTimeout(()=>{delArmed=0;$('cedel').textContent='🗑 حذف'},3000);
-      return;
-    }
-    delArmed=0;clearTimeout(delTimer);$('cedel').textContent='🗑 حذف';
+    if(!confirm('حذف هذه القناة؟ (القنوات الأصلية تعود بزر «إعادة الضبط»)'))return;
     const cu=cust(),i=cu.findIndex(c=>c.num===editKey);
     if(i>=0){cu.splice(i,1);LS.set('m3u_chcustom',cu)}else setOv(editKey,{deleted:true});
     $('chedit').close();apply(true);
