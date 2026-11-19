@@ -10,7 +10,7 @@
   let srcId='',query='',on=false,idx=null,idxSig='',filter='all',view=[],gi=0,cat='',rendered=0,gcols=1,gridEl=null,io=null,zone='rows',tIdx=0,scroller=null,sideEl=null,sideIdx=0,sideItems=[],sort='recent';
   let desktopShelves=new Map(),desktopRows=[],renderedDesktop=false,stopArmedAt=0;
   let screen='home',detailReturn='home',detailOrigin='home',cur=null,curEps=[],sIdx=0,eIdx=0,playing=null,lastLive=null,playerBackground='home',playerScrollTop=0;
-  let nextTimer=null,nextCard=null,nextEpisode=null,progressTimer=null,trackHideTimer=null,detailScrollTop=0,detailRowScroll=[],detailIndex=0,detailToken=0,detailController=null,playerFromDetails=false,playerDetailOrigin='home',trailerFocus=null,pendingRestore=null;
+  let nextTimer=null,nextCard=null,nextEpisode=null,progressTimer=null,trackHideTimer=null,detailScrollTop=0,detailRowScroll=[],detailIndex=0,detailToken=0,detailController=null,detailOverlay=null,playerFromDetails=false,playerDetailOrigin='home',trailerFocus=null,pendingRestore=null;
   const detailCache=new Map();
   const recCache=new Map();
   let recState={sig:'',loading:false,error:'',data:null},recController=null,recToken=0,recInlineHost=null;
@@ -810,7 +810,7 @@
   }
 
   function paintHome(){
-    cancelDetailRequest();el.classList.remove('vod-details');
+    cancelDetailRequest();clearDetailsOverlay();el.classList.remove('vod-details');
     screen='home';paintTabs();bodyEl.textContent='';gridEl=null;recInlineHost=null;
     renderedDesktop=useShelves();desktopShelves=new Map();desktopRows=[];
     bodyEl.classList.add('home');
@@ -1180,15 +1180,20 @@
   }
   function showDetails(card,returnTo){
     cancelDetailRequest();
+    clearDetailsOverlay();
     cur=card;detailReturn=returnTo||'home';detailOrigin=detailReturn;screen='details';zone='details';
     el.classList.add('vod-details');
     const nowPlaying=!!(playing&&playing.card===card&&playerFromDetails);
     if(nowPlaying&&B.classList.contains('cine-mini'))B.classList.add('vod-detail-play');
     paintTabs();
     detailScrollTop=(scroller&&scroller.isConnected)?scroller.scrollTop:0;
-    bodyEl.classList.remove('home');scroller=null;bodyEl.textContent='';$('vodh').classList.add('hide');
 
+    const overlay=document.createElement('div');overlay.className='vdetail-overlay';
+    overlay.setAttribute('role','presentation');
     const panel=document.createElement('section');panel.className='vdetails';
+    panel.setAttribute('role','dialog');
+    panel.setAttribute('aria-modal','true');
+    panel.setAttribute('aria-label',card.kind==='series'?'تفاصيل المسلسل':'تفاصيل الفيلم');
     const backdrop=document.createElement('img');backdrop.className='vdetail-backdrop';backdrop.alt='';backdrop.setAttribute('aria-hidden','true');backdrop.hidden=true;
     setBackdropImage(backdrop,card.logo);
 
@@ -1388,15 +1393,14 @@
 
     head.append(poster,info);
     if(nowPlaying&&playerStage){
-      playerStage.appendChild(trailerSection);
-      shell.append(head,extra);
+      shell.append(head,playerStage,extra,trailerSection);
     }else{
       shell.append(head,extra,trailerSection);
     }
-    panel.append(backdrop,shell);bodyEl.appendChild(panel);
-    bodyEl.scrollTop=0;
+    panel.append(backdrop,shell);overlay.appendChild(panel);el.appendChild(overlay);detailOverlay=overlay;
+    overlay.addEventListener('click',e=>{if(e.target===overlay)returnFromDetails()});
 
-    const allBtns=[...panel.querySelectorAll('button')].filter(b=>!b.disabled&&b.getClientRects().length);
+    const allBtns=[...overlay.querySelectorAll('button')].filter(b=>!b.disabled&&b.getClientRects().length);
     const primaryBtn=actions.querySelector('button');
     const primaryIdx=primaryBtn?allBtns.indexOf(primaryBtn):0;
     detailIndex=primaryIdx>=0?primaryIdx:0;
@@ -1409,10 +1413,21 @@
     detailNodes.trailerImage=trailerImage;
     loadDetailsMetadata(card,detailNodes);
   }
+  function clearDetailsOverlay(){
+    if(!detailOverlay)return;
+    restorePlayerFromDetails();
+    detailOverlay.remove();
+    detailOverlay=null;
+  }
   function returnFromDetails(){
     cancelDetailRequest();
-    restorePlayerFromDetails();
+    if(playerFromDetails&&B.classList.contains('cine-mini')){
+      stopPlay();
+    }else{
+      restorePlayerFromDetails();
+    }
     playerFromDetails=false;
+    clearDetailsOverlay();
     B.classList.remove('vod-detail-play');
     el.classList.remove('vod-details');
     if(detailReturn==='series'&&cur){screen='series';zone='eps';paintSeries();return}
@@ -1538,7 +1553,7 @@
 
   /* ---------- شاشة المسلسل ---------- */
   function paintSeries(){
-    cancelDetailRequest();el.classList.remove('vod-details');
+    cancelDetailRequest();clearDetailsOverlay();el.classList.remove('vod-details');
     screen='series';paintTabs();bodyEl.classList.remove('home');scroller=null;bodyEl.textContent='';
     const seasons=[...new Set(cur.eps.map(e=>e.s))].sort((a,b)=>a-b);
     if(sIdx>=seasons.length)sIdx=0;
@@ -1962,7 +1977,7 @@
   function open(){
     if(on)return;
     if(window.__qpOn&&window.__qpOn()&&window.__quickClose)window.__quickClose();
-    cancelDetailRequest();el.classList.remove('vod-details');
+    cancelDetailRequest();clearDetailsOverlay();el.classList.remove('vod-details');
     on=true;
     LS.set('m3u_last_was_vod',true);
     if(!LS.get('m3u_tip_vod',false)){LS.set('m3u_tip_vod',true);toast('اضغط OK لفتح التفاصيل، واختر المصدر لتصفية المكتبة دون تغيير مصدر البث الحي.')}
@@ -1976,7 +1991,7 @@
   }
   function close(){
     if(screen==='trailer')closeTrailer();
-    cancelDetailRequest();cancelRecRequest();el.classList.remove('vod-details');
+    cancelDetailRequest();cancelRecRequest();clearDetailsOverlay();el.classList.remove('vod-details');
     if(playing)stopPlay();
     if(window.__ldgHide)window.__ldgHide();
     on=false;el.classList.remove('on');B.classList.remove('vod','cine-play','cine-mini','vod-detail-play');
