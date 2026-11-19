@@ -507,6 +507,7 @@ function streamMeta(it){
 }
 function modesFor(u){
   if(/\.m3u8?(\?|$)/i.test(u))return['hls','native'];
+  if(/\/movie\/[^/]+\/[^/]+\/[^/]+/i.test(u)||/\/series\/[^/]+\/[^/]+\/[^/]+/i.test(u))return['native','hls','mpegts'];
   if(/\.(mp4|mkv|webm|mov|m4v|avi)(\?|$)/i.test(u))return['native','hls'];
   if(/\.(ts|flv)(\?|$)/i.test(u))return['mpegts','hls','native'];
   return['mpegts','hls','native'];
@@ -528,8 +529,8 @@ function play(it){
     LS.set('m3u_last',{url:it.url,name:it.name,listId:active,ts:Date.now()});
     window.__playCtx={listId:active,grp:$('grp').value,q:$('q').value};   // منطقة القناة العاملة: المصدر + المجموعة + البحث
   }
-  $('now').textContent=it.name;
-  setMsg('');favBtn();
+  $('now').textContent=it.name||'تشغيل';
+  setMsg(isVodPlayback()?'جارٍ تشغيل المحتوى…':'');favBtn();
   $('resumebar').classList.add('hide');
 
   // Keep the receiver OSD name-only for live TV only.
@@ -548,9 +549,8 @@ function play(it){
   const v=$('v'),my=++tok,baseModes=modesFor(meta.url);
   const attempts=baseModes.map(mode=>({mode,direct:false}));
   const canTryDirect=/^https:\/\//i.test(meta.url);
-  let directQueued=false,lastCode=0,i=0,started=false;
+  let directQueued=false,lastCode=0,i=0,started=false,attemptTimer=null;
   window.__playTrying=true;
-  v.addEventListener('playing',()=>{if(my===tok){started=true;window.__playTrying=false}},{once:true});
 
   const next=()=>{
     if(my!==tok)return;
@@ -564,6 +564,20 @@ function play(it){
     const step=attempts[i++],m=step.mode;
     stopAll();
     let settled=false;
+    const onStarted=()=>{
+      if(settled||my!==tok)return;
+      started=true;settled=true;
+      clearTimeout(attemptTimer);attemptTimer=null;
+      window.__playTrying=false;
+      setMsg('');
+    };
+    v.addEventListener('playing',onStarted,{once:true});
+    v.addEventListener('canplay',()=>{
+      if(my===tok&&v.readyState>=3&&!started){window.__playTrying=false;setMsg('')}
+    },{once:true});
+    attemptTimer=setTimeout(()=>{
+      if(!settled&&my===tok&&!started)fail(1800);
+    },15000);
     const fail=(httpCode)=>{
       if(settled||my!==tok)return;
       settled=true;
@@ -613,7 +627,11 @@ function play(it){
       }else{
         v.onerror=()=>fail(0);v.src=playUrl;
       }
-      v.play().catch(()=>{});
+      v.play().catch(err=>{
+        if(my===tok&&!started){
+          fail(0);
+        }
+      });
     }catch(e){fail(0)}
   };
   next();markOn();

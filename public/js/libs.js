@@ -2,8 +2,9 @@
 // يُتحقَّق من وجود المتغير العام فعلاً (Hls / mpegts) لا من نجاح تحميل الملف فقط،
 // فلو كان الملف المحلي خاطئاً أو فارغاً يُحمَّل الاحتياطي تلقائياً.
 (function(){
-  var L=[{g:'Hls',local:'/js/lib/hls.min.js',cdn:'https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js'},
-         {g:'mpegts',local:'/js/lib/mpegts.min.js',cdn:'https://cdn.jsdelivr.net/npm/mpegts.js@1.7.3/dist/mpegts.min.js'}];
+  var localBase=location.protocol==='file:'?'js/lib/':'/js/lib/';
+  var L=[{g:'Hls',local:localBase+'hls.min.js',cdn:'https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js'},
+         {g:'mpegts',local:localBase+'mpegts.min.js',cdn:'https://cdn.jsdelivr.net/npm/mpegts.js@1.7.3/dist/mpegts.min.js'}];
   function configure(name){
     if(name==='mpegts'&&window.mpegts&&window.mpegts.LoggingControl){
       var lc=window.mpegts.LoggingControl;

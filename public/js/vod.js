@@ -913,7 +913,7 @@
     const button=addAction('',run,cls);button.classList.add('vplay-action');
     const icon=document.createElement('span');icon.className='vplay-icon';icon.textContent='▶';icon.setAttribute('aria-hidden','true');
     const text=document.createElement('span');text.textContent=label;
-    button.append(icon,text);return button;
+    text.className='vplay-label';button.append(icon,text);return button;
   }
   function cancelDetailRequest(){
     detailToken++;
@@ -1271,26 +1271,18 @@
     }
 
     const actions=document.createElement('div');actions.className='vdetail-actions';
-    if(nowPlaying){
-      actions.appendChild(addAction('⛶ ملء الشاشة',()=>expandPlayer()));
-      const vEl=(playerStage&&playerStage.querySelector('#v'))||$('v');
-      const tog=addAction(vEl&&vEl.paused?'▶ استئناف':'⏸ إيقاف مؤقت',()=>togglePlayback(),'alt');tog.dataset.act='toggle';actions.appendChild(tog);
-      actions.appendChild(addAction('■ إيقاف التشغيل',()=>stopInDetails(),'alt'));
-      if(card.kind==='series')actions.appendChild(addAction('اختيار الموسم والحلقة',()=>{restorePlayerFromDetails();playerFromDetails=false;B.classList.remove('vod-detail-play');detailReturn='home';activate(card)},'alt'));
-    }else if(card.kind==='series'){
-      actions.appendChild(addAction('📺 اختيار الموسم والحلقة',()=>{detailReturn='home';activate(card)}));
-      if(canResume)actions.appendChild(addPlayAction('متابعة من '+fmt(rec.position),()=>playCard(card,rec.position,true),'alt'));
+    if(card.kind==='series'){
+      actions.appendChild(addPlayAction(canResume?'متابعة':'تشغيل',()=>playCard(card,canResume?rec.position:0,true)));
     }else{
-      actions.appendChild(addPlayAction(canResume?'متابعة من '+fmt(rec.position):'تشغيل الفيلم',()=>playCard(card,canResume?rec.position:0,true)));
-      if(canResume)actions.appendChild(addAction('↺ البدء من البداية',()=>playCard(card,0,true),'alt'));
+      actions.appendChild(addPlayAction(canResume?'متابعة':'تشغيل',()=>playCard(card,canResume?rec.position:0,true)));
     }
     const cardFav=isVodFav(card);
-    const favBtn=addAction(cardFav?'★ في المفضلة':'☆ أضف للمفضلة',()=>toggleVodFav(card),'alt vfav-action'+(cardFav?' on':''));
+    const favBtn=addAction(cardFav?'★':'☆',()=>toggleVodFav(card),'alt vfav-action'+(cardFav?' on':''));
+    favBtn.setAttribute('aria-label',cardFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
+    favBtn.setAttribute('title',cardFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
     favBtn.dataset.act='vod-fav';
     favBtn.setAttribute('aria-pressed',cardFav?'true':'false');
     actions.appendChild(favBtn);
-    actions.appendChild(addAction(cardWatched?'✓ تمت المشاهدة':'○ تحديد كمشاهد',()=>setWatched(card,!cardWatched),'alt'));
-    actions.appendChild(addAction(backLabel,()=>returnFromDetails(),'alt'));
     info.appendChild(actions);
 
     const extra=document.createElement('div');extra.className='vdetail-extra';
@@ -1511,9 +1503,11 @@
     if(card.kind==='series'){
       const episode=card.eps[Math.max(0,ep)]||card.eps[0];
       if(!episode){toast('لا توجد حلقات لهذا المسلسل');return}
+      if(!/^(?:https?:)?\/\//i.test(String(episode.item&&episode.item.url||''))){toast('رابط الحلقة غير صالح للتشغيل');return}
       cur=card;curEps=card.eps.filter(e=>e.s===episode.s);eIdx=Math.max(0,curEps.findIndex(e=>e.url===episode.url));
       detailReturn='details';playItem(episode.item,curEps,eIdx,card,position,fromDetails);
     }else{
+      if(!/^(?:https?:)?\/\//i.test(String(card.item&&card.item.url||''))){toast('رابط الفيلم غير صالح للتشغيل');return}
       if(position===0){
         const marks=watched();delete marks[cardId(card)];LS.set('m3u_vod_watched',marks);
         const records=progress();if(records[card.item.url])records[card.item.url].watched=false;LS.set('m3u_vod_progress',records);
@@ -1705,7 +1699,7 @@
   const fmt=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')};
   const Playback=window.WasslaVodPlayback;
   function setSeekTime(target,notify){
-    const v=$('v'),time=Playback.seekTarget(0,v.duration,target);
+    const v=$('v'),time=Number.isFinite(target)&&Number.isFinite(v.duration)?Math.max(0,Math.min(v.duration,target)):null;
     if(time===null){if(notify!==false)toast('التقديم غير متاح حتى يجهز المحتوى');return false}
     try{v.currentTime=time;return true}
     catch(e){if(notify!==false)toast('التقديم غير مدعوم لهذا المصدر');return false}
@@ -1770,7 +1764,7 @@
     }
     const plEl=$('player');if(plEl)plEl.classList.remove('hide');
     play(it);
-    $('now').textContent=niceTitle(it.name||(playing.card&&playing.card.title)||'')||it.name;
+    $('now').textContent=niceTitle(it.name||(playing.card&&playing.card.title)||'')||'تشغيل';
     updatePlaybackActions();updatePlayPause();paintTrack();if(goFull)revealTrack();
     progressTimer=setInterval(saveProgress,10000);
   }
