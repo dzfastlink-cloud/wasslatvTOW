@@ -50,7 +50,9 @@
     if(!base)return;
     const l=lists.find(x=>x.id==='builtin');
     if(l){if(l.name==='📺 قنوات مدمجة')l.name='القنوات';l.text=toM3U();l.n=visible().length;l.upd=Date.now();saveLists();
-      if(reopen&&active==='builtin')openList('builtin');else fillLists()}
+      if(reopen&&window.__liveSources)window.__liveSources.refreshIfActive('builtin');
+      else if(reopen&&active==='builtin')openList('builtin');
+      else fillLists()}
     info();
   }
   const keyOf=it=>{const m=it&&it.raw&&/ch-key="(\d+)"/.exec(it.raw);return m?+m[1]:null};
@@ -135,7 +137,7 @@
     base=await load();if(!base)return nobase();
     LS.set('m3u_builtin_off',false);
     if(!lists.find(x=>x.id==='builtin'))lists.unshift({id:'builtin',name:'القنوات',text:'',url:'',n:0,upd:Date.now()});
-    apply(false);openList('builtin');$('dlg').close();
+    apply(false);if(window.__liveSources)window.__liveSources.include('builtin');else openList('builtin');$('dlg').close();
   };
   $('chrev').onclick=async()=>{if(!base)base=await load();if(!base)return nobase();info();review()};
   $('chnew').onclick=async()=>{if(!base)base=await load();if(!base)return nobase();$('dlg').close();openEdit(null)};
@@ -151,7 +153,7 @@
     base=await load();if(!base)return false;
     LS.del('m3u_chov');LS.set('m3u_builtin_off',false);
     if(!lists.find(x=>x.id==='builtin'))lists.unshift({id:'builtin',name:'القنوات',text:'',url:'',n:0,upd:Date.now()});
-    apply(false);await saveLists();openList('builtin');return true;
+    apply(false);await saveLists();if(window.__liveSources)window.__liveSources.include('builtin');else openList('builtin');return true;
   };
   /* تعديل دفعة واحدة (لتغيير مجموعة كاملة بسرعة): [[key,patch],...] */
   window.__chSetMany=function(list){
@@ -175,10 +177,13 @@
           apply(true);
         }else{
           lists=lists.filter(l=>l.id!=='builtin');
-          if(active==='builtin')active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
-          fillLists();
-          if(active)openList(active);
-          else showWelcome();
+          if(window.__liveSources)window.__liveSources.refreshIfActive('builtin');
+          else{
+            if(active==='builtin')active=lists.find(l=>l.id!==FAV_LIST_ID)?.id||'';
+            fillLists();
+            if(active)openList(active);
+            else showWelcome();
+          }
           saveLists();
         }
       }
