@@ -50,7 +50,8 @@
     return null;
   }
   function detailKey(k){
-    const buttons=[...bodyEl.querySelectorAll('.vdetails button')].filter(button=>!button.disabled&&button.getClientRects().length);
+    const root=detailOverlay||bodyEl;
+    const buttons=[...root.querySelectorAll('.vdetails button')].filter(button=>!button.disabled&&button.getClientRects().length);
     if(!buttons.length)return;
     const isRtl=getComputedStyle(document.documentElement).direction==='rtl';
     const step=Remote?Remote.detailStep(k,isRtl):0;
@@ -913,6 +914,8 @@
   }
   function addPlayAction(label,run,cls){
     const button=addAction('',run,cls);button.classList.add('vplay-action');
+    button.setAttribute('aria-label',label);
+    button.title=label;
     const icon=document.createElement('span');icon.className='vplay-icon';icon.textContent='▶';icon.setAttribute('aria-hidden','true');
     const text=document.createElement('span');text.textContent=label;
     text.className='vplay-label';button.append(icon,text);return button;
@@ -1279,7 +1282,9 @@
       actions.appendChild(addPlayAction(canResume?'متابعة':'تشغيل',()=>playCard(card,canResume?rec.position:0,true)));
     }
     const cardFav=isVodFav(card);
-    const favBtn=addAction(cardFav?'★':'☆',()=>toggleVodFav(card),'alt vfav-action'+(cardFav?' on':''));
+    const favBtn=addAction('',()=>toggleVodFav(card),'alt vfav-action'+(cardFav?' on':''));
+    const favIcon=document.createElement('span');favIcon.className='vfav-icon';favIcon.textContent=cardFav?'★':'☆';favIcon.setAttribute('aria-hidden','true');
+    favBtn.appendChild(favIcon);
     favBtn.setAttribute('aria-label',cardFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
     favBtn.setAttribute('title',cardFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
     favBtn.dataset.act='vod-fav';
@@ -1460,10 +1465,13 @@
       }
     }
     if(screen==='details'&&cur&&cardId(cur)===id){
-      const dBtn=bodyEl.querySelector('[data-act="vod-fav"]');
+      const dBtn=(detailOverlay||bodyEl).querySelector('[data-act="vod-fav"]');
       if(dBtn){
         dBtn.classList.toggle('on',fav);
-        dBtn.textContent=fav?'★ في المفضلة':'☆ أضف للمفضلة';
+        const icon=dBtn.querySelector('.vfav-icon');
+        if(icon)icon.textContent=fav?'★':'☆';
+        dBtn.setAttribute('aria-label',fav?'إزالة من المفضلة':'إضافة إلى المفضلة');
+        dBtn.title=fav?'إزالة من المفضلة':'إضافة إلى المفضلة';
         dBtn.setAttribute('aria-pressed',fav?'true':'false');
       }
     }

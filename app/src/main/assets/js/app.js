@@ -65,7 +65,7 @@ const LS={
   set(k,v){try{localStorage.setItem(STORAGE_PREFIX+k,JSON.stringify(v))}catch(e){}},
   del(k){try{localStorage.removeItem(STORAGE_PREFIX+k)}catch(e){}}
 };
-let lists=[],active='',items=[],shown=[],hls=null,mp=null,curUrl='',tok=0,mergeTarget='';
+let lists=[],active='',items=[],shown=[],hls=null,mp=null,curUrl='',tok=0,mergeTarget='',playbackAttemptCleanup=null;
 let favs=new Set(LS.get('m3u_favs',[])),recs=LS.get('m3u_recs',[]);
 const FAV_LIST_ID='__fav_list__';
 const FAV_LIST_NAME='⭐ المفضلة';
@@ -487,6 +487,7 @@ function toggleFav(u){
 $('pf').onclick=()=>toggleFav(curUrl);
 
 function stopAll(){
+  if(playbackAttemptCleanup){playbackAttemptCleanup();playbackAttemptCleanup=null}
   if(hls){try{hls.destroy()}catch(e){}hls=null}
   if(mp){try{mp.destroy()}catch(e){}mp=null}
   const v=$('v');v.onerror=null;v.removeAttribute('src');v.load();
@@ -506,11 +507,7 @@ function streamMeta(it){
   return{url:split.url||rawUrl,ua,ref};
 }
 function modesFor(u){
-  if(/\.m3u8?(\?|$)/i.test(u))return['hls','native'];
-  if(/\/movie\/[^/]+\/[^/]+\/[^/]+/i.test(u)||/\/series\/[^/]+\/[^/]+\/[^/]+/i.test(u))return['native','hls','mpegts'];
-  if(/\.(mp4|mkv|webm|mov|m4v|avi)(\?|$)/i.test(u))return['native','hls'];
-  if(/\.(ts|flv)(\?|$)/i.test(u))return['mpegts','hls','native'];
-  return['mpegts','hls','native'];
+  return window.WasslaVodPlayback?window.WasslaVodPlayback.playbackModes(u):['native','hls','mpegts'];
 }
 function isVodPlayback(){return document.body.classList.contains('cine-play')||document.body.classList.contains('cine-mini')}
 function formatPlayError(code){
@@ -561,26 +558,56 @@ function play(it){
       if(isVodPlayback()&&window.WasslaNotify)WasslaNotify(errMsg,{ms:4500});
       return;
     }
-    const step=attempts[i++],m=step.mode;
+    const step=attempts[i],m=step.mode;
+    const libraryName=m==='hls'?'Hls':m==='mpegts'?'mpegts':'';
+    const libraryReady=libraryName&&window.__mediaLibraryPromises&&window.__mediaLibraryPromises[libraryName];
+    if(libraryReady&&!window[libraryName]&&!step.libraryWaited){
+      step.libraryWaited=true;
+      libraryReady.then(()=>{if(my===tok)next()});
+      return;
+    }
+    i++;
     stopAll();
     let settled=false;
     const onStarted=()=>{
       if(settled||my!==tok)return;
-      started=true;settled=true;
+      started=true;
       clearTimeout(attemptTimer);attemptTimer=null;
       window.__playTrying=false;
       setMsg('');
+      cleanup();
     };
+    let playPending=false;
+    const requestPlay=()=>{
+      if(my!==tok||settled||playPending)return;
+      playPending=true;
+      const request=v.play();
+      if(request&&request.then)request.then(()=>{playPending=false},err=>{
+        playPending=false;
+        if(my!==tok||started)return;
+        if(err&&err.name==='NotAllowedError'||v.readyState>=2)fail(0);
+      });
+    };
+    const onReady=()=>{
+      if(my!==tok||settled||!v.src&&!hls&&!mp)return;
+      if(v.readyState<2)return;
+      requestPlay();
+    };
+    const cleanup=()=>{
+      clearTimeout(attemptTimer);attemptTimer=null;
+      v.removeEventListener('playing',onStarted);
+      v.removeEventListener('loadedmetadata',onReady);
+      v.removeEventListener('canplay',onReady);
+      if(playbackAttemptCleanup===cleanup)playbackAttemptCleanup=null;
+    };
+    playbackAttemptCleanup=cleanup;
     v.addEventListener('playing',onStarted,{once:true});
-    v.addEventListener('canplay',()=>{
-      if(my===tok&&v.readyState>=3&&!started){window.__playTrying=false;setMsg('')}
-    },{once:true});
-    attemptTimer=setTimeout(()=>{
-      if(!settled&&my===tok&&!started)fail(1800);
-    },15000);
+    v.addEventListener('loadedmetadata',onReady);
+    v.addEventListener('canplay',onReady);
     const fail=(httpCode)=>{
       if(settled||my!==tok)return;
       settled=true;
+      cleanup();
       const code=Number(httpCode)||0;
       if(code>=400)lastCode=code;
       if(isVodPlayback()&&started){
@@ -600,10 +627,14 @@ function play(it){
       }
       next();
     };
+    const skip=()=>{if(settled)return;settled=true;cleanup();next()};
+    attemptTimer=setTimeout(()=>{
+      if(!settled&&my===tok&&!started)fail(1800);
+    },45000);
     try{
       const playUrl=(!step.direct&&window.__proxyUrl)?window.__proxyUrl(meta.url,m==='hls',{ua:meta.ua,ref:meta.ref}):meta.url;
       if(m==='hls'){
-        if(!(window.Hls&&Hls.isSupported()))return next();
+        if(!(window.Hls&&Hls.isSupported()))return skip();
         hls=new Hls({enableWorker:true});hls.loadSource(playUrl);hls.attachMedia(v);
         hls.on(Hls.Events.ERROR,(e,d)=>{
           if(d&&d.fatal){
@@ -612,7 +643,7 @@ function play(it){
           }
         });
       }else if(m==='mpegts'){
-        if(!(window.mpegts&&mpegts.isSupported()))return next();
+        if(!(window.mpegts&&mpegts.isSupported()))return skip();
         if(mpegts.LoggingControl){
           mpegts.LoggingControl.enableAll=false;
           mpegts.LoggingControl.enableError=false;
@@ -625,16 +656,13 @@ function play(it){
         mp.attachMediaElement(v);mp.load();
         mp.on(mpegts.Events.ERROR,(_type,_detail,info)=>fail(info&&info.code));
       }else{
-        v.onerror=()=>fail(0);v.src=playUrl;
+        v.onerror=()=>fail(0);v.src=playUrl;v.load();
       }
-      v.play().catch(err=>{
-        if(my===tok&&!started){
-          fail(0);
-        }
-      });
+      requestPlay();
     }catch(e){fail(0)}
   };
-  next();markOn();
+  next();
+  markOn();
 }
 function step(d){
   if(!shown.length)return;

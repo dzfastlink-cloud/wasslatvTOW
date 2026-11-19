@@ -8,5 +8,13 @@
     const current=Number.isFinite(currentTime)?currentTime:0;
     return Math.max(0,Math.min(duration,current+delta));
   }
-  return{seekTarget};
+  function playbackModes(url){
+    const u=String(url||'');
+    if(/\.m3u8?(?:[?#]|$)/i.test(u))return['hls','native'];
+    if(/\/(?:movie|series)\/[^/]+\/[^/]+\/[^/]+/i.test(u))return['native','hls','mpegts'];
+    if(/\.(?:mp4|mkv|webm|mov|m4v|avi)(?:[?#]|$)/i.test(u))return['native','hls'];
+    if(/\.(?:ts|flv)(?:[?#]|$)/i.test(u))return['mpegts','hls','native'];
+    return['mpegts','hls','native'];
+  }
+  return{seekTarget,playbackModes};
 });
