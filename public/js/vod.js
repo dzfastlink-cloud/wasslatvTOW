@@ -21,6 +21,41 @@
   let recState={sig:'',loading:false,error:'',data:null},recController=null,recToken=0,recInlineHost=null;
   const CHUNK=60;
   const Model=window.WasslaVodModel;
+  const State=window.WasslaVodState;
+  /* ---------- حالة المشغّل: مصدر واحد (closed | mini | full) ----------
+     الكلاسات cine-play / cine-mini على <body> تُسقَط من هذا المتغير فقط (تقرأها app.js وnav.js وtvnav.js)،
+     ولا يكتبها أي كود آخر. الشاشة تتغير عبر go() فقط. */
+  let playerMode='closed';
+  const isFull=()=>playerMode==='full';
+  const isMini=()=>playerMode==='mini';
+  function go(next){
+    if(!State.canGo(screen,next)&&window.console)console.warn('[vod] انتقال شاشة غير متوقع:',screen,'→',next);
+    screen=next;
+  }
+  /* عنصر #player مشترك مع بث القنوات المباشرة (محرك app.js يستخدم #v)، لذلك يُنقل فعلياً بين الأماكن.
+     كل عمليات النقل تمر من هنا فقط. */
+  function mountPlayer(host){
+    const player=$('player');
+    if(player&&host&&player.parentElement!==host)host.appendChild(player);
+  }
+  function applyLayers(layers,prev){
+    const libraryView=$('library-view'),outer=$('player-overlay');
+    if(libraryView)libraryView.style.display=layers.library?'block':'none';
+    if(outer){outer.style.display=layers.playerOverlay?'block':'none';outer.setAttribute('aria-hidden',layers.playerOverlay?'false':'true')}
+    if(playerOverlay){playerOverlay.classList.toggle('is-open',layers.playerOverlay);playerOverlay.setAttribute('aria-hidden',layers.playerOverlay?'false':'true')}
+    if(el){if(layers.playerOverlay)el.setAttribute('aria-hidden','true');else el.removeAttribute('aria-hidden')}
+    if(layers.library&&prev==='full')requestAnimationFrame(()=>{if(scroller&&scroller.isConnected)scroller.scrollTop=libraryScrollTop});
+  }
+  function setPlayerMode(next){
+    if(!State.PLAYER_MODES.includes(next))return;
+    const prev=playerMode,p=State.projectPlayer(next,prev);
+    if(next==='full'&&prev!=='full')libraryScrollTop=(scroller&&scroller.isConnected)?scroller.scrollTop:libraryScrollTop;
+    playerMode=next;
+    Object.keys(p.classes).forEach(c=>B.classList.toggle(c,p.classes[c]));
+    p.remove.forEach(c=>B.classList.remove(c));
+    B.dataset.vodPlayer=next;
+    applyLayers(p.layers,prev);
+  }
   const isVodSrcOn=id=>vodSelected.includes(id);
   const progress=()=>LS.get('m3u_vod_progress',{});
   const watched=()=>LS.get('m3u_vod_watched',{});
@@ -581,7 +616,7 @@
     search.classList.toggle('sel',zone==='search');
     const so=$('vodsort');so.textContent='⇅ '+SORTS[sort];so.classList.toggle('sel',zone==='sort');
     $('vodsource').classList.toggle('sel',zone==='source');
-    const player=$('vodplayer'),mini=B.classList.contains('cine-mini');
+    const player=$('vodplayer'),mini=isMini();
     player.classList.toggle('hide',!mini);player.classList.toggle('sel',mini&&zone==='player');
   }
   function cycleSort(){sort=sort==='recent'?'az':sort==='az'?'rating':'recent';idxRows();paintHome()}
@@ -1025,7 +1060,7 @@
   }
   function paintHome(){
     cancelDetailRequest();clearDetailsOverlay();el.classList.remove('vod-details');
-    screen='home';paintTabs();bodyEl.textContent='';gridEl=null;continueShelfEl=null;recInlineHost=null;
+    go('home');paintTabs();bodyEl.textContent='';gridEl=null;continueShelfEl=null;recInlineHost=null;
     renderedDesktop=useShelves();desktopShelves=new Map();desktopRows=[];
     bodyEl.classList.add('home');
     $('vodh').classList.remove('hide');
@@ -1428,8 +1463,8 @@
   function openTrailer(id){
     if(screen!=='details')return;
     trailerFocus=document.activeElement;
-    screen='trailer';
-    const embedded=B.classList.contains('cine-mini')&&playerFromDetails&&B.classList.contains('vod-detail-play');
+    go('trailer');
+    const embedded=isMini()&&playerFromDetails&&B.classList.contains('vod-detail-play');
     const stage=document.createElement('div');stage.className=embedded?'vtrailer-inline':'vtrailer-stage';
     const close=document.createElement('button');close.type='button';close.className='vtrailer-close';close.textContent='→ العودة إلى التفاصيل';
     close.onclick=closeTrailer;
@@ -1451,8 +1486,8 @@
   function closeTrailer(){
     const stage=el.querySelector('.vtrailer-stage,.vtrailer-inline');
     if(stage){const frame=stage.querySelector('iframe');if(frame)frame.src='about:blank';stage.remove()}
-    screen='details';
-    if(B.classList.contains('cine-mini')&&playerFromDetails){
+    go('details');
+    if(isMini()&&playerFromDetails){
       const trailerSection=el.querySelector('.vdetail-player-stage .vdetail-trailer');
       if(trailerSection&&trailerSection.querySelector('.vtrailer-card:not([hidden])'))trailerSection.hidden=false;
     }
@@ -1462,10 +1497,10 @@
   function showDetails(card,returnTo){
     cancelDetailRequest();
     clearDetailsOverlay();
-    cur=card;detailReturn=returnTo||'home';detailOrigin=detailReturn;screen='details';zone='details';
+    cur=card;detailReturn=returnTo||'home';detailOrigin=detailReturn;go('details');zone='details';
     el.classList.add('vod-details');
     const nowPlaying=!!(playing&&playing.card===card&&playerFromDetails);
-    if(nowPlaying&&B.classList.contains('cine-mini'))B.classList.add('vod-detail-play');
+    if(nowPlaying&&isMini())B.classList.add('vod-detail-play');
     paintTabs();
     detailScrollTop=(scroller&&scroller.isConnected)?scroller.scrollTop:0;
 
@@ -1491,7 +1526,7 @@
     let playerStage=null;
     if(nowPlaying){
       playerStage=document.createElement('div');playerStage.className='vdetail-player-stage';
-      playerStage.appendChild($('player'));
+      mountPlayer(playerStage);
       shell.appendChild(playerStage);
     }
 
@@ -1717,7 +1752,7 @@
   }
   function returnFromDetails(){
     cancelDetailRequest();
-    if(playerFromDetails&&B.classList.contains('cine-mini')){
+    if(playerFromDetails&&isMini()){
       stopPlay();
     }else{
       restorePlayerFromDetails();
@@ -1726,12 +1761,12 @@
     clearDetailsOverlay();
     B.classList.remove('vod-detail-play');
     el.classList.remove('vod-details');
-    if(detailReturn==='series'&&cur){screen='series';zone='eps';paintSeries();return}
+    if(detailReturn==='series'&&cur){go('series');zone='eps';paintSeries();return}
     $('vodh').classList.remove('hide');
     const selected=view[gi];
     idxRows();
     if(selected){const k=view.findIndex(card=>cardId(card)===cardId(selected));if(k>=0)gi=k}
-    screen='home';zone='rows';paintHome();
+    go('home');zone='rows';paintHome();
     requestAnimationFrame(()=>{if(scroller)scroller.scrollTop=detailScrollTop;markCards()});
   }
   function setWatched(card,value){
@@ -1855,7 +1890,7 @@
   /* ---------- شاشة المسلسل ---------- */
   function paintSeries(){
     cancelDetailRequest();clearDetailsOverlay();el.classList.remove('vod-details');
-    screen='series';paintTabs();bodyEl.classList.remove('home');scroller=null;bodyEl.textContent='';
+    go('series');paintTabs();bodyEl.classList.remove('home');scroller=null;bodyEl.textContent='';
     const seasons=[...new Set(cur.eps.map(e=>e.s))].sort((a,b)=>a-b);
     if(sIdx>=seasons.length)sIdx=0;
     const details=addAction('تفاصيل المسلسل',()=>showDetails(cur,'series'),'alt');
@@ -1894,7 +1929,7 @@
     const nSeasons=bodyEl.querySelectorAll('.vs').length;
     if(zone==='seriesInfo'){
       if(k==='ArrowDown'){zone=nSeasons?'seasons':'eps';paintSeries()}
-      else if(k==='ArrowUp'&&B.classList.contains('cine-mini')){zone='player';paintTabs()}
+      else if(k==='ArrowUp'&&isMini()){zone='player';paintTabs()}
       else if(k==='Enter')showDetails(cur,'series');
       return;
     }
@@ -1973,7 +2008,7 @@
       markCards();return;
     }
     const top=['search','sort','source'];
-    if(B.classList.contains('cine-mini'))top.push('player');
+    if(isMini())top.push('player');
     if(top.includes(zone)){
       const current=top.indexOf(zone);
       if(k===fwd)zone=top[Math.min(top.length-1,current+1)];
@@ -2056,7 +2091,7 @@
   function applyAspectClass(mode){
     const clean=ASPECT_MODES.includes(mode)?mode:'contain';
     B.classList.remove('vod-fit-contain','vod-fit-cover','vod-fit-zoom');
-    if(B.classList.contains('cine-play'))B.classList.add('vod-fit-'+clean);
+    if(isFull())B.classList.add('vod-fit-'+clean);
     return clean;
   }
   function applyPlayerPrefs(){
@@ -2073,7 +2108,7 @@
   function updateEngineBadge(){
     const elB=$('vodenginebadge');if(!elB)return;
     const eng=currentEngine();
-    if(!playing||!eng||!B.classList.contains('cine-play')){elB.classList.add('hide');elB.textContent='';return}
+    if(!playing||!eng||!isFull()){elB.classList.add('hide');elB.textContent='';return}
     const labels={native:'NATIVE',hls:'HLS',mpegts:'TS'};
     elB.textContent=labels[eng]||eng.toUpperCase();
     elB.classList.remove('hide');
@@ -2165,8 +2200,8 @@
   function syncOsdFocus(){
     const btns=getBarButtons();
     if(barIdx>=btns.length)barIdx=Math.max(0,btns.length-1);
-    btns.forEach((btn,i)=>btn.classList.toggle('sel',B.classList.contains('cine-play')&&osdZone==='bar'&&!optsOpen&&i===barIdx));
-    if(B.classList.contains('cine-play')&&osdZone==='bar'&&!optsOpen&&btns[barIdx])btns[barIdx].focus({preventScroll:true});
+    btns.forEach((btn,i)=>btn.classList.toggle('sel',isFull()&&osdZone==='bar'&&!optsOpen&&i===barIdx));
+    if(isFull()&&osdZone==='bar'&&!optsOpen&&btns[barIdx])btns[barIdx].focus({preventScroll:true});
   }
   function showSeekPill(delta,target){
     const pill=$('vodseekpill');if(!pill)return;
@@ -2300,7 +2335,7 @@
     return rows;
   }
   function openQuickOptions(){
-    if(!playing||!B.classList.contains('cine-play'))return;
+    if(!playing||!isFull())return;
     optsOpen=true;optIdx=0;
     const host=$('vodopts'),tz=$('vodtouchzones');
     if(tz)tz.classList.add('hide');
@@ -2311,35 +2346,25 @@
     optsOpen=false;
     const host=$('vodopts'),tz=$('vodtouchzones');
     if(host)host.classList.add('hide');
-    if(tz&&B.classList.contains('cine-play'))tz.classList.remove('hide');
+    if(tz&&isFull())tz.classList.remove('hide');
     revealTrack();syncOsdFocus();
   }
   function toggleQuickOptions(){if(optsOpen)closeQuickOptions();else openQuickOptions()}
 
   function showPlayerBackground(focusPlayer){
     if(playerFromDetails&&playing){
-      screen='details';zone='details';showDetails(playing.card,playerDetailOrigin||detailOrigin);return;
+      go('details');zone='details';showDetails(playing.card,playerDetailOrigin||detailOrigin);return;
     }
     if(playerBackground==='series'&&cur&&cur.kind==='series'){
-      screen='series';zone=focusPlayer?'player':'eps';paintSeries();
+      go('series');zone=focusPlayer?'player':'eps';paintSeries();
     }else{
-      idxRows();screen='home';zone=focusPlayer?'player':'rows';paintHome();
+      idxRows();go('home');zone=focusPlayer?'player':'rows';paintHome();
       requestAnimationFrame(()=>{if(scroller)scroller.scrollTop=playerScrollTop;markCards()});
     }
   }
   function showPlayerOverlay(){
     if(!playerOverlay||!playerFrame)return;
-    libraryScrollTop=(scroller&&scroller.isConnected)?scroller.scrollTop:libraryScrollTop;
-    const libraryView=$('library-view');
-    if(libraryView)libraryView.style.display='none';
-    const outer=$('player-overlay');
-    if(outer){outer.style.display='block';outer.setAttribute('aria-hidden','false')}
-    playerFrame.appendChild($('player'));
-    playerOverlay.classList.add('is-open');
-    playerOverlay.setAttribute('aria-hidden','false');
-    B.classList.add('vod-player-open');
-    B.dataset.vodPlayerState='window';
-    el.setAttribute('aria-hidden','true');
+    mountPlayer(playerFrame);
   }
   function exitNativeFullscreen(){
     const player=$('player'),fullscreen=document.fullscreenElement;
@@ -2347,28 +2372,11 @@
       document.exitFullscreen().catch(()=>{});
     }
   }
-  function hidePlayerOverlay(){
-    if(!playerOverlay)return;
-    const outer=$('player-overlay');
-    if(outer){outer.style.display='none';outer.setAttribute('aria-hidden','true')}
-    playerOverlay.classList.remove('is-open');
-    playerOverlay.setAttribute('aria-hidden','true');
-    B.classList.remove('vod-player-open');
-    delete B.dataset.vodPlayerState;
-    const libraryView=$('library-view');
-    if(libraryView){
-      libraryView.style.display='block';
-      requestAnimationFrame(()=>{
-        if(scroller&&scroller.isConnected)scroller.scrollTop=libraryScrollTop;
-      });
-    }
-    if(!B.classList.contains('cine-play')&&!B.classList.contains('cine-mini'))el.removeAttribute('aria-hidden');
-  }
   function expandPlayer(){
     if(!playing)return;
     restorePlayerFromDetails();
     osdZone='video';optsOpen=false;if($('vodopts'))$('vodopts').classList.add('hide');
-    B.classList.remove('cine-mini');B.classList.add('cine-play');screen='player';
+    setPlayerMode('full');go('player');
     showPlayerOverlay();
     applyPlayerPrefs();
     const tz=$('vodtouchzones');if(tz)tz.classList.remove('hide');
@@ -2383,7 +2391,7 @@
     scrub=null;
     if($('vodtouchzones'))$('vodtouchzones').classList.add('hide');
     if($('vodseekpill'))$('vodseekpill').classList.add('hide');
-    clearTrackTimer();B.classList.remove('cine-play','cine-track-hidden','vod-fit-contain','vod-fit-cover','vod-fit-zoom');B.classList.add('cine-mini');
+    clearTrackTimer();setPlayerMode('mini');
     restorePlayerFromDetails();
     updateEngineBadge();showPlayerBackground(true);
   }
@@ -2392,23 +2400,17 @@
     stopPlay();showPlayerBackground(false);
   }
   function closePlayer(){
-    if(!playing){hidePlayerOverlay();return}
+    if(!playing){setPlayerMode('closed');return}
     stopPlay();
-    const libraryView=$('library-view');
-    if(libraryView){
-      libraryView.style.display='block';
-      requestAnimationFrame(()=>{if(scroller&&scroller.isConnected)scroller.scrollTop=libraryScrollTop});
-    }
   }
   window.__closeVodPlayer=closePlayer;
   function restorePlayerFromDetails(){
-    const player=$('player');
-    if(player&&player.parentElement!==playerHost)playerHost.appendChild(player);
-    hidePlayerOverlay();
+    if(isFull())return;   /* الشاشة الكاملة تملك المشغّل */
+    mountPlayer(playerHost);
   }
   function playItem(it,eps,i,card,position,fromDetails){
-    const wasPlaying=B.classList.contains('cine-play')||B.classList.contains('cine-mini');
-    const expanded=B.classList.contains('cine-play');
+    const wasPlaying=isFull()||isMini();
+    const expanded=isFull();
     if(fromDetails){playerFromDetails=true;playerDetailOrigin=detailOrigin}
     else if(!wasPlaying)playerFromDetails=false;
     if(!wasPlaying){
@@ -2430,8 +2432,8 @@
     B.classList.toggle('vod-detail-play',playerFromDetails);
     const goFull=expanded||!wasPlaying;
     stopArmedAt=0;
-    if(goFull){B.classList.remove('cine-mini');B.classList.add('cine-play');screen='player';showPlayerOverlay()}
-    else{B.classList.remove('cine-play');B.classList.add('cine-mini')}
+    if(goFull){setPlayerMode('full');go('player');showPlayerOverlay()}
+    else setPlayerMode('mini');
     const v=$('v');v.controls=false;
     installEngineHooks();
     applyPlayerPrefs();
@@ -2492,7 +2494,7 @@
     if(pendingRestore){v.removeEventListener('loadedmetadata',pendingRestore);pendingRestore=null}
     tok++;stopAll();clearEngineHooks();
     if(window.__ldgHide)window.__ldgHide();
-    B.classList.remove('cine-play','cine-mini','cine-track-hidden','vod-detail-play','vod-fit-contain','vod-fit-cover','vod-fit-zoom','vod-sub-large');
+    setPlayerMode('closed');
     restorePlayerFromDetails();playerFromDetails=false;v.controls=!B.classList.contains('rcv');playing=null;updateEngineBadge();updatePlayPause();paintTabs();
   }
   function updatePlaybackActions(){
@@ -2606,7 +2608,7 @@
     playerFromDetails=true;
     if(!playerDetailOrigin)playerDetailOrigin=detailOrigin||'home';
     B.classList.add('vod-detail-play');
-    if(B.classList.contains('cine-play'))minimizePlayer();
+    if(isFull())minimizePlayer();
     else showDetails(playing.card,playerDetailOrigin);
   };
   $('vodwatched').onclick=setCurrentWatched;
@@ -2652,7 +2654,7 @@
   function clearTrackTimer(){clearTimeout(trackHideTimer);trackHideTimer=null}
   function hideTrackNow(){
     clearTrackTimer();
-    if(B.classList.contains('cine-play')&&!optsOpen){
+    if(isFull()&&!optsOpen){
       osdZone='video';
       B.classList.add('cine-track-hidden');
       const ctl=$('player')&&$('player').querySelector('.ctl');
@@ -2660,13 +2662,13 @@
     }
   }
   function revealTrack(){
-    if(!B.classList.contains('cine-play')&&!B.classList.contains('cine-mini'))return;
+    if(!isFull()&&!isMini())return;
     clearTrackTimer();B.classList.remove('cine-track-hidden');
     const ctl=$('player')&&$('player').querySelector('.ctl');
     if(ctl)ctl.classList.remove('hide-controls');
-    if(B.classList.contains('cine-play')&&!optsOpen)trackHideTimer=setTimeout(()=>{
+    if(isFull()&&!optsOpen)trackHideTimer=setTimeout(()=>{
       trackHideTimer=null;
-      if(B.classList.contains('cine-play')&&!optsOpen){
+      if(isFull()&&!optsOpen){
         osdZone='video';
         const active=document.activeElement;
         if(active&&$('player').contains(active))active.blur();
@@ -2677,7 +2679,7 @@
     },2000);
   }
   function paintTrack(){
-    if(!B.classList.contains('cine-play')&&!B.classList.contains('cine-mini'))return;
+    if(!isFull()&&!isMini())return;
     const v=$('v'),d=v.duration,c=scrub?scrub.time:(v.currentTime||0),ok=Number.isFinite(d)&&d>0,pct=ok?Math.max(0,Math.min(100,c/d*100)):0;
     T.fill.style.width=pct+'%';T.knob.style.left=pct+'%';
     let b=0;try{if(ok&&v.buffered.length)b=Math.min(100,v.buffered.end(v.buffered.length-1)/d*100)}catch(e){}
@@ -2749,18 +2751,18 @@
     if(setSeekTime(target,false))paintTrack();
   });
   $('v').addEventListener('click',()=>{
-    if(B.classList.contains('cine-play')){if(B.classList.contains('cine-track-hidden'))revealTrack();else hideTrackNow()}
-    else if(B.classList.contains('cine-mini')&&B.classList.contains('vod-detail-play')){togglePlayback();revealTrack()}
-    else if(B.classList.contains('cine-mini'))expandPlayer();
+    if(isFull()){if(B.classList.contains('cine-track-hidden'))revealTrack();else hideTrackNow()}
+    else if(isMini()&&B.classList.contains('vod-detail-play')){togglePlayback();revealTrack()}
+    else if(isMini())expandPlayer();
   });
   $('v').addEventListener('dblclick',()=>{
-    if(B.classList.contains('cine-mini')&&B.classList.contains('vod-detail-play'))expandPlayer();
+    if(isMini()&&B.classList.contains('vod-detail-play'))expandPlayer();
   });
   (function wireTouchZones(){
     const tz=$('vodtouchzones');if(!tz)return;
     let tapTimer=null,lastSide=0,lastAt=0;
     tz.addEventListener('click',e=>{
-      if(!B.classList.contains('cine-play')||optsOpen)return;
+      if(!isFull()||optsOpen)return;
       const zoneEl=e.target.closest('.vtz');if(!zoneEl)return;
       const dir=Number(zoneEl.dataset.dir||0);
       const now=Date.now();
@@ -2786,13 +2788,13 @@
     const active=!!(fullscreen&&(fullscreen===player||player.contains(fullscreen)));
     if(nativeFullscreen&&!active)nativeFullscreenExitedAt=Date.now();
     nativeFullscreen=active;
-    if(B.classList.contains('cine-play')){
+    if(isFull()){
       revealTrack();
     }
   });
   let fullscreenMouseTimer=null;
   document.addEventListener('mousemove',()=>{
-    if(document.fullscreenElement&&B.classList.contains('cine-play')){
+    if(document.fullscreenElement&&isFull()){
       revealTrack();
       if(fullscreenMouseTimer)clearTimeout(fullscreenMouseTimer);
       fullscreenMouseTimer=setTimeout(hideTrackNow,2000);
@@ -2863,7 +2865,7 @@
     else if((k==='PageDown'||k==='PageUp')&&playing&&playing.eps)stepEpisode(k==='PageDown'?1:-1);
   }
   $('v').addEventListener('ended',()=>{
-    if(!on||(!B.classList.contains('cine-play')&&!B.classList.contains('cine-mini'))||!playing)return;
+    if(!on||(!isFull()&&!isMini())||!playing)return;
     clearStallWatchdog();saveProgress();revealTrack();
     if(playing.eps&&nextDismissedUrl!==activeRecordKey())offerNext(10);
   });
@@ -2902,17 +2904,14 @@
     if(window.__qpOn&&window.__qpOn()&&window.__quickClose)window.__quickClose();
     cancelDetailRequest();clearDetailsOverlay();el.classList.remove('vod-details');closeVodSourcePop();
     on=true;
-    const libraryView=$('library-view');
-    if(libraryView)libraryView.style.display='block';
-    const playerOuter=$('player-overlay');
-    if(playerOuter){playerOuter.style.display='none';playerOuter.setAttribute('aria-hidden','true')}
+    setPlayerMode('closed');
     LS.set('m3u_last_was_vod',true);
     if(!LS.get('m3u_tip_vod',false)){LS.set('m3u_tip_vod',true);toast('اضغط OK لفتح التفاصيل، واختر المصادر بالتأشير دون التأثير على القنوات.')}
     lastLive=shown.find(i=>i.url===curUrl)||null;
     tok++;stopAll();
     if(window.__ldgHide)window.__ldgHide();
     el.classList.add('on');B.classList.add('vod');
-    zone='rows';screen='home';cat='';sideIdx=0;tabsEl.textContent='';
+    zone='rows';go('home');cat='';sideIdx=0;tabsEl.textContent='';
     msgBody('جارٍ تحليل المكتبة…');
     build().then(()=>{syncVodSelection(focusSourceId);idxRows();paintHome()}).catch(()=>msgBody('تعذّر تحليل المكتبة'));
   }
@@ -2922,46 +2921,37 @@
     cancelDetailRequest();cancelRecRequest();clearDetailsOverlay();el.classList.remove('vod-details');
     if(playing)stopPlay();
     if(window.__ldgHide)window.__ldgHide();
-    on=false;el.classList.remove('on');B.classList.remove('vod','cine-play','cine-mini','vod-detail-play');
-    const libraryView=$('library-view');
-    if(libraryView)libraryView.style.display='block';
-    const playerOuter=$('player-overlay');
-    if(playerOuter){playerOuter.style.display='none';playerOuter.setAttribute('aria-hidden','true')}
+    on=false;el.classList.remove('on');B.classList.remove('vod');setPlayerMode('closed');
     if(lastLive){const it=lastLive;lastLive=null;play(it)}
   }
   window.__openVod=function(id){open((typeof id==='string'&&id)?id:'')};
   /* رجوع واحد لكل الأجهزة: يغلق أعلى طبقة فقط. موسّع ← مصغّر ← مغادرة الشاشة (التشغيل مستمر) ← إيقاف المشغّل برجوع مزدوج ← خروج. */
   window.__vodBack=function(){
-    if(!on)return false;
-    if(vodSrcOpen){closeVodSourcePop();zone='source';markCards();return true}
-    if(screen==='trailer'){closeTrailer();return true}
-    if(B.classList.contains('cine-play')){
-      if(optsOpen){closeQuickOptions();return true}
-      if(!$('vodnext').classList.contains('hide')){clearNext(true);return true}
-      minimizePlayer();return true;
+    const action=State.backAction({
+      on:on,srcPopOpen:vodSrcOpen,screen:screen,mode:playerMode,optsOpen:optsOpen,
+      upNextVisible:!$('vodnext').classList.contains('hide'),
+      stopArmed:Date.now()-stopArmedAt<2500
+    });
+    switch(action){
+      case'none':return false;
+      case'closeSourcePop':closeVodSourcePop();zone='source';markCards();return true;
+      case'closeTrailer':closeTrailer();return true;
+      case'closeOptions':closeQuickOptions();return true;
+      case'dismissUpNext':clearNext(true);return true;
+      case'minimize':minimizePlayer();return true;
+      case'returnFromDetails':returnFromDetails();return true;
+      case'seriesToHome':zone='rows';paintHome();return true;
+      case'stopPlayer':stopArmedAt=0;closeMiniPlayer();toast('تم إيقاف التشغيل');return true;
+      case'armStop':stopArmedAt=Date.now();zone='player';paintTabs();markCards();toast('اضغط رجوع مرة أخرى لإيقاف التشغيل');return true;
+      default:close();return true;
     }
-    if(screen==='details'){returnFromDetails();return true}
-    if(screen==='series'){zone='rows';paintHome();return true}
-    if(B.classList.contains('cine-mini')){
-      const now=Date.now();
-      if(now-stopArmedAt<2500){stopArmedAt=0;closeMiniPlayer();toast('تم إيقاف التشغيل')}
-      else{stopArmedAt=now;zone='player';paintTabs();markCards();toast('اضغط رجوع مرة أخرى لإيقاف التشغيل')}
-      return true;
-    }
-    close();return true;
   };
   document.addEventListener('keydown',e=>{
     if(!on||document.querySelector('dialog[open]'))return;
     if(e.ctrlKey||e.altKey||e.metaKey)return;
     e.preventDefault();e.stopPropagation();
     const k=e.key;
-    const route=Remote?Remote.routeKey({
-      fullscreen:B.classList.contains('cine-play'),
-      detailMini:B.classList.contains('cine-mini')&&playerFromDetails&&screen==='details',
-      mini:B.classList.contains('cine-mini'),
-      details:screen==='details',
-      series:screen==='series'
-    },k):null;
+    const route=Remote?Remote.routeKey(State.keyRouteState({mode:playerMode,screen:screen,playerFromDetails:playerFromDetails}),k):null;
     if(route==='fullscreen')playKey(k);
     else if(k==='Escape'||k==='Backspace')window.__vodBack();
     else if(route==='media')playKey(k);
