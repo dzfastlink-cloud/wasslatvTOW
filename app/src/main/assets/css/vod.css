@@ -999,7 +999,7 @@ body.cine-mini.vod-detail-play #vod{bottom:0}
 }
 #vod .vdetail-backdrop.ld{opacity:.24}
 #vod .vdetail-backdrop[hidden]{display:none}
-#vod .vdetail-shell{
+#vod.vod-details .vdetail-shell{
   position:relative;
   z-index:1;
   width:min(1380px,100%);
@@ -1042,14 +1042,14 @@ body.cine-mini.vod-detail-play #vod{bottom:0}
   font-size:14px;
   font-weight:700;
 }
-#vod .vdetail-head{
+#vod.vod-details .vdetail-head{
   direction:rtl;
   display:grid;
   grid-template-columns:clamp(165px,18vw,250px) minmax(0,1fr);
   align-items:start;
   gap:clamp(22px,3.6vw,52px);
 }
-#vod .vdetail-poster{
+#vod.vod-details .vdetail-poster{
   position:relative;
   width:100%;
   aspect-ratio:2/3;
@@ -1081,7 +1081,7 @@ body.cine-mini.vod-detail-play #vod{bottom:0}
   transition:opacity .22s ease;
 }
 #vod .vdetail-poster>img.ld{opacity:1}
-#vod .vdetail-info{
+#vod.vod-details .vdetail-info{
   direction:rtl;
   display:flex;
   flex-direction:column;
@@ -1089,7 +1089,7 @@ body.cine-mini.vod-detail-play #vod{bottom:0}
   gap:16px;
   min-width:0;
 }
-#vod .vdetail-info h2{
+#vod.vod-details .vdetail-info h2{
   margin:0;
   color:#fff;
   font-size:clamp(28px,3.6vw,50px);
@@ -2524,4 +2524,284 @@ body.tv #vod.vod-details .vdetail-head{background:rgba(6,26,22,.94)}
 :root[data-eff="light"] #vod .vc .vn{color:#173b35}
 :root[data-eff="light"] #vod .vempty{background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(226,242,237,.94));border-color:rgba(14,124,107,.2);color:#173b35}
 :root[data-eff="light"] #vod .vdshelf-title{color:#173b35}
+
+/* تجربة التفاصيل السينمائية: الملصق في بداية السطر العربي والمزيد مطوي افتراضياً. */
+#vod.vod-details .vdetail-overlay{
+  position:fixed;
+  inset:0;
+  display:block;
+  padding:0;
+  overflow:auto;
+  background:#030807;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+#vod.vod-details .vdetails{
+  width:100%;
+  min-height:100%;
+  max-height:none;
+  margin:0;
+  padding:0 0 52px;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  background:
+    radial-gradient(ellipse at 18% 0%,rgba(19,80,68,.44),transparent 54%),
+    linear-gradient(180deg,#071411,#030807 75%);
+  box-shadow:none;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+#vod .vdetail-backdrop{
+  position:absolute;
+  inset:0 0 auto;
+  width:100%;
+  height:min(78vh,900px);
+  object-fit:cover;
+  object-position:center 25%;
+  opacity:0;
+  mask-image:linear-gradient(#000 0%,rgba(0,0,0,.72) 48%,transparent 100%);
+  -webkit-mask-image:linear-gradient(#000 0%,rgba(0,0,0,.72) 48%,transparent 100%);
+}
+#vod .vdetail-backdrop.ld{opacity:.34;filter:saturate(.75)}
+#vod.vod-details .vdetail-shell{
+  width:min(1500px,100%);
+  min-height:100%;
+  gap:20px;
+  padding:18px clamp(18px,5vw,76px) 48px;
+}
+#vod .vdetail-topbar{position:relative;z-index:2;border:0;padding:0}
+#vod .vdetail-back{
+  min-height:42px;
+  border-radius:999px;
+  background:rgba(3,12,10,.68);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+#vod .vdetail-topbar-tag{background:rgba(3,12,10,.62);backdrop-filter:blur(10px)}
+#vod.vod-details .vdetail-head{
+  direction:rtl;
+  grid-template-columns:clamp(184px,21vw,290px) minmax(0,1fr);
+  align-items:center;
+  gap:clamp(24px,4vw,60px);
+  min-height:min(65vh,620px);
+  max-height:none;
+  margin:0;
+  padding:clamp(18px,3vw,42px) 0;
+  overflow:visible;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#vod.vod-details .vdetail-poster{
+  width:100%;
+  max-height:430px;
+  border-radius:16px;
+  box-shadow:0 24px 60px rgba(0,0,0,.58);
+}
+#vod.vod-details .vdetail-info{
+  max-height:none;
+  gap:15px;
+  overflow:visible;
+  padding:0;
+}
+#vod.vod-details .vdetail-info h2{
+  max-height:none;
+  overflow:visible;
+  display:block;
+  color:#fff;
+  font-size:clamp(32px,5vw,68px);
+  line-height:1.12;
+}
+#vod.vod-details .vdetail-meta{display:none!important}
+#vod .vdetail-quick-meta{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  color:#e4efec;
+}
+#vod .vdetail-quick-meta[hidden]{display:none}
+#vod .vdetail-quick-item{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  padding:5px 11px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:999px;
+  background:rgba(5,18,15,.62);
+  font-size:14px;
+  font-weight:700;
+}
+#vod.vod-details .vdetail-short-cast{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  width:100%;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.18);
+}
+#vod .vdetail-short-cast[hidden]{display:none}
+#vod.vod-details .vdetail-short-cast h3{
+  margin:0;
+  color:#bdd4ce;
+  font-size:14px;
+  font-weight:700;
+}
+#vod.vod-details .vdetail-short-cast-list{display:flex;flex-wrap:wrap;gap:12px}
+#vod.vod-details .vdetail-short-actor{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:min(210px,32%);
+  color:#f3f8f6;
+  font-size:13px;
+  font-weight:600;
+}
+#vod.vod-details .vdetail-short-avatar{
+  display:grid;
+  flex:none;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border:1px solid rgba(255,255,255,.34);
+  border-radius:50%;
+  background:linear-gradient(145deg,#2c695d,#12312a);
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+}
+#vod.vod-details .vdetail-short-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vod.vod-details .vdetail-actions{align-items:center;gap:10px;margin-top:3px}
+#vod.vod-details .vdetail-actions button{
+  min-height:46px;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(7,22,18,.74);
+  border-color:rgba(255,255,255,.2);
+}
+#vod.vod-details .vdetail-actions button.vplay-action{
+  display:inline-flex;
+  width:auto;
+  min-width:154px;
+  height:auto;
+  justify-content:center;
+  gap:10px;
+  overflow:visible;
+  background:#f4b24f;
+  border-color:#ffd58e;
+  color:#17241e;
+  font-size:15px;
+}
+#vod.vod-details .vdetail-actions .vplay-icon{
+  display:inline-grid;
+  width:auto;
+  height:auto;
+  padding:0;
+  background:none;
+  color:#17241e;
+  font-size:16px;
+}
+#vod.vod-details .vdetail-actions .vplay-label{display:inline}
+#vod.vod-details .vdetail-actions button.vfav-action{
+  width:46px;
+  min-width:46px;
+  height:46px;
+  min-height:46px;
+  padding:0;
+  font-size:18px;
+}
+#vod.vod-details .vdetail-actions .vdetail-more[aria-expanded="true"]{border-color:#f4b24f;color:#ffd88f}
+#vod.vod-details .vdetail-trailer{display:contents!important}
+#vod.vod-details .vdetail-trailer[hidden]{display:none!important}
+#vod.vod-details .vdetail-trailer h3{display:none}
+#vod.vod-details .vdetail-actions .vtrailer-card{
+  display:inline-flex;
+  width:auto;
+  min-width:120px;
+  min-height:46px;
+  aspect-ratio:auto;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(7,22,18,.74);
+  border-color:rgba(255,255,255,.2);
+  color:#fff;
+}
+#vod.vod-details .vdetail-actions .vtrailer-card img{display:none}
+#vod.vod-details .vdetail-actions .vtrailer-card span{
+  z-index:auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:none;
+  font-size:14px;
+}
+#vod.vod-details .vdetail-extra{display:flex!important;width:100%;margin-top:4px}
+#vod.vod-details .vdetail-extra[hidden]{display:none!important}
+#vod.vod-details .vdetail-card-box{
+  padding:clamp(18px,2.4vw,30px);
+  border-radius:18px;
+  background:rgba(7,22,18,.78);
+  border-color:rgba(255,255,255,.12);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+#vod.vod-details .vdetail-card-heading{color:#ffd27f}
+#vod.vod-details .vdetail-overview{max-width:80ch;font-size:17px;line-height:1.8}
+#vod.vod-details .vdetail-player-stage{
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.46);
+}
+body.cine-mini.vod-detail-play #player{border-radius:16px}
+:root[data-eff="light"] #vod.vod-details .vdetail-overlay,
+:root[data-eff="light"] #vod.vod-details .vdetails{
+  background:
+    radial-gradient(ellipse at 18% 0%,rgba(19,80,68,.44),transparent 54%),
+    linear-gradient(180deg,#071411,#030807 75%);
+  color:#fff;
+}
+:root[data-eff="light"] #vod.vod-details .vdetail-info h2,
+:root[data-eff="light"] #vod.vod-details .vdetail-overview,
+:root[data-eff="light"] #vod.vod-details .vdetail-fact span{color:#fff}
+:root[data-eff="light"] #vod.vod-details .vdetail-quick-item{background:rgba(5,18,15,.72);color:#fff}
+@media(max-width:700px){
+  #vod.vod-details .vdetail-overlay{padding:0}
+  #vod.vod-details .vdetails{min-height:100%;padding-bottom:32px}
+  #vod.vod-details .vdetail-shell{gap:14px;padding:12px 16px 36px}
+  #vod.vod-details .vdetail-head{
+    grid-template-columns:clamp(96px,28vw,142px) minmax(0,1fr);
+    gap:14px;
+    min-height:0;
+    align-items:start;
+    padding:30px 0 18px;
+  }
+  #vod.vod-details .vdetail-poster{max-height:none;border-radius:12px}
+  #vod.vod-details .vdetail-info{gap:10px}
+  #vod.vod-details .vdetail-info h2{font-size:clamp(24px,7vw,34px)}
+  #vod .vdetail-quick-meta{gap:5px}
+  #vod .vdetail-quick-item{min-height:26px;padding:4px 8px;font-size:11px}
+  #vod .vdetail-short-cast{padding-top:9px;gap:6px}
+  #vod .vdetail-short-cast h3{font-size:12px}
+  #vod .vdetail-short-cast-list{gap:6px}
+  #vod .vdetail-short-actor{max-width:100%;gap:5px;font-size:10px}
+  #vod .vdetail-short-avatar{width:28px;height:28px;font-size:10px}
+  #vod.vod-details .vdetail-actions{gap:7px}
+  #vod.vod-details .vdetail-actions button{min-height:40px;padding:8px 12px;font-size:13px}
+  #vod.vod-details .vdetail-actions button.vplay-action{min-width:0;height:40px;min-height:40px;padding:8px 14px;font-size:13px}
+  #vod.vod-details .vdetail-actions button.vfav-action{width:40px;min-width:40px;height:40px;min-height:40px}
+  #vod.vod-details .vdetail-actions .vtrailer-card{min-width:0;min-height:40px;padding:8px 12px;font-size:13px}
+  #vod .vdetail-card-box{padding:14px}
+  #vod .vdetail-overview{font-size:15px}
+  #vod .vdetail-facts{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
+}
+@media(max-width:380px){
+  #vod.vod-details .vdetail-head{grid-template-columns:86px minmax(0,1fr);gap:10px}
+  #vod .vdetail-short-cast-list{gap:4px}
+  #vod .vdetail-short-actor{max-width:95px}
+}
 

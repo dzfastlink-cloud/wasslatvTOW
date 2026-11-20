@@ -55,6 +55,33 @@ test('createSeekAccumulator batches rapid steps and supports cancel', async () =
   assert.deepEqual(commits, [30]);
 });
 
+test('createSeekScrubber previews pointer movement and commits one seek on release', () => {
+  const commits = [];
+  const scrubber = Playback.createSeekScrubber(time => commits.push(time));
+  assert.equal(scrubber.begin(7, 12, 100), 12);
+  assert.equal(scrubber.update(7, 0.2), 20);
+  assert.equal(scrubber.update(7, 0.35), 35);
+  assert.equal(scrubber.update(8, 0.9), null);
+  assert.deepEqual(commits, []);
+  assert.equal(scrubber.finish(8), null);
+  assert.equal(scrubber.finish(7), 35);
+  assert.deepEqual(commits, [35]);
+  assert.equal(scrubber.isActive(), false);
+});
+
+test('createSeekScrubber clamps targets and discards cancelled drags', () => {
+  const commits = [];
+  const scrubber = Playback.createSeekScrubber(time => commits.push(time));
+  assert.equal(scrubber.begin(3, 20, 100), 20);
+  assert.equal(scrubber.update(3, 2), 100);
+  assert.equal(scrubber.cancel(3), true);
+  assert.equal(scrubber.finish(3), null);
+  assert.equal(scrubber.begin(4, 20, 100), 20);
+  assert.equal(scrubber.update(4, -1), 0);
+  assert.equal(scrubber.finish(4), 0);
+  assert.deepEqual(commits, [0]);
+});
+
 test('formatFinishClock renders HH:MM from remaining seconds', () => {
   const base = new Date(2026, 0, 1, 20, 15, 0).getTime();
   assert.equal(Playback.formatFinishClock(45 * 60, base), '21:00');

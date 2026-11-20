@@ -55,6 +55,32 @@
     }
     return{push,flush,cancel,total:()=>totalDelta};
   }
+  function createSeekScrubber(onCommit){
+    let active=null;
+    function begin(pointerId,currentTime,duration){
+      if(!Number.isFinite(duration)||duration<=0)return null;
+      active={pointerId,time:Math.max(0,Math.min(duration,Number.isFinite(currentTime)?currentTime:0)),duration};
+      return active.time;
+    }
+    function update(pointerId,ratio){
+      if(!active||active.pointerId!==pointerId||!Number.isFinite(ratio))return null;
+      active.time=Math.max(0,Math.min(active.duration,ratio*active.duration));
+      return active.time;
+    }
+    function finish(pointerId){
+      if(!active||active.pointerId!==pointerId)return null;
+      const time=active.time;
+      active=null;
+      if(typeof onCommit==='function')onCommit(time);
+      return time;
+    }
+    function cancel(pointerId){
+      if(!active||active.pointerId!==pointerId)return false;
+      active=null;
+      return true;
+    }
+    return{begin,update,finish,cancel,isActive:()=>active!==null};
+  }
   function formatFinishClock(remainingSec,nowMs){
     if(!Number.isFinite(remainingSec)||remainingSec<=0)return '';
     const base=Number.isFinite(nowMs)?nowMs:Date.now();
@@ -63,5 +89,5 @@
     const mm=String(end.getMinutes()).padStart(2,'0');
     return hh+':'+mm;
   }
-  return{seekTarget,playbackModes,sourceKey,prioritizeModes,createSeekAccumulator,formatFinishClock};
+  return{seekTarget,playbackModes,sourceKey,prioritizeModes,createSeekAccumulator,createSeekScrubber,formatFinishClock};
 });
