@@ -28,7 +28,7 @@
   const isVodFav=c=>!!(c&&vodFavs()[cardId(c)]);
   const rtl=()=>getComputedStyle(document.documentElement).direction==='rtl';
   const desktopLayout=()=>!!(window.matchMedia&&window.matchMedia('(min-width:1200px) and (hover:hover) and (pointer:fine)').matches)&&!B.classList.contains('tv');
-  const useShelves=()=>desktopLayout()&&!cat&&!query&&(filter==='all'||filter==='movies'||filter==='series');
+  const useShelves=()=>(desktopLayout()||B.classList.contains('tv'))&&!cat&&!query&&(filter==='all'||filter==='movies'||filter==='series');
   const toast=t=>{if(window.WasslaNotify)WasslaNotify(t,{ms:3200});else if(window.__rcvToast)window.__rcvToast(t)};
   const Metadata=window.WasslaVodMetadata;
   const densityOptions=['compact','balanced','comfortable'];

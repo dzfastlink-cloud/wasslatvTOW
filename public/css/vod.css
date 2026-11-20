@@ -2536,6 +2536,114 @@ body.tv #vod.vod-details .vdetail-head{background:rgba(6,26,22,.94)}
 :root[data-eff="light"] #vod .vempty{background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(226,242,237,.94));border-color:rgba(14,124,107,.2);color:#173b35}
 :root[data-eff="light"] #vod .vdshelf-title{color:#173b35}
 
+/* تجربة التلفاز: أرفف سينمائية داكنة مثل مرجع MonPlayer */
+:root body.tv #vod{
+  background:
+    radial-gradient(980px 560px at 78% 0%,rgba(54,75,111,.22),transparent 68%),
+    linear-gradient(180deg,#0b0e14,#05070b 76%);
+}
+:root body.tv #vod .vtop{
+  background:rgba(7,10,16,.96);
+  border-bottom-color:rgba(255,255,255,.09);
+}
+:root body.tv #vod .vlogo{color:#f1f3f7}
+:root body.tv #vod .vt{
+  border-color:rgba(255,255,255,.1);
+  background:rgba(255,255,255,.065);
+  color:#e7ebf2;
+}
+:root body.tv #vod .vt.on{border-color:#e4e9f1;background:#e4e9f1;color:#141923}
+:root body.tv #vod .vhero{
+  border-color:rgba(255,255,255,.12);
+  background:
+    radial-gradient(ellipse at 82% 10%,rgba(78,100,141,.28),transparent 46%),
+    linear-gradient(125deg,#1b2432,#090c12 72%);
+}
+:root body.tv #vod .vhero::after{
+  background:
+    linear-gradient(270deg,rgba(5,8,13,.94) 0%,rgba(5,9,15,.74) 48%,rgba(5,9,15,.1) 100%),
+    linear-gradient(0deg,rgba(5,8,13,.7),transparent 82%);
+}
+:root body.tv #vod .vside{
+  flex-basis:clamp(180px,16vw,250px);
+  background:rgba(7,10,16,.82);
+  border-inline-end-color:rgba(164,184,218,.14);
+}
+:root body.tv #vod .vside-heading{color:#aab8d0}
+:root body.tv #vod .vsi.on{background:rgba(91,119,164,.22);color:#f2f5fb}
+:root body.tv #vod .vsi.sel{
+  background:linear-gradient(100deg,#9eafd0,#61769a);
+  color:#101722;
+  border-color:#e8edf5;
+}
+:root body.tv #vod .vdshelves{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(18px,2.4vh,30px);
+  padding:12px clamp(18px,2.5vw,36px) 36px;
+  direction:rtl;
+}
+:root body.tv #vod .vdshelf{min-width:0}
+:root body.tv #vod .vdshelf-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0 10px 10px;
+  color:#f1f3f7;
+  font-size:clamp(18px,1.7vw,25px);
+  font-weight:800;
+}
+:root body.tv #vod .vdshelf-title::before{
+  content:"";
+  width:4px;
+  height:1.1em;
+  flex:none;
+  border-radius:4px;
+  background:#8198bf;
+}
+:root body.tv #vod .vdshelf-grid{
+  display:flex;
+  gap:clamp(12px,1.2vw,20px);
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:8px 12px 18px;
+  direction:rtl;
+  overscroll-behavior-x:contain;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+}
+:root body.tv #vod .vdshelf-grid::-webkit-scrollbar{display:none}
+:root body.tv #vod .vdshelf-grid .vc{
+  flex:0 0 clamp(126px,12vw,198px);
+  width:clamp(126px,12vw,198px);
+  scroll-snap-align:start;
+}
+:root body.tv #vod .vdshelf-grid .vp{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:linear-gradient(145deg,#293a54,#101722);
+  box-shadow:0 8px 22px rgba(0,0,0,.32);
+}
+:root body.tv #vod .vdshelf-grid .vn{color:#eef1f6}
+:root body.tv #vod .vdshelf-grid .vc.sel .vp{
+  outline:3px solid #d5deed;
+  outline-offset:3px;
+  border-color:#d5deed;
+  box-shadow:0 0 0 7px rgba(129,152,191,.24),0 16px 32px rgba(0,0,0,.48);
+}
+:root body.tv #vod .vdshelf-grid .vc.sel .vn{color:#f3d9a1}
+:root body.tv #vod .vempty{
+  border-color:rgba(164,184,218,.16);
+  background:linear-gradient(145deg,rgba(26,37,54,.88),rgba(7,10,16,.94));
+  color:#e5eaf2;
+}
+:root body.tv #vod .vempty-btn{
+  border-color:rgba(164,184,218,.26);
+  background:rgba(91,119,164,.24);
+  color:#f1f3f7;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+
 /* تجربة التفاصيل السينمائية: الملصق في بداية السطر العربي والمزيد مطوي افتراضياً. */
 #vod.vod-details .vdetail-overlay{
   position:fixed;
