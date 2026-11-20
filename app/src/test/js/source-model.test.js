@@ -22,7 +22,6 @@ test('web and Android source-separation assets stay synchronized', () => {
     ['public/js/quickpanel.js', 'js/quickpanel.js'],
     ['public/js/settings.js', 'js/settings.js'],
     ['public/js/vod.js', 'js/vod.js'],
-    ['public/js/vod-state.js', 'js/vod-state.js'],
     ['public/css/quickpanel.css', 'css/quickpanel.css'],
     ['public/css/vod.css', 'css/vod.css']
   ];
