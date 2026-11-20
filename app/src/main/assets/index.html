@@ -112,19 +112,22 @@
       <div id="vodtrack"><span id="vtstate">▶</span><span id="vtcur">0:00</span><div id="vtbar" role="slider" tabindex="0" aria-label="مسار التشغيل" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="vtbuf"></i><i id="vtfill"></i><b id="vtknob"></b></div><span id="vtdur">--:--</span><span id="vtleft"></span></div>
       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
         <button class="alt" id="vodplaypause" type="button">⏸ إيقاف</button>
+        <button class="alt" id="vodrewind" type="button" title="تأخير 10 ثوان">−10ث</button>
+        <button class="alt" id="vodforward" type="button" title="تقديم 10 ثوان">10ث+</button>
+        <button class="alt" id="vodmute" type="button" title="الصوت">🔊 صوت</button>
         <button class="alt hide" id="vodprevep" type="button">⏮ السابقة</button>
         <button class="alt hide" id="vodnextep" type="button">التالية ⏭</button>
-        <button class="alt" id="vodoptsbtn" type="button">⚙ خيارات</button>
-        <button class="alt" id="vodfav" type="button">☆ أضف للمفضلة</button>
-        <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
-        <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
-        <button class="alt" id="vodexpand" type="button">⛶ توسيع</button>
-        <button class="alt" id="vodmini" type="button">▣ تصغير</button>
-        <button class="alt" id="vodclose" type="button">✕ إغلاق</button>
+        <button class="alt" id="vodoptsbtn" type="button" title="خيارات المشغل">⚙</button>
+        <button class="alt" id="vodfav" type="button" title="المفضلة">☆</button>
+        <button class="alt" id="vodwatched" type="button" title="تمت المشاهدة">✓</button>
+        <button class="alt" id="vodbackdetails" type="button" title="تفاصيل المحتوى">ⓘ</button>
+        <button class="alt" id="vodexpand" type="button" title="توسيع">⛶</button>
+        <button class="alt" id="vodmini" type="button" title="تصغير">▣ تصغير</button>
+        <button class="alt" id="vodclose" type="button" title="إيقاف وإغلاق المشغل">✕ إغلاق</button>
         <button class="alt" id="prev" style="color:white; border-color:#555;" title="القناة السابقة (↑)">⏮ السابقة</button>
         <button class="alt" id="nextb" style="color:white; border-color:#555;" title="القناة التالية (↓)">التالية ⏭</button>
-        <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶ ملء الشاشة</button>
-        <button class="alt" id="pipb" style="color:white; border-color:#555;" title="صورة داخل صورة (P)">▣ صورة داخل صورة</button>
+        <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶</button>
+        <button class="alt" id="pipb" style="color:white; border-color:#555;" title="صورة داخل صورة (P)">▣</button>
       </div>
     </div>
     <div id="msg"></div>
@@ -137,13 +140,17 @@
   <div class="stpv" id="stpv"><span>معاينة البث</span></div>
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
+<div id="library-view" dir="rtl">
 <div id="vod">
   <div class="vtop"><button id="vodexit" class="vt vexit" type="button">→ رجوع</button><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><button id="vodsort" class="vt" type="button">⇅ الأحدث</button><div class="vsrc-wrap" id="vodsrcwrap"><button id="vodsource" class="vt vsrc-btn" type="button" aria-haspopup="true" aria-expanded="false">📂 المصادر</button><div id="vodsrcpop" class="vsrc-pop hide" role="dialog" aria-label="مصادر المكتبة"></div></div><button id="vodplayer" class="vt hide" type="button">▶ المشغل المصغر</button><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
   <div class="vhero" id="vodh"><img class="vhero-art" id="vpimg" alt="" aria-hidden="true" hidden><div class="vhtxt"><b id="vpt"></b><small id="vps"></small><div class="vhero-prog" id="vodheroprog" hidden><i id="vodherofill"></i></div><div class="vhero-actions"><button id="vodheroaction" type="button" hidden>▶ عرض التفاصيل</button><button id="vodherodetails" class="alt" type="button" hidden>التفاصيل</button></div></div><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
   <div class="vbody" id="vodb"></div>
 </div>
+</div>
+<div id="player-overlay" aria-hidden="true">
 <div id="vod-player-overlay" class="vod-player-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="مشغل الفيديو">
   <div class="vod-player-frame" id="vod-player-frame"></div>
+</div>
 </div>
 <dialog id="kb" data-nav="grid">
   <h3 id="kbt"></h3>

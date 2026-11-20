@@ -38,6 +38,8 @@ test('detail mini-player is compact and placed directly after the detail head', 
 
 test('VOD playback mounts into a separate full-screen player layer', () => {
   for (const html of [webHtml, androidHtml]) {
+    assert.match(html, /<div id="library-view" dir="rtl">[\s\S]*<div id="vod">/);
+    assert.match(html, /<div id="player-overlay" aria-hidden="true">[\s\S]*id="vod-player-overlay"/);
     assert.match(html, /id="vod-player-overlay"[^>]*role="dialog"[^>]*aria-modal="true"/);
     assert.match(html, /id="vod-player-frame"/);
     assert.match(html, /id="vtbar" role="slider" tabindex="0"/);

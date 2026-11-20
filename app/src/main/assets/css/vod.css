@@ -2805,3 +2805,251 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   #vod .vdetail-short-actor{max-width:95px}
 }
 
+/* ===== إعادة بنية نهائية موحدة للمكتبة والمشغل =====
+   تحل هذه الطبقة محل البطاقة القديمة المتعددة المحاولات وتفرض حالة واحدة لكل سطح.
+*/
+#vod.vod-details{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:180 !important;
+  width:100vw;
+  height:100dvh;
+  min-height:100dvh;
+  display:block !important;
+  background:#030807;
+  overflow:hidden;
+}
+#vod.vod-details .vdetail-overlay{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:181 !important;
+  display:block !important;
+  width:100%;
+  height:100dvh;
+  padding:0 !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(circle at 82% 12%,rgba(27,112,94,.20),transparent 36%),
+    linear-gradient(135deg,#071411,#020706 72%) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#vod.vod-details .vdetails{
+  position:relative !important;
+  inset:auto !important;
+  width:100% !important;
+  max-width:none !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  margin:0 !important;
+  padding:0 0 24px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:
+    linear-gradient(90deg,rgba(3,8,7,.98) 0%,rgba(3,8,7,.84) 54%,rgba(3,8,7,.40) 100%) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#vod.vod-details .vdetail-shell{
+  position:relative;
+  z-index:2;
+  width:min(1280px,calc(100% - 56px)) !important;
+  min-height:100dvh;
+  margin:0 auto !important;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  padding:18px 0 36px;
+  overflow:visible;
+}
+#vod.vod-details .vdetail-topbar{
+  border:0;
+  padding:0;
+}
+#vod.vod-details .vdetail-back{
+  background:rgba(4,16,14,.72);
+  border-color:rgba(255,255,255,.16);
+  backdrop-filter:blur(10px);
+}
+#vod.vod-details .vdetail-head{
+  direction:rtl;
+  display:grid;
+  grid-template-columns:clamp(180px,20vw,270px) minmax(0,1fr);
+  align-items:center;
+  gap:clamp(24px,4vw,58px);
+  min-height:min(62dvh,620px);
+  max-height:none;
+  margin:0;
+  padding:24px 0;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+}
+#vod.vod-details .vdetail-poster{
+  width:100%;
+  height:auto;
+  max-height:430px;
+  aspect-ratio:2/3;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:14px;
+  box-shadow:0 24px 64px rgba(0,0,0,.58);
+}
+#vod.vod-details .vdetail-info{
+  direction:rtl;
+  max-height:none;
+  gap:14px;
+  overflow:visible;
+  padding:0;
+}
+#vod.vod-details .vdetail-info h2{
+  max-height:none;
+  display:block;
+  overflow:visible;
+  margin:0;
+  color:#fff;
+  font-size:clamp(32px,5vw,64px);
+  line-height:1.08;
+}
+#vod.vod-details .vdetail-meta{
+  display:none !important;
+}
+#vod.vod-details .vdetail-quick-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+#vod.vod-details .vdetail-short-cast{
+  display:flex;
+  width:min(680px,100%);
+  align-items:flex-start;
+  gap:8px;
+  padding:12px 0 0;
+  border-top:1px solid rgba(255,255,255,.14);
+}
+#vod.vod-details .vdetail-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin:2px 0 0;
+}
+#vod.vod-details .vdetail-actions button{
+  width:auto;
+  min-width:auto;
+  height:44px;
+  min-height:44px;
+  padding:8px 16px;
+  border-radius:999px;
+  overflow:visible;
+  font-size:14px;
+}
+#vod.vod-details .vdetail-actions button.vplay-action{
+  min-width:145px;
+  background:#f4b24f;
+  border-color:#ffd58e;
+  color:#17241e;
+  box-shadow:0 10px 28px rgba(0,0,0,.28);
+}
+#vod.vod-details .vdetail-actions .vplay-label{
+  display:inline;
+  font-size:14px;
+}
+#vod.vod-details .vdetail-actions button.vfav-action{
+  width:44px;
+  min-width:44px;
+  padding:0;
+  border-radius:50%;
+  font-size:18px;
+}
+#vod.vod-details .vdetail-actions .vtrailer-card{
+  width:auto;
+  min-width:120px;
+  aspect-ratio:auto;
+  border-radius:999px;
+}
+#vod.vod-details .vdetail-actions .vtrailer-card img{
+  display:none;
+}
+#vod.vod-details .vdetail-extra{
+  display:flex !important;
+  width:100%;
+  max-width:980px;
+  margin:0;
+}
+#vod.vod-details .vdetail-extra[hidden]{
+  display:none !important;
+}
+#vod.vod-details .vdetail-card-box{
+  background:rgba(7,20,17,.92);
+  border:1px solid rgba(255,255,255,.10);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+body.cine-mini.vod-detail-play #vod.vod-details .vdetail-overlay{
+  padding-bottom:0;
+}
+body.cine-mini.vod-detail-play #vod.vod-details .vdetail-shell{
+  width:min(1180px,calc(100% - 32px)) !important;
+  padding-bottom:24px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage{
+  width:min(820px,100%);
+  max-height:48dvh;
+  margin:0 auto;
+  border-radius:14px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player video{
+  height:min(38dvh,390px) !important;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #vodtrack{
+  min-height:40px;
+  padding:6px 12px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage .ctl{
+  min-height:44px;
+  padding:5px 10px !important;
+}
+@media(max-width:700px){
+  #vod.vod-details .vdetail-shell{
+    width:calc(100% - 24px) !important;
+    min-height:100dvh;
+    gap:12px;
+    padding:10px 0 24px;
+  }
+  #vod.vod-details .vdetail-head{
+    grid-template-columns:112px minmax(0,1fr);
+    align-items:start;
+    gap:12px;
+    min-height:0;
+    padding:12px 0;
+  }
+  #vod.vod-details .vdetail-poster{
+    max-height:168px;
+  }
+  #vod.vod-details .vdetail-info h2{
+    font-size:clamp(22px,7vw,32px);
+  }
+  #vod.vod-details .vdetail-actions button{
+    height:40px;
+    min-height:40px;
+  }
+  #vod.vod-details .vdetail-actions button.vplay-action{
+    min-width:118px;
+  }
+  #vod.vod-details .vdetail-actions button.vfav-action{
+    width:40px;
+    min-width:40px;
+  }
+  body.cine-mini.vod-detail-play #vod.vod-details .vdetail-shell{
+    width:calc(100% - 16px) !important;
+  }
+  body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player video{
+    height:min(32dvh,260px) !important;
+  }
+}
+

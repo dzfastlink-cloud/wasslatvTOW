@@ -11,25 +11,24 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#030d0b">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="/css/splash.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/glass.css">
-<link rel="stylesheet" href="/css/receiver.css?v=20261118-3">
-<link rel="stylesheet" href="/css/android.css">
-<link rel="stylesheet" href="/css/loading.css">
-<link rel="stylesheet" href="/css/settings.css">
-<link rel="stylesheet" href="/css/vodplay.css?v=20261120-2">
-<link rel="stylesheet" href="/css/quickpanel.css?v=20261119-3">
-<link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/idle.css">
-<link rel="stylesheet" href="/css/polish.css">
-<link rel="stylesheet" href="/css/look.css">
-<link rel="stylesheet" href="/css/home.css">
-<link rel="stylesheet" href="/css/theme.css">
-<link rel="stylesheet" href="/css/vod.css?v=20261120-2">
-<link rel="stylesheet" href="/css/source-loader.css?v=20261118-9">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/splash.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/glass.css">
+<link rel="stylesheet" href="css/receiver.css?v=20261118-3">
+<link rel="stylesheet" href="css/android.css">
+<link rel="stylesheet" href="css/loading.css">
+<link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/vodplay.css?v=20261120-2">
+<link rel="stylesheet" href="css/quickpanel.css?v=20261119-3">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/idle.css">
+<link rel="stylesheet" href="css/polish.css">
+<link rel="stylesheet" href="css/look.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/vod.css?v=20261120-2">
+<link rel="stylesheet" href="css/source-loader.css?v=20261118-9">
 </head>
 <body>
 <script>if(window.Android)document.documentElement.classList.add('droid');(function(){var h=document.documentElement,t='auto';try{t=JSON.parse(localStorage.getItem('m3u_theme'))||'auto'}catch(e){}var e=t;if(t!=='light'&&t!=='dark'){e=(window.Android&&Android.isTv&&Android.isTv())?'dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}h.setAttribute('data-eff',e)})()</script>
@@ -113,19 +112,22 @@
       <div id="vodtrack"><span id="vtstate">▶</span><span id="vtcur">0:00</span><div id="vtbar" role="slider" tabindex="0" aria-label="مسار التشغيل" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="vtbuf"></i><i id="vtfill"></i><b id="vtknob"></b></div><span id="vtdur">--:--</span><span id="vtleft"></span></div>
       <div class="ctl" style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px;">
         <button class="alt" id="vodplaypause" type="button">⏸ إيقاف</button>
+        <button class="alt" id="vodrewind" type="button" title="تأخير 10 ثوان">−10ث</button>
+        <button class="alt" id="vodforward" type="button" title="تقديم 10 ثوان">10ث+</button>
+        <button class="alt" id="vodmute" type="button" title="الصوت">🔊 صوت</button>
         <button class="alt hide" id="vodprevep" type="button">⏮ السابقة</button>
         <button class="alt hide" id="vodnextep" type="button">التالية ⏭</button>
-        <button class="alt" id="vodoptsbtn" type="button">⚙ خيارات</button>
-        <button class="alt" id="vodfav" type="button">☆ أضف للمفضلة</button>
-        <button class="alt" id="vodwatched" type="button">✓ تمت المشاهدة</button>
-        <button class="alt" id="vodbackdetails" type="button">تفاصيل المحتوى</button>
-        <button class="alt" id="vodexpand" type="button">⛶ توسيع</button>
-        <button class="alt" id="vodmini" type="button">▣ تصغير</button>
-        <button class="alt" id="vodclose" type="button">✕ إغلاق</button>
+        <button class="alt" id="vodoptsbtn" type="button" title="خيارات المشغل">⚙</button>
+        <button class="alt" id="vodfav" type="button" title="المفضلة">☆</button>
+        <button class="alt" id="vodwatched" type="button" title="تمت المشاهدة">✓</button>
+        <button class="alt" id="vodbackdetails" type="button" title="تفاصيل المحتوى">ⓘ</button>
+        <button class="alt" id="vodexpand" type="button" title="توسيع">⛶</button>
+        <button class="alt" id="vodmini" type="button" title="تصغير">▣ تصغير</button>
+        <button class="alt" id="vodclose" type="button" title="إيقاف وإغلاق المشغل">✕ إغلاق</button>
         <button class="alt" id="prev" style="color:white; border-color:#555;" title="القناة السابقة (↑)">⏮ السابقة</button>
         <button class="alt" id="nextb" style="color:white; border-color:#555;" title="القناة التالية (↓)">التالية ⏭</button>
-        <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶ ملء الشاشة</button>
-        <button class="alt" id="pipb" style="color:white; border-color:#555;" title="صورة داخل صورة (P)">▣ صورة داخل صورة</button>
+        <button class="alt" id="fsb" style="color:white; border-color:#555;" title="ملء الشاشة (F)">⛶</button>
+        <button class="alt" id="pipb" style="color:white; border-color:#555;" title="صورة داخل صورة (P)">▣</button>
       </div>
     </div>
     <div id="msg"></div>
@@ -138,13 +140,17 @@
   <div class="stpv" id="stpv"><span>معاينة البث</span></div>
   <div class="stf">↑ ↓ تنقل · OK اختيار · رجوع: خطوة للخلف</div>
 </div>
+<div id="library-view" dir="rtl">
 <div id="vod">
   <div class="vtop"><button id="vodexit" class="vt vexit" type="button">→ رجوع</button><span class="vlogo">🎬 المكتبة</span><div class="vtabs" id="vtabs"></div><button id="vodsearch" class="vt" type="button">🔎 بحث</button><button id="vodsort" class="vt" type="button">⇅ الأحدث</button><div class="vsrc-wrap" id="vodsrcwrap"><button id="vodsource" class="vt vsrc-btn" type="button" aria-haspopup="true" aria-expanded="false">📂 المصادر</button><div id="vodsrcpop" class="vsrc-pop hide" role="dialog" aria-label="مصادر المكتبة"></div></div><button id="vodplayer" class="vt hide" type="button">▶ المشغل المصغر</button><span class="vsp"></span><span class="vhint">↑ ↓ ← → تنقل · OK فتح · رجوع</span></div>
   <div class="vhero" id="vodh"><img class="vhero-art" id="vpimg" alt="" aria-hidden="true" hidden><div class="vhtxt"><b id="vpt"></b><small id="vps"></small><div class="vhero-prog" id="vodheroprog" hidden><i id="vodherofill"></i></div><div class="vhero-actions"><button id="vodheroaction" type="button" hidden>▶ عرض التفاصيل</button><button id="vodherodetails" class="alt" type="button" hidden>التفاصيل</button></div></div><span class="vsp"></span><span class="vcount" id="vcount"></span></div>
   <div class="vbody" id="vodb"></div>
 </div>
+</div>
+<div id="player-overlay" aria-hidden="true">
 <div id="vod-player-overlay" class="vod-player-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="مشغل الفيديو">
   <div class="vod-player-frame" id="vod-player-frame"></div>
+</div>
 </div>
 <dialog id="kb" data-nav="grid">
   <h3 id="kbt"></h3>
@@ -244,35 +250,34 @@
 </dialog>
 <dialog id="srcloader" class="srcloader" aria-labelledby="sl-title" aria-describedby="sl-sub"></dialog>
 
-<script src="/js/web-compat.js?v=20261118-4"></script>
-<script src="/js/boot.js"></script>
-<script src="/js/libs.js?v=20261119-1"></script>
-<script src="/js/source-model.js?v=20261119-3"></script>
-<script src="/js/m3u.js?v=20261116-1"></script>
-<script src="/js/source-loader.js?v=20261118-9"></script>
-<script src="/js/update-manifest.js?v=20261117-1"></script>
-<script src="/js/app.js?v=20261119-3"></script>
-<script src="/js/home.js"></script>
-<script src="/js/remote.js"></script>
-<script src="/js/receiver.js?v=20261119-3"></script>
-<script src="/js/modes.js"></script>
-<script src="/js/channels.js?v=20261119-3"></script>
-<script src="/js/android.js"></script>
-<script src="/js/tvnav.js"></script>
-<script src="/js/nav.js"></script>
-<script src="/js/loading.js?v=20261118-4"></script>
-<script src="/js/quickpanel.js?v=20261119-3"></script>
-<script src="/js/keyboard.js"></script>
-<script src="/js/settings.js?v=20261119-3"></script>
-<script src="/js/xtream.js?v=20261118-9"></script>
-<script src="/js/xtream-txt.js?v=20261118-9"></script>
-<script src="/js/vod-model.js?v=20261119-2"></script>
-<script src="/js/vod-remote.js?v=20261119-2"></script>
-<script src="/js/vod-playback.js?v=20261120-2"></script>
-<script src="/js/vod-metadata.js?v=20261118-7"></script>
-<script src="/js/vod.js?v=20261120-2"></script>
-<script src="/js/newfiles.js"></script>
-<script src="/js/idle.js"></script>
-<script src="/js/splash.js"></script>
+<script src="js/boot.js"></script>
+<script src="js/libs.js?v=20261119-1"></script>
+<script src="js/source-model.js?v=20261119-3"></script>
+<script src="js/m3u.js?v=20261116-1"></script>
+<script src="js/source-loader.js?v=20261118-9"></script>
+<script src="js/update-manifest.js?v=20261117-1"></script>
+<script src="js/app.js?v=20261119-3"></script>
+<script src="js/home.js"></script>
+<script src="js/remote.js"></script>
+<script src="js/receiver.js?v=20261119-3"></script>
+<script src="js/modes.js"></script>
+<script src="js/channels.js?v=20261119-3"></script>
+<script src="js/android.js"></script>
+<script src="js/tvnav.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/loading.js?v=20261118-4"></script>
+<script src="js/quickpanel.js?v=20261119-3"></script>
+<script src="js/keyboard.js"></script>
+<script src="js/settings.js?v=20261119-3"></script>
+<script src="js/xtream.js?v=20261118-9"></script>
+<script src="js/xtream-txt.js?v=20261118-9"></script>
+<script src="js/vod-model.js?v=20261119-2"></script>
+<script src="js/vod-remote.js?v=20261119-2"></script>
+<script src="js/vod-playback.js?v=20261120-2"></script>
+<script src="js/vod-metadata.js?v=20261118-7"></script>
+<script src="js/vod.js?v=20261120-2"></script>
+<script src="js/newfiles.js"></script>
+<script src="js/idle.js"></script>
+<script src="js/splash.js"></script>
 </body>
 </html>
