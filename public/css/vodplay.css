@@ -663,27 +663,6 @@ body.cine-play.cine-track-hidden #player .ctl{
 }
 
 /* ===== مشغل مستقل نظيف ومنفصل عن المكتبة ===== */
-#library-view{
-  display:block;
-  width:100%;
-  height:100%;
-  direction:rtl;
-}
-#player-overlay{
-  position:fixed;
-  inset:0;
-  z-index:9999;
-  display:none;
-  width:100vw;
-  height:100dvh;
-  background:#000;
-}
-#player-overlay[aria-hidden="true"]{
-  display:none;
-}
-#player-overlay[aria-hidden="false"]{
-  display:block;
-}
 .vod-player-overlay{
   z-index:220 !important;
   padding:
