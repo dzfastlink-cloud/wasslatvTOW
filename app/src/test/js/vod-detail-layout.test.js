@@ -45,8 +45,11 @@ test('VOD playback mounts into a separate full-screen player layer', () => {
     assert.match(html, /id="vtbar" role="slider" tabindex="0"/);
   }
   for (const js of [webJs, androidJs]) {
-    assert.match(js, /function showPlayerOverlay\(\)[\s\S]*playerFrame\.appendChild\(\$\('player'\)\)/);
-    assert.match(js, /function hidePlayerOverlay\(\)[\s\S]*playerOverlay\.classList\.remove\('is-open'\)/);
+    assert.match(js, /function showPlayerOverlay\(\)[\s\S]*mountPlayer\(playerFrame\)/);
+    assert.match(js, /function applyLayers\([\s\S]*playerOverlay\.classList\.toggle\('is-open',layers\.playerOverlay\)/);
+    /* المشغّل المشترك يُنقل من مكان واحد فقط: mountPlayer */
+    assert.equal((js.match(/appendChild\(\$\('player'\)\)/g) || []).length, 0);
+    assert.equal((js.match(/\.appendChild\(player\)/g) || []).length, 1);
     assert.match(js, /function showPlayerBackground\([\s\S]*function showPlayerOverlay/);
     assert.match(js, /setTimeout\(\(\)=>\{[\s\S]*B\.classList\.add\('cine-track-hidden'\);?[\s\S]*\},2000\)/);
   }
@@ -69,7 +72,7 @@ test('unrelated mini-player controls are hidden while detail mini-player is acti
 
 test('returning from details closes detail-origin mini playback', () => {
   for (const js of [webJs, androidJs]) {
-    assert.match(js, /function returnFromDetails\(\)[\s\S]*if\(playerFromDetails&&B\.classList\.contains\('cine-mini'\)\)[\s\S]*stopPlay\(\)/);
+    assert.match(js, /function returnFromDetails\(\)[\s\S]*if\(playerFromDetails&&isMini\(\)\)[\s\S]*stopPlay\(\)/);
   }
 });
 
