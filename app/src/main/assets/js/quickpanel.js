@@ -16,7 +16,11 @@
     try{parseM3U(l.text).forEach(it=>{const k=detectKind(it);if(k==='movie'||k==='series')c.vod++;else c.live++})}catch(e){}
     cnt=c;cntKey=key;return c;
   }
-  const srcName=()=>((lists||[]).find(l=>l.id===active)||{name:'لا يوجد مصدر'}).name;
+  const vodMode=()=>!!(window.__vodOn&&window.__vodOn());
+  const liveSourceId=()=>LS.get('m3u_live_source',active||'');
+  const vodSourceId=()=>LS.get('m3u_vod_source','');
+  const currentSourceId=()=>vodMode()?vodSourceId():liveSourceId();
+  const srcName=()=>((lists||[]).find(l=>l.id===currentSourceId())||{name:'كل المصادر'}).name;
 
   const close=()=>{on=false;closeDd();el.classList.remove('on');clearInterval(clkT);hintLive()};
   function closeDd(){ddOn=false;dd.classList.remove('on');dd.textContent=''}
@@ -69,7 +73,9 @@
 
   /* ===== قائمة المصادر المنسدلة ===== */
   function ddRows(){
-    const r=userLists().map(l=>({id:l.id,name:l.name,sub:(l.n||0)+' قناة',cur:l.id===active}));
+    const cur=vodMode()?vodSourceId():liveSourceId();
+    const r=userLists().map(l=>({id:l.id,name:l.name,sub:(l.n||0)+' قناة',cur:l.id===cur}));
+    if(vodMode())r.unshift({id:'',name:'كل مصادر المكتبة',sub:'أفلام ومسلسلات من كل المصادر',cur:cur===''});
     r.push({add:true,name:'إضافة مصدر',sub:'ملف · رابط · Xtream'});
     return r;
   }
@@ -95,7 +101,11 @@
   function pickDd(){
     const x=ddRows()[ddIdx];if(!x)return;
     if(x.add){close();if(window.__openSettings)__openSettings('addsource');return}
-    if(x.id!==active)openList(x.id);       /* تفعيل فوري بلا تأكيد: العلامة ✓ تنتقل إلى المصدر */
+    if(vodMode()){
+      if(window.__setVodSource)window.__setVodSource(x.id);
+    }else if(x.id!==active){
+      openList(x.id);
+    }
     ddIdx=ddRows().findIndex(r=>r.id===x.id);
     paintDd();paint();syncMeta();
   }

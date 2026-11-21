@@ -278,7 +278,10 @@
     else if(k==='ArrowUp'||k==='ArrowDown'){stop();zapByNumber(k==='ArrowUp'?1:-1)}
     else if(e.code==='KeyI'){stop();const it=shown.find(i=>i.url===curUrl);if(it)banner(it)}
   },true);
-  const _play=play;play=function(it){_play(it);if(on)banner(it)};
+  window.addEventListener('wassla:playrequest',e=>{
+    const it=e.detail&&e.detail.item;
+    if(it&&on&&!(window.__vodOn&&window.__vodOn()))banner(it);
+  });
   window.__rcv={set:setMode};window.__rcvState=()=>({on,open,zone});window.__rcvOpen=function(){if($('grp').value==='__fav'){$('grp').value='';render()}openL()};window.__rcvOpenFav=function(){if(!favs.size){toast('لا توجد قنوات مفضلة');return}$('grp').value='__fav';render();lastG=null;openL();toast('وضع المفضلة — رجوع للخروج منه')};window.__rcvOpenCats=function(){openL();setZone('head')};window.__rcvOpenSources=window.__rcvOpenCats;window.__rcvNumpad=function(){closeL();openNumpad()};window.__rcvClose=closeL;window.__rcvToast=toast;window.__zapNum=zapByNumber;
   window.__rcvRefresh=()=>{if(open){build();sel=Math.min(sel,Math.max(0,rows.children.length-1));mark()}};
 

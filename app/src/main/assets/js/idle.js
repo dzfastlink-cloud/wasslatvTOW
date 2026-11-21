@@ -4,9 +4,8 @@
   B.classList.add('is-idle');
   v.addEventListener('playing',()=>B.classList.remove('is-idle'));
   ['emptied','error','ended'].forEach(e=>v.addEventListener(e,()=>B.classList.add('is-idle')));
-  const _p=play;
-  play=function(it){
-    if(!(it&&it.url===curUrl&&!v.paused))B.classList.add('is-idle');
-    return _p.apply(this,arguments);
-  };
+  window.addEventListener('wassla:playrequest',e=>{
+    const it=e.detail&&e.detail.item;
+    if(it&&!(it.url===curUrl&&!v.paused))B.classList.add('is-idle');
+  });
 })();
