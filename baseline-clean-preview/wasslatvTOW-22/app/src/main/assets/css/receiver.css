@@ -1,0 +1,120 @@
+/* ===== وضع الريسيفر (شكل ريسيفر فضائي كلاسيكي) ===== */
+body.rcv header,body.rcv footer,body.rcv aside,body.rcv #updbar,body.rcv .nowrow,body.rcv .ctl,body.rcv #osd{display:none!important}
+body.rcv main{display:block}
+body.rcv section{position:fixed!important;inset:0;background:#000;z-index:5}
+body.rcv.menu section{background:linear-gradient(160deg,#0e7c6b,#0a3b34 55%,#04120f)}
+body.rcv #player{position:absolute;inset:0;display:block;cursor:pointer}
+body.rcv #player.hide{display:none!important}
+body.rcv #player video{width:100%;height:100%;max-height:none;object-fit:contain;background:#000;border:0;border-radius:0;box-shadow:none;display:block}
+body.rcv #player video.pvid{border:3px solid #3dc9ae;border-radius:4px;box-shadow:0 0 0 2px #06332c,0 10px 30px #000a;object-fit:cover}
+body.rcv.menu #player video.pvid{z-index:44;pointer-events:none}
+body.rcv #msg{position:absolute;bottom:150px;inset-inline:0;text-align:center;z-index:30}
+#rbanner{position:absolute;inset-inline:3%;bottom:4%;display:none;flex-direction:column;border-radius:6px;overflow:hidden;z-index:40;border:2px solid #3dc9ae;background:linear-gradient(180deg,#15a88f,#0a5448 55%,#062f28);color:#fff;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#rbanner.on{display:flex}
+#rbanner .b1{display:flex;align-items:center;gap:16px;padding:12px 18px}
+#rbanner .rn{font-size:40px;font-weight:800;color:#f5b04c;min-width:104px;text-align:center;direction:ltr;background:#04201b;border:2px solid #3dc9ae;border-radius:4px;padding:2px 8px}
+#rbanner img{width:60px;height:60px;object-fit:contain;border-radius:6px;background:#ffffff22}
+#rbanner .ri{flex:1;min-width:0}
+#rbanner .ri b{display:block;font-size:28px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rbanner .ri small{color:#d2efe9;font-size:15px}
+#rbanner .b2{display:flex;align-items:center;gap:12px;padding:6px 18px;background:#04201bcc;border-top:1px solid #3dc9ae66;font-size:15px;color:#d2efe9}
+#rbanner .bg{display:flex;gap:8px;flex:1}
+#rbanner .bg i{font-style:normal;font-weight:700;font-size:13px;color:#04201b;background:#f5b04c;border-radius:3px;padding:1px 8px}
+#rbanner .rc{font-size:22px;color:#fff;direction:ltr;font-weight:700}
+#rnum{position:absolute;top:24px;inset-inline-end:28px;display:none;font-size:64px;font-weight:800;color:#f5b04c;padding:4px 26px;border-radius:6px;background:#04201b;border:3px solid #3dc9ae;z-index:51;direction:ltr;letter-spacing:6px}
+#rtoast{position:absolute;top:24px;inset-inline-start:50%;transform:translateX(50%);display:none;padding:10px 22px;border-radius:6px;font-size:18px;z-index:50;background:#04201b;color:#fff;border:2px solid #3dc9ae}
+#rtoast.on{display:block}
+#rmenu{position:absolute;inset:0;display:none;flex-direction:column;z-index:43;color:#fff}
+#rmenu.on{display:flex}
+#rmenu .mh{display:flex;align-items:center;gap:12px;padding:12px 28px;background:linear-gradient(90deg,#0c2120,#0a5448);border-bottom:2px solid rgba(61,201,174,.45)}
+#rmenu .appmark{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.06);color:#7ff3dc;box-shadow:inset 0 0 0 1px rgba(127,243,220,.2);animation:appbeat 2.5s ease-in-out infinite}
+#rmenu .source-name,#rmenu .category-name{font-size:15px;font-weight:700;color:#effffb;white-space:nowrap}
+#rmenu .category-count{font-size:11px;padding:1px 6px;border-radius:999px;background:rgba(245,176,76,.12);color:#f5d392;border:1px solid rgba(245,176,76,.28)}
+#rmenu .mg{flex:1;font-size:17px;color:#e6f7f3}
+#rmenu .mc{font-size:18px;font-weight:700;direction:ltr;color:#f5d392}
+#rmenu .mb{flex:1;display:flex;gap:26px;padding:18px 28px;min-height:0}
+#rmenu .ml{width:58%;display:flex;flex-direction:column;min-height:0;background:#04120f99;border:2px solid #1f8f7c;border-radius:4px}
+#rmenu .rows{flex:1;overflow-y:auto;padding:8px}
+#rmenu .r{display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid #3dc9ae26;font-size:19px;cursor:pointer;border-radius:12px;margin-bottom:4px}
+#rmenu .r .n{min-width:58px;text-align:center;background:#0a5448;border-radius:3px;padding:1px 6px;direction:ltr;color:#f5b04c;font-weight:700}
+#rmenu .r .t{display:flex;align-items:center;gap:10px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rmenu .r .t img{width:24px;height:24px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.08);flex:none}
+#rmenu .r .t .chname{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rmenu .r .s{color:#f5b04c}
+#rmenu .r.cur .t::after{content:" ▶";color:#3dc9ae}
+#rmenu .r.sel{background:linear-gradient(90deg,#2fd1b0,#0e8a76);box-shadow:inset 0 0 0 1px #d6fff5}
+#rmenu .mp{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;width:42%;background:#04120f99;border:2px solid #1f8f7c;border-radius:4px;padding:16px;justify-content:flex-start}
+#rmenu .pv{position:relative;z-index:45;width:100%;aspect-ratio:16/9;border-radius:12px;background:transparent;pointer-events:none}
+#rmenu .mi{display:flex;align-items:center;gap:14px;padding:12px 16px;background:transparent;border:0;border-radius:0;box-shadow:none;min-height:68px;border-top:1px solid rgba(61,201,174,.22)}
+#rmenu .mi img{width:54px;height:54px;object-fit:contain;background:#ffffff22;border-radius:6px}
+#rmenu .mi b{display:block;font-size:22px}
+#rmenu .mi small{color:#d2efe9;font-size:15px}
+#rmenu .mf{display:flex;gap:26px;flex-wrap:wrap;padding:10px 28px;background:#04120f;border-top:2px solid #1f8f7c;font-size:15px}
+@keyframes appbeat{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.12);opacity:1}}
+#rmenu .mf u{display:inline-block;width:14px;height:14px;border-radius:50%;margin-inline-end:8px;vertical-align:-2px}
+#rmenu .c1{background:#e53935}#rmenu .c2{background:#43a047}#rmenu .c3{background:#fdd835}#rmenu .c4{background:#1e88e5}
+#rexit{position:absolute;top:16px;inset-inline-start:16px;z-index:52;display:none;padding:7px 14px;border-radius:4px;cursor:pointer;background:#04201b;color:#fff;border:2px solid #3dc9ae}
+#rexit.on{display:block}
+
+/* ----- أقسام + خيارات القناة + أذرع التحكم ----- */
+#rmenu .tabs{display:flex;gap:8px;padding:8px 28px;overflow-x:auto;background:#04201b;border-bottom:1px solid #1f8f7c}
+#rmenu .tabs .t{white-space:nowrap;padding:8px 16px;border-radius:999px;border:2px solid transparent;color:#d2efe9;font-size:16px}
+#rmenu .tabs .t.on{background:#0a5448;color:#fff;font-weight:700}
+#rmenu .tabs .t.sel{border-color:#f5b04c;box-shadow:0 0 0 4px rgba(245,176,76,.3)}
+#rmenu .mact{display:flex;flex-direction:column;gap:8px}
+#rmenu .mact .a{padding:10px 14px;border-radius:8px;background:#04201b99;border:2px solid #1f8f7c;font-size:16px;cursor:pointer}
+#rmenu .mact .a.sel{border-color:#f5b04c;background:#0a5448;box-shadow:0 0 0 4px rgba(245,176,76,.3)}
+#rmenu:not(.z-rows) .r.sel{opacity:.65}
+#rmenu .r.sel{outline:2px solid #f5b04c;outline-offset:-2px}
+#npv{font-size:36px;text-align:center;direction:ltr;min-height:48px;letter-spacing:6px}
+.npg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.npg button{font-size:22px;padding:14px 8px}
+
+/* ----- الأزرار العلوية في قائمة القنوات ----- */
+#rmenu .rhead{display:flex;gap:10px;padding:8px 28px;background:#04201b;border-bottom:1px solid #1f8f7c}
+#rmenu .rhead .h{white-space:nowrap;padding:8px 18px;border-radius:999px;border:2px solid transparent;color:#d2efe9;font-size:16px;background:#0a544866;cursor:pointer}
+#rmenu .rhead .h.sel{border-color:#f5b04c;box-shadow:0 0 0 4px rgba(245,176,76,.3);background:#0a5448;color:#fff;font-weight:700}
+#rmenu:not(.z-rows) .r.sel{opacity:.65}
+
+/* ----- تحسين الصف المحدد: نص داكن واضح + رقم ثابت + هوامش آمنة + تمرير الاسم الطويل ----- */
+#rmenu .mh,#rmenu .mb,#rmenu .mf,#rmenu .tabs,#rmenu .rhead{padding-inline:var(--w-safe)}
+#rmenu .r .n{flex:none;min-width:76px;box-sizing:border-box}
+#rmenu .r .t{display:flex;align-items:center}
+#rmenu .r .t>span{display:block;white-space:nowrap;min-width:0}
+#rmenu .r .t .chname{flex:1}
+#rmenu .r.sel{background:linear-gradient(90deg,#f5b04c,#ffd27a);color:#1a1100;font-weight:800;outline:3px solid #fff;outline-offset:-3px;box-shadow:0 0 0 3px #f5b04c66}
+#rmenu .r.sel .n{background:#04201b;color:#f5b04c}
+#rmenu .r.sel .s,#rmenu .r.cur.sel .t::after{color:#7a3d00}
+#rmenu .r.sel .t.mqc{text-overflow:clip}
+#rmenu .r.sel .t>span.mq{animation:rmq 6s linear 0.8s infinite alternate}
+@keyframes rmq{to{transform:translateX(var(--mq))}}
+
+/* ===== بطاقات التصنيفات (شريط أفقي يبدأ من اليمين) + وضع المفضلة ===== */
+#rmenu .rhead{flex:none;display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-block:6px}
+#rmenu .rhead::-webkit-scrollbar{display:none}
+#rmenu .rhead .h.card{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:88px;max-width:160px;padding:5px 12px;border-radius:13px;border:2px solid #1f8f7c66;background:linear-gradient(160deg,#0a544866,#04201bcc);color:#d2efe9;transition:transform .18s ease,border-color .18s ease,box-shadow .25s ease}
+#rmenu .rhead .h.card i{font-style:normal;font-size:16px;line-height:1}
+#rmenu .rhead .h.card b{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#rmenu .rhead .h.card small{font-size:10px;color:#8ec7b8}
+#rmenu .rhead .h.card.cur{border-color:#3dc9ae;background:linear-gradient(160deg,#0f9c85aa,#0a5448cc);color:#fff}
+#rmenu .rhead .h.card.sel{transform:scale(1.07);border-color:#f5b04c;box-shadow:0 0 0 4px rgba(245,176,76,.3)}
+#rmenu .rhead .h.card.glow{animation:cardglow 1.05s ease-out}
+@keyframes cardglow{0%{box-shadow:0 0 0 0 rgba(127,243,220,0);border-color:#1f8f7c66}30%{box-shadow:0 0 14px 3px rgba(127,243,220,.55);border-color:#7ff3dc}100%{box-shadow:0 0 0 0 rgba(127,243,220,0)}}
+#favbadge{display:none;position:fixed;top:max(14px,env(safe-area-inset-top,0px));inset-inline-end:var(--w-safe,24px);z-index:60;padding:5px 14px;border-radius:999px;background:rgba(40,22,4,.82);border:1px solid rgba(241,166,92,.6);color:#f5c98a;font-size:clamp(12px,1.3vw,16px);font-weight:700;pointer-events:none}
+body.rcv.favmode:not(.menu) #favbadge{display:block}
+@media (prefers-reduced-motion:reduce){#rmenu .rhead .h.card.glow{animation:none}}
+
+/* ===== شريط علوي مبسّط: الشعار والاسم والمصدر يميناً، الساعة والتاريخ يساراً ===== */
+#rmenu .mh{display:flex;align-items:center;gap:12px}
+#rmenu .mh .app-name{font-size:clamp(17px,2vw,24px);font-weight:800;color:#fff;letter-spacing:.3px}
+#rmenu .mh .source-name{max-width:34vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:3px 14px;border-radius:999px;background:rgba(61,201,174,.14);border:1px solid rgba(61,201,174,.4);color:#7ff3dc;font-size:clamp(12px,1.3vw,16px);font-weight:700}
+#rmenu .mh .mdt{margin-inline-start:auto;display:flex;align-items:baseline;gap:12px;direction:ltr;white-space:nowrap}
+#rmenu .mh .mdt .mc{font-size:clamp(18px,2vw,26px);font-weight:800;color:#fff}
+#rmenu .mh .mdt .md{direction:rtl;font-size:clamp(11px,1.2vw,15px);color:#9fcfc6}
+/* أرقام القنوات أصغر + خيار شكل الصف (رقم / شعار / معاً) */
+#rmenu .r:not(.pn) .n{min-width:50px;font-size:14px;padding:0 5px}
+#rmenu[data-rs="logo"] .r:not(.pn) .n{display:none}
+#rmenu[data-rs="num"] .r:not(.pn) .t img{display:none}
+/* شريط الشرح السفلي أصغر */
+#rmenu #rhint{padding-block:4px;gap:4px 10px;font-size:12px;min-height:0}
+#rmenu #rhint span{padding:2px 9px;font-size:12px}
