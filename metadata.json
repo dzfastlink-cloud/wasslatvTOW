@@ -1,0 +1,6 @@
+{
+  "name": "وصلة TV (WasslaTV)",
+  "description": "مشغل IPTV متكامل لقوائم M3U وسيرفرات Xtream Codes مع وضع الريسيفر والمكتبة (VOD).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
