@@ -1,8 +1,8 @@
 /* ===== وضع الريسيفر (شكل ريسيفر فضائي كلاسيكي) ===== */
 body.rcv header,body.rcv footer,body.rcv aside,body.rcv #updbar,body.rcv:not(.cine-play):not(.cine-mini) .nowrow,body.rcv:not(.cine-play):not(.cine-mini) .ctl,body.rcv #osd{display:none!important}
 body.rcv main{display:block}
-body.rcv:not(.cine-play):not(.cine-mini) section{position:fixed!important;inset:0;background:#000;z-index:5}
-body.rcv.menu:not(.cine-play):not(.cine-mini) section{background:linear-gradient(160deg,#0e7c6b,#0a3b34 55%,#04120f)}
+body.rcv:not(.cine-play):not(.cine-mini) main>section{position:fixed!important;inset:0;background:#000;z-index:5}
+body.rcv.menu:not(.cine-play):not(.cine-mini) main>section{background:linear-gradient(160deg,#0e7c6b,#0a3b34 55%,#04120f)}
 body.rcv:not(.cine-play):not(.cine-mini) #player{position:absolute;inset:0;display:block;cursor:pointer}
 body.rcv #player.hide{display:none!important}
 body.rcv:not(.cine-play):not(.cine-mini) #player video{width:100%;height:100%;max-height:none;object-fit:contain;background:#000;border:0;border-radius:0;box-shadow:none;display:block}

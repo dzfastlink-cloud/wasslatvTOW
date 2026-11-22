@@ -133,7 +133,7 @@ try{const mq=matchMedia('(prefers-color-scheme: light)');(mq.addEventListener?mq
 const DENSITIES=['large','medium','small'],DENSITY_LABEL={large:'كبير',medium:'متوسط',small:'صغير'},DENSITY_ZOOM={large:'1.08',medium:'1',small:'0.92'};
 let density=LS.get('m3u_density','large');
 if(!DENSITIES.includes(density))density='large';
-function applyDensity(){document.documentElement.style.zoom=DENSITY_ZOOM[density]}
+function applyDensity(){const z=DENSITY_ZOOM[density];document.documentElement.style.zoom=z;document.documentElement.style.setProperty('--ui-zoom',z)}
 function cycleDensity(){density=DENSITIES[(DENSITIES.indexOf(density)+1)%DENSITIES.length];LS.set('m3u_density',density);applyDensity()}
 window.cycleDensity=cycleDensity;window.densityLabel=()=>DENSITY_LABEL[density];
 applyDensity();

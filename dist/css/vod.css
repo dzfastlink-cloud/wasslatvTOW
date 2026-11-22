@@ -1916,7 +1916,7 @@ body.cine-mini.vod-detail-play #vodclose{
 
 @media(max-width:700px){
   #vod.vod-details .vdetail-overlay{padding:8px}
-  #vod.vod-details .vdetails{width:100%;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);padding:10px;border-radius:14px}
+  #vod.vod-details .vdetails{width:100%;max-height:calc((100vh - 16px) / var(--ui-zoom,1));max-height:calc((100dvh - 16px) / var(--ui-zoom,1));padding:10px;border-radius:14px}
   #vod.vod-details .vdetail-shell{gap:8px}
   #vod.vod-details .vdetail-head{
     max-height:min(58vh,390px);
@@ -2537,54 +2537,54 @@ body.tv #vod.vod-details .vdetail-head{background:rgba(6,26,22,.94)}
 :root[data-eff="light"] #vod .vdshelf-title{color:#173b35}
 
 /* تجربة التلفاز: أرفف سينمائية داكنة مثل مرجع MonPlayer */
-body.tv #vod{
+:root body.tv #vod{
   background:
     radial-gradient(980px 560px at 78% 0%,rgba(54,75,111,.22),transparent 68%),
     linear-gradient(180deg,#0b0e14,#05070b 76%);
 }
-body.tv #vod .vtop{
+:root body.tv #vod .vtop{
   background:rgba(7,10,16,.96);
   border-bottom-color:rgba(255,255,255,.09);
 }
-body.tv #vod .vlogo{color:#f1f3f7}
-body.tv #vod .vt{
+:root body.tv #vod .vlogo{color:#f1f3f7}
+:root body.tv #vod .vt{
   border-color:rgba(255,255,255,.1);
   background:rgba(255,255,255,.065);
   color:#e7ebf2;
 }
-body.tv #vod .vt.on{border-color:#e4e9f1;background:#e4e9f1;color:#141923}
-body.tv #vod .vhero{
+:root body.tv #vod .vt.on{border-color:#e4e9f1;background:#e4e9f1;color:#141923}
+:root body.tv #vod .vhero{
   border-color:rgba(255,255,255,.12);
   background:
     radial-gradient(ellipse at 82% 10%,rgba(78,100,141,.28),transparent 46%),
     linear-gradient(125deg,#1b2432,#090c12 72%);
 }
-body.tv #vod .vhero::after{
+:root body.tv #vod .vhero::after{
   background:
     linear-gradient(270deg,rgba(5,8,13,.94) 0%,rgba(5,9,15,.74) 48%,rgba(5,9,15,.1) 100%),
     linear-gradient(0deg,rgba(5,8,13,.7),transparent 82%);
 }
-body.tv #vod .vside{
+:root body.tv #vod .vside{
   flex-basis:clamp(180px,16vw,250px);
   background:rgba(7,10,16,.82);
   border-inline-end-color:rgba(164,184,218,.14);
 }
-body.tv #vod .vside-heading{color:#aab8d0}
-body.tv #vod .vsi.on{background:rgba(91,119,164,.22);color:#f2f5fb}
-body.tv #vod .vsi.sel{
+:root body.tv #vod .vside-heading{color:#aab8d0}
+:root body.tv #vod .vsi.on{background:rgba(91,119,164,.22);color:#f2f5fb}
+:root body.tv #vod .vsi.sel{
   background:linear-gradient(100deg,#9eafd0,#61769a);
   color:#101722;
   border-color:#e8edf5;
 }
-body.tv #vod .vdshelves{
+:root body.tv #vod .vdshelves{
   display:flex;
   flex-direction:column;
   gap:clamp(18px,2.4vh,30px);
   padding:12px clamp(18px,2.5vw,36px) 36px;
   direction:rtl;
 }
-body.tv #vod .vdshelf{min-width:0}
-body.tv #vod .vdshelf-title{
+:root body.tv #vod .vdshelf{min-width:0}
+:root body.tv #vod .vdshelf-title{
   display:flex;
   align-items:center;
   gap:10px;
@@ -2593,7 +2593,7 @@ body.tv #vod .vdshelf-title{
   font-size:clamp(18px,1.7vw,25px);
   font-weight:800;
 }
-body.tv #vod .vdshelf-title::before{
+:root body.tv #vod .vdshelf-title::before{
   content:"";
   width:4px;
   height:1.1em;
@@ -2601,7 +2601,7 @@ body.tv #vod .vdshelf-title::before{
   border-radius:4px;
   background:#8198bf;
 }
-body.tv #vod .vdshelf-grid{
+:root body.tv #vod .vdshelf-grid{
   display:flex;
   gap:clamp(12px,1.2vw,20px);
   overflow-x:auto;
@@ -2612,25 +2612,32 @@ body.tv #vod .vdshelf-grid{
   scroll-behavior:smooth;
   scrollbar-width:none;
 }
-body.tv #vod .vdshelf-grid::-webkit-scrollbar{display:none}
-body.tv #vod .vdshelf-grid .vc{
+:root body.tv #vod .vdshelf-grid::-webkit-scrollbar{display:none}
+:root body.tv #vod .vdshelf-grid .vc{
   flex:0 0 clamp(126px,12vw,198px);
   width:clamp(126px,12vw,198px);
   scroll-snap-align:start;
 }
-body.tv #vod .vdshelf-grid .vp{
+:root body.tv #vod .vdshelf-grid .vp{
   border:1px solid rgba(255,255,255,.12);
   border-radius:12px;
   background:linear-gradient(145deg,#293a54,#101722);
   box-shadow:0 8px 22px rgba(0,0,0,.32);
 }
-body.tv #vod .vdshelf-grid .vn{color:#eef1f6}
-body.tv #vod .vempty{
+:root body.tv #vod .vdshelf-grid .vn{color:#eef1f6}
+:root body.tv #vod .vdshelf-grid .vc.sel .vp{
+  outline:3px solid #d5deed;
+  outline-offset:3px;
+  border-color:#d5deed;
+  box-shadow:0 0 0 7px rgba(129,152,191,.24),0 16px 32px rgba(0,0,0,.48);
+}
+:root body.tv #vod .vdshelf-grid .vc.sel .vn{color:#f3d9a1}
+:root body.tv #vod .vempty{
   border-color:rgba(164,184,218,.16);
   background:linear-gradient(145deg,rgba(26,37,54,.88),rgba(7,10,16,.94));
   color:#e5eaf2;
 }
-body.tv #vod .vempty-btn{
+:root body.tv #vod .vempty-btn{
   border-color:rgba(164,184,218,.26);
   background:rgba(91,119,164,.24);
   color:#f1f3f7;
@@ -2924,9 +2931,9 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   position:fixed !important;
   inset:0 !important;
   z-index:180 !important;
-  width:100vw;
-  height:100dvh;
-  min-height:100dvh;
+  width:100%;
+  height:100%;
+  min-height:0;
   display:block !important;
   background:#030807;
   overflow:hidden;
@@ -2937,7 +2944,7 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   z-index:181 !important;
   display:block !important;
   width:100%;
-  height:100dvh;
+  height:100%;
   padding:0 !important;
   overflow:hidden !important;
   background:
@@ -2951,8 +2958,8 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   inset:auto !important;
   width:100% !important;
   max-width:none !important;
-  height:100dvh !important;
-  max-height:100dvh !important;
+  height:100% !important;
+  max-height:100% !important;
   margin:0 !important;
   padding:0 0 24px !important;
   overflow-y:auto !important;
@@ -2969,7 +2976,7 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   position:relative;
   z-index:2;
   width:min(1280px,calc(100% - 56px)) !important;
-  min-height:100dvh;
+  min-height:calc(100dvh / var(--ui-zoom,1));
   margin:0 auto !important;
   display:flex;
   flex-direction:column;
@@ -3129,7 +3136,7 @@ body.cine-mini.vod-detail-play #vod .vdetail-player-stage .ctl{
 @media(max-width:700px){
   #vod.vod-details .vdetail-shell{
     width:calc(100% - 24px) !important;
-    min-height:100dvh;
+    min-height:calc(100dvh / var(--ui-zoom,1));
     gap:12px;
     padding:10px 0 24px;
   }
@@ -3165,3 +3172,48 @@ body.cine-mini.vod-detail-play #vod .vdetail-player-stage .ctl{
   }
 }
 
+
+/* ===== إصلاحات شاشة التفاصيل (Nov-21) =====
+   1) عنصر hidden كان يُظهَر لأن قاعدة display:flex اللاحقة تتغلب على [hidden]
+   2) ألوان الشاشة داكنة دائماً، فتُثبَّت عناصر الشريط العلوي على ألوان فاتحة النص حتى مع الثيم الفاتح */
+#vod.vod-details .vdetail-short-cast[hidden],
+#vod.vod-details .vdetail-trailer[hidden],
+#vod.vod-details .vdetail-cast-section[hidden],
+#vod.vod-details .vdetail-card-summary[hidden],
+#vod.vod-details .vtrailer-card[hidden]{display:none !important}
+:root[data-eff="light"] #vod.vod-details .vdetail-topbar-tag{background:rgba(3,12,10,.62);border-color:rgba(61,201,174,.32);color:#d2efe9}
+
+/* ===== المشغّل المصغّر داخل التفاصيل: منع تراكب الأزرار فوق الشريط ===== */
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage{
+  width:100%;
+  max-width:1180px;
+  max-height:none;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player{
+  grid-template-columns:minmax(220px,40%) minmax(0,60%);
+  grid-template-rows:44px 40px minmax(58px,1fr);
+  height:240px;
+  min-height:240px;
+  max-height:240px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player video{
+  height:240px !important;
+  max-height:240px !important;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player .ctl{
+  flex-wrap:nowrap;
+  overflow:hidden;
+  gap:6px;
+  padding:6px 8px !important;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player .ctl button{
+  flex:0 1 auto;
+  min-width:0;
+  padding:4px 10px;
+  font-size:13px;
+  white-space:nowrap;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #vodtrack{
+  gap:8px;
+  overflow:hidden;
+}
