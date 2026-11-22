@@ -1916,7 +1916,7 @@ body.cine-mini.vod-detail-play #vodclose{
 
 @media(max-width:700px){
   #vod.vod-details .vdetail-overlay{padding:8px}
-  #vod.vod-details .vdetails{width:100%;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);padding:10px;border-radius:14px}
+  #vod.vod-details .vdetails{width:100%;max-height:calc((100vh - 16px) / var(--ui-zoom,1));max-height:calc((100dvh - 16px) / var(--ui-zoom,1));padding:10px;border-radius:14px}
   #vod.vod-details .vdetail-shell{gap:8px}
   #vod.vod-details .vdetail-head{
     max-height:min(58vh,390px);
@@ -2931,9 +2931,9 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   position:fixed !important;
   inset:0 !important;
   z-index:180 !important;
-  width:100vw;
-  height:100dvh;
-  min-height:100dvh;
+  width:100%;
+  height:100%;
+  min-height:0;
   display:block !important;
   background:#030807;
   overflow:hidden;
@@ -2944,7 +2944,7 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   z-index:181 !important;
   display:block !important;
   width:100%;
-  height:100dvh;
+  height:100%;
   padding:0 !important;
   overflow:hidden !important;
   background:
@@ -2958,8 +2958,8 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   inset:auto !important;
   width:100% !important;
   max-width:none !important;
-  height:100dvh !important;
-  max-height:100dvh !important;
+  height:100% !important;
+  max-height:100% !important;
   margin:0 !important;
   padding:0 0 24px !important;
   overflow-y:auto !important;
@@ -2976,7 +2976,7 @@ body.cine-mini.vod-detail-play #player{border-radius:16px}
   position:relative;
   z-index:2;
   width:min(1280px,calc(100% - 56px)) !important;
-  min-height:100dvh;
+  min-height:calc(100dvh / var(--ui-zoom,1));
   margin:0 auto !important;
   display:flex;
   flex-direction:column;
@@ -3136,7 +3136,7 @@ body.cine-mini.vod-detail-play #vod .vdetail-player-stage .ctl{
 @media(max-width:700px){
   #vod.vod-details .vdetail-shell{
     width:calc(100% - 24px) !important;
-    min-height:100dvh;
+    min-height:calc(100dvh / var(--ui-zoom,1));
     gap:12px;
     padding:10px 0 24px;
   }
@@ -3172,3 +3172,48 @@ body.cine-mini.vod-detail-play #vod .vdetail-player-stage .ctl{
   }
 }
 
+
+/* ===== إصلاحات شاشة التفاصيل (Nov-21) =====
+   1) عنصر hidden كان يُظهَر لأن قاعدة display:flex اللاحقة تتغلب على [hidden]
+   2) ألوان الشاشة داكنة دائماً، فتُثبَّت عناصر الشريط العلوي على ألوان فاتحة النص حتى مع الثيم الفاتح */
+#vod.vod-details .vdetail-short-cast[hidden],
+#vod.vod-details .vdetail-trailer[hidden],
+#vod.vod-details .vdetail-cast-section[hidden],
+#vod.vod-details .vdetail-card-summary[hidden],
+#vod.vod-details .vtrailer-card[hidden]{display:none !important}
+:root[data-eff="light"] #vod.vod-details .vdetail-topbar-tag{background:rgba(3,12,10,.62);border-color:rgba(61,201,174,.32);color:#d2efe9}
+
+/* ===== المشغّل المصغّر داخل التفاصيل: منع تراكب الأزرار فوق الشريط ===== */
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage{
+  width:100%;
+  max-width:1180px;
+  max-height:none;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player{
+  grid-template-columns:minmax(220px,40%) minmax(0,60%);
+  grid-template-rows:44px 40px minmax(58px,1fr);
+  height:240px;
+  min-height:240px;
+  max-height:240px;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player video{
+  height:240px !important;
+  max-height:240px !important;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player .ctl{
+  flex-wrap:nowrap;
+  overflow:hidden;
+  gap:6px;
+  padding:6px 8px !important;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #player .ctl button{
+  flex:0 1 auto;
+  min-width:0;
+  padding:4px 10px;
+  font-size:13px;
+  white-space:nowrap;
+}
+body.cine-mini.vod-detail-play #vod .vdetail-player-stage #vodtrack{
+  gap:8px;
+  overflow:hidden;
+}
