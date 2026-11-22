@@ -37,10 +37,10 @@
 }
 html{background:#030d0b}
 :root[data-eff="light"],:root[data-eff="light"] body{background:#e6f0ee}
-:root[data-eff="light"] section{background:#000}            /* المشغّل يبقى أسود دائماً */
+:root[data-eff="light"] main>section{background:#000}            /* المشغّل يبقى أسود دائماً */
 
 /* ---- 3) قائمة الريسيفر (القنوات/المصادر) في الوضع النهاري ---- */
-:root[data-eff="light"] body.rcv.menu section{background:linear-gradient(160deg,#e3f4f0,#f6fbfa 55%,#dbebe8)}
+:root[data-eff="light"] body.rcv.menu main>section{background:linear-gradient(160deg,#e3f4f0,#f6fbfa 55%,#dbebe8)}
 :root[data-eff="light"] #rmenu{color:#0f2b28}
 :root[data-eff="light"] #rmenu .mh{background:linear-gradient(90deg,#0f9c85,#0a5448 70%,#073a32);color:#fff}
 :root[data-eff="light"] #rmenu .mh *{color:#fff}

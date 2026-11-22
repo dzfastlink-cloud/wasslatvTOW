@@ -7,8 +7,8 @@
     const wait=Math.max(0,1200-(performance.now()-t0));
     setTimeout(()=>{
       sp.classList.add('gone');
-      if(window.setUIMode&&!document.body.classList.contains('rcv'))window.setUIMode('rcv',true);
-      if(window.__openQuick)window.__openQuick();
+      if(window.__rcv&&!document.body.classList.contains('rcv'))window.__rcv.set(true,true);
+      if(window.__openQuick&&!(window.__vodOn&&window.__vodOn()))window.__openQuick();   /* لا تُفتح القائمة السريعة فوق مكتبة الأفلام */
       setTimeout(()=>{sp.style.display='none';if(!(window.__qpOn&&window.__qpOn())&&!(window.WasslaHome&&WasslaHome.isOn())&&window.__hintLive)window.__hintLive()},520);
     },wait);
   }

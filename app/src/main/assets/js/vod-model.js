@@ -3,6 +3,8 @@
   if(typeof module==='object'&&module.exports)module.exports=model;
   if(root)root.WasslaVodModel=model;
 })(typeof window==='undefined'?globalThis:window,function(){
+  const MIN_RESUME_SECONDS=15;
+  const AUTO_COMPLETE_RATIO=0.92;
   function normalizeSearch(value){
     return String(value||'').normalize('NFKC').toLowerCase().replace(/\p{M}/gu,'')
       .replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
@@ -25,9 +27,22 @@
     if(!record||record.watched||!Number.isFinite(record.position)||!Number.isFinite(record.duration)||record.duration<=0||record.position<=0)return 0;
     return Math.max(1,Math.min(99,Math.round(record.position/record.duration*100)));
   }
-  function shouldResume(record){
-    return !!record&&!record.watched&&Number.isFinite(record.position)&&record.position>=5&&
-      Number.isFinite(record.duration)&&record.duration>0&&record.position<record.duration*0.95;
+  function shouldAutoComplete(position,duration){
+    return Number.isFinite(duration)&&duration>0&&Number.isFinite(position)&&position>=duration*AUTO_COMPLETE_RATIO;
   }
-  return {normalizeSearch,normalizeTitle,yearOf,sameTitle,progressPercent,shouldResume};
+  function shouldResume(record){
+    return !!record&&!record.watched&&Number.isFinite(record.position)&&record.position>=MIN_RESUME_SECONDS&&
+      Number.isFinite(record.duration)&&record.duration>0&&record.position<record.duration*AUTO_COMPLETE_RATIO;
+  }
+  return {
+    MIN_RESUME_SECONDS,
+    AUTO_COMPLETE_RATIO,
+    normalizeSearch,
+    normalizeTitle,
+    yearOf,
+    sameTitle,
+    progressPercent,
+    shouldAutoComplete,
+    shouldResume
+  };
 });

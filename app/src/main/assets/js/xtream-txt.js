@@ -95,34 +95,95 @@
   }
   window.xtParseTxt=parse;
 
-  window.addList=async function(text,name,url){
-    // M3U حقيقي أو رابط تنزيل أو نص كبير: المسار الأصلي بلا تغيير
-    if(url||!text||text.length>20000||/#EXTM3U|#EXTINF/i.test(text))return origAdd(text,name,url);
+  window.addList=async function(text,name,url,opts){
+    // M3U حقيقي أو رابط تنزيل أو نص كبير: المسار الأصلي مع تمرير الخيارات
+    if(url||!text||text.length>20000||/#EXTM3U|#EXTINF/i.test(text))return origAdd(text,name,url,opts);
     let acc=[];
     try{acc=parse(text)}catch(e){}
-    if(!acc.length)return origAdd(text,name,url);
+    if(!acc.length){
+      if(/\.txt$/i.test(String(name||''))){
+        window.__lastImportError='لم يتم التعرف على بيانات Xtream في الملف النصي. تأكد من كتابة السيرفر والمستخدم وكلمة السر بصيغة صحيحة.';
+      }
+      return origAdd(text,name,url,opts);
+    }
+
+    const Loader=window.WasslaSourceLoader;
+    const externalSession=opts&&opts.session;
+    const silentLoader=!!(opts&&opts.silentLoader);
+    const session=externalSession||(!silentLoader&&Loader?Loader.begin({
+      mode:'xtream',
+      title:(name||'ملف حسابات Xtream')+(acc.length>1?' ('+acc.length+' حسابات)':'')
+    }):null);
+    if(session&&externalSession){
+      session.setSteps(Loader.defaultSteps('xtream'));
+      session.setTitle((name||'ملف حسابات Xtream')+(acc.length>1?' ('+acc.length+' حسابات)':''));
+    }
 
     const valid=[],failed=[];
     for(let i=0;i<acc.length;i++){
+      if(session&&session.aborted)return false;
       const a=acc[i];
       let nm=a.name||name||a.host.replace(/^https?:\/\//,'');
       if(acc.length>1&&!a.name)nm=(name||'Xtream')+' '+(i+1);
+      if(session&&acc.length>1){
+        session.setHeading('جارٍ تحميل الحساب '+(i+1)+' من '+acc.length);
+        session.setTitle(nm+' · '+a.host);
+      }
       try{
-        const prepared=await window.xtPrepare(a.host,a.user,a.pass);
+        const hooks=session&&window.__bindXtreamSession?window.__bindXtreamSession(session,a.host):undefined;
+        const prepared=await window.xtPrepare(a.host,a.user,a.pass,hooks);
         valid.push({name:nm,prepared});
-      }catch(e){failed.push({name:nm,reason:'فشل الاتصال أو لا يوجد محتوى صالح'})}
+      }catch(e){
+        if(e&&e.name==='AbortError')return false;
+        failed.push({name:nm,reason:'فشل الاتصال أو لا يوجد محتوى صالح'});
+      }
     }
-    if(valid.length&&window.__reviewXtreamAccounts)return window.__reviewXtreamAccounts(valid,failed);
+    const keepSessionOpen=!!(opts&&opts.keepSessionOpen);
+    if(session&&session.aborted)return false;
+    if(valid.length&&window.__reviewXtreamAccounts){
+      return window.__reviewXtreamAccounts(valid,failed,{session,keepSessionOpen});
+    }
     if(valid.length){
-      let ok=0;
+      let ok=0,lastSourceId='';
+      const allItems=[];
+      let totalBytes=0;
+      if(session){
+        session.setStep('save','active','جاري حفظ المصادر المستوردة وتفعيلها…');
+        session.setProgress(88,'تخزين '+valid.length+' حساب محلياً…');
+      }
       for(const account of valid){
-        try{if(await window.xtAddPrepared(account.prepared,account.name))ok++}
-        catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
+        try{
+          const before=new Set(lists.map(l=>l.id));
+          if(await window.xtAddPrepared(account.prepared,account.name,{silentLoader:true})){
+            ok++;
+            const added=lists.find(l=>!before.has(l.id));
+            if(added)lastSourceId=added.id;
+            totalBytes+=new Blob([account.prepared.text||'']).size;
+            parseM3U(account.prepared.text||'').forEach(it=>allItems.push(it));
+          }
+        }catch(e){failed.push({name:account.name,reason:'تعذّرت الإضافة'})}
+      }
+      if(session&&!keepSessionOpen){
+        if(ok>0){
+          const stats=Loader.analyzeItems(allItems,{bytes:totalBytes});
+          session.setStep('save','done','تم حفظ وتفعيل '+ok+' مصدر بنجاح');
+          session.succeed({
+            title:valid[valid.length-1].name,
+            stats,
+            sourceId:lastSourceId,
+            note:failed.length?('تمت إضافة '+ok+' حساب، وتعذّر '+failed.length+'.'):'تم استيراد حساب Xtream وتفعيله بنجاح.'
+          });
+        }else{
+          session.fail('تعذّرت إضافة حسابات Xtream المستخرجة من الملف.','save');
+        }
       }
       if(failed.length&&typeof setMsg==='function')setMsg('تم التحقق من الحسابات؛ تعذّرت إضافة بعض الحسابات.',true);
       return ok>0;
     }
-    if(typeof setMsg==='function')setMsg('تعذّر الاتصال بسيرفر Xtream الموجود في الملف. تحقق من العنوان واسم المستخدم وكلمة السر.',true);
+    const failMsg='تعذّر الاتصال بسيرفر Xtream الموجود في الملف. تحقق من العنوان واسم المستخدم وكلمة السر.';
+    window.__lastImportError=failMsg;
+    if(session&&!keepSessionOpen&&!session.closed)session.fail(failMsg,'connect');
+    if(typeof setMsg==='function')setMsg(failMsg,true);
     return false;
   };
 })();

@@ -10,17 +10,9 @@
       o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.1);
     }catch(e){}
   }
-  window.setUIMode=function(m,silent){
-    const mode=window.WasslaVodPlayback.resolveUIMode(m);
-    if(!mode)throw new RangeError('Unsupported UI mode: '+m);
-    window.__rcv.set(mode==='rcv',silent);
-    LS.set('m3u_mode',mode);
-    return mode;
-  };
+  window.setUIMode=function(m,silent){window.__rcv.set(true,silent);LS.set('m3u_mode','rcv')};
   zs.checked=LS.get('m3u_zap',true);zs.onchange=e=>LS.set('m3u_zap',e.target.checked);
-  window.addEventListener('wassla:playrequest',e=>{
-    if(e.detail&&e.detail.item&&zs.checked&&!window.__previewing&&performance.now()>4000)beep();
-  });
-  const saved=LS.get('m3u_mode',LS.get('m3u_rcv',true)?'rcv':'home');
-  window.setUIMode(saved==='home'?'home':'rcv',true);
+  const _p=play;
+  play=function(it){_p(it);if(zs.checked&&!window.__previewing&&performance.now()>4000)beep()};
+  setTimeout(()=>window.setUIMode('rcv',true),300);
 })();

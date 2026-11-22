@@ -41,11 +41,7 @@
     clearWait();
     const vod=isVod();
     slow=setTimeout(()=>{if(box.classList.contains('on')&&!box.classList.contains('bad'))st.textContent='الاتصال بطيء…';},vod?10000:12000);
-    gone=setTimeout(()=>{
-      gone=null;
-      if(window.__playTrying)return;
-      failed(vod?'تعذّر تشغيل المحتوى':'تعذّر تشغيل القناة');
-    },vod?18000:(autoReconnectUsed?12000:8000));
+    gone=setTimeout(()=>{gone=null;failed(vod?'تعذّر تشغيل المحتوى':'تعذّر تشغيل القناة')},vod?18000:(autoReconnectUsed?12000:8000));
   }
   lg.onerror=()=>{lg.style.display='none'};
   v.addEventListener('playing',()=>{
@@ -74,16 +70,16 @@
     if(!cur||!hasPlayed||v.paused||v.ended||v.seeking||box.classList.contains('bad'))return;
     if(Date.now()-lastAdvance>(isVod()?22000:15000))failed(isVod()?'توقف التشغيل':'توقف البث');
   },3000);
-  window.addEventListener('wassla:playrequest',e=>{
-    const it=e.detail&&e.detail.item;
-    if(it&&!(it.url===curUrl&&!v.paused))show(it);
-  });
+  const _p=play;
+  play=function(it){
+    if(!(it&&it.url===curUrl&&!v.paused))show(it);
+    return _p(it);
+  };
   const _m=window.setMsg;
   window.setMsg=function(t,err){
     _m(t,err);
-    if(err&&box.classList.contains('on'))bad('تعذّر تشغيل القناة');
+    if(err&&box.classList.contains('on'))bad(t||(isVod()?'تعذّر تشغيل المحتوى':'تعذّر تشغيل القناة'));
   };
-  // تبقى القناة الحالية محددة؛ المستخدم هو من يقرر إعادة المحاولة أو الانتقال.
   $('ldgr').onclick=()=>{if(cur){autoReconnectUsed=false;show(cur);play(cur)}};
   $('ldgb').onclick=()=>{
     hide();
@@ -94,6 +90,6 @@
   window.__ldgBad=()=>box.classList.contains('bad');
   window.__ldgRetry=()=>{if(cur)play(cur)};
   window.__ldgHide=()=>{cur=null;hide()};
-  $('ldgx').onclick=()=>{if(typeof window.step==='function')step(1)};
+  $('ldgx').onclick=()=>{if(!isVod()&&typeof window.step==='function')step(1)};
   window.addEventListener('beforeunload',()=>clearInterval(watchdog),{once:true});
 })();

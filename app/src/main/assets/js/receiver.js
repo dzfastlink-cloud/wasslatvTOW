@@ -16,28 +16,28 @@
   /* ===== المصادر ← التصنيفات ← القنوات (ثلاثة مستويات، رجوع يتراجع خطوة) ===== */
   let level='rows',nav=[],panel=[];
   const kcache=new Map();
-  function kindsOf(l){
-    const key=l.id+':'+(l.upd||0)+':'+(l.n||0);let c=kcache.get(key);if(c)return c;
-    c={live:0,vod:0,groups:new Map()};
-    try{parseM3U(l.text).forEach(it=>{
-      const k=detectKind(it);
+  function kindsOfItems(arr){
+    const c={live:0,vod:0,groups:new Map()};
+    for(let i=0;i<arr.length;i++){
+      const it=arr[i],k=detectKind(it);
       if(k==='movie'||k==='series')c.vod++;
       else{c.live++;const g=it.group||'بدون مجموعة';c.groups.set(g,(c.groups.get(g)||0)+1)}
-    })}catch(e){}
-    kcache.set(key,c);return c;
+    }
+    return c;
   }
   let cdK='',cdV=null;
   function catData(){
-    const l0=(lists||[]).find(x=>x.id===active),key=active+'|'+(l0?(l0.upd||0)+':'+(l0.n||0)+':'+((l0.text||'').length):'')+'|'+items.length+'|'+favs.size+'|'+recs.length;
+    const liveIds=window.__liveSources?window.__liveSources.getSelected().join(','):active;
+    const key=liveIds+'|'+items.length+'|'+favs.size+'|'+recs.length;
     if(cdV&&cdK===key)return cdV;
     const v=catData0();cdK=key;cdV=v;return v;
   }
   function catData0(){
-    const l=(lists||[]).find(x=>x.id===active),k=l?kindsOf(l):{live:items.length,vod:0,groups:new Map()},out=[];
+    const k=kindsOfItems(items),out=[];
     const IC={'أخبار':'📰','MBC':'📺','دينية':'🕌','موسيقى':'🎵','إذاعات':'📻','الجزائر':'📍','رياضة':'⚽','أطفال':'🧸','أفلام':'🎬','وثائقي':'🌍'};
-    out.push({v:'',ic:'📺',nm:'كل القنوات',ct:(k.live||items.length)+' قناة'});
-    const nf=items.filter(i=>favs.has(i.url)).length;if(nf)out.push({v:'__fav',ic:'★',nm:'المفضلة',ct:nf+' قناة'});
-    const nr=recs.filter(u=>items.some(i=>i.url===u)).length;if(nr)out.push({v:'__rec',ic:'🕘',nm:'آخر ما شاهدت',ct:nr+' قناة'});
+    out.push({v:'',ic:'📺',nm:'كل القنوات',ct:k.live+' قناة'});
+    const nf=items.filter(i=>detectKind(i)!=='movie'&&detectKind(i)!=='series'&&favs.has(i.url)).length;if(nf)out.push({v:'__fav',ic:'★',nm:'المفضلة',ct:nf+' قناة'});
+    const nr=recs.filter(u=>items.some(i=>i.url===u&&detectKind(i)!=='movie'&&detectKind(i)!=='series')).length;if(nr)out.push({v:'__rec',ic:'🕘',nm:'آخر ما شاهدت',ct:nr+' قناة'});
     k.groups.forEach((c,g)=>out.push({v:g,ic:IC[g]||'📁',nm:g,ct:c+' قناة'}));
     return out;
   }
@@ -169,7 +169,7 @@
     if(it&&zone==='rows'&&open&&!/^__/.test($('grp').value)){const gg=it.group||'بدون مجموعة';if(gg!==lastG){lastG=gg;glowCard(gg)}}
   }
   function updateHeaderMeta(){
-    const sn=rm.querySelector('.source-name');if(sn){const l=(lists||[]).find(x=>x.id===active);sn.textContent=l?l.name:'';sn.style.display=l?'':'none'}
+    const sn=rm.querySelector('.source-name');if(sn){const txt=window.__liveSources?window.__liveSources.summary():((lists||[]).find(x=>x.id===active)?.name||'');sn.textContent=txt;sn.style.display=txt?'':'none'}
     const cats=catData(),cur=$('grp').value,i=cats.findIndex(x=>x.v===cur);
     const catName=rm.querySelector('.category-name'),catCount=rm.querySelector('.category-count');
     if(catName)catName.textContent=i>=0?cats[i].nm:'كل القنوات';
@@ -263,8 +263,8 @@
   }
   function setMode(m,silent){on=m;document.body.classList.toggle('rcv',m);LS.set('m3u_rcv',m);v.controls=!m;closeL(true);rb.classList.remove('on');if(m){$('q').value='';$('grp').value='';render();if(!silent&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{})}else if(document.fullscreenElement===document.documentElement)document.exitFullscreen().catch(()=>{})}
   rx.onclick=e=>{e.stopPropagation();if(window.WasslaHome)WasslaHome.open()};
-  $('player').addEventListener('click',()=>{if(on)open?closeL():openL()});
-  document.addEventListener('mousemove',()=>{if(!on)return;rx.classList.add('on');clearTimeout(xT);xT=setTimeout(()=>rx.classList.remove('on'),3000)});
+  $('player').addEventListener('click',()=>{if(!on||(window.__vodOn&&window.__vodOn()))return;open?closeL():openL()});
+  document.addEventListener('mousemove',()=>{if(!on||(window.__vodOn&&window.__vodOn())){rx.classList.remove('on');return}rx.classList.add('on');clearTimeout(xT);xT=setTimeout(()=>rx.classList.remove('on'),3000)});
   document.addEventListener('keydown',e=>{
     const t=e.target.tagName;
     if(/INPUT|TEXTAREA|SELECT/.test(t)||document.querySelector('dialog[open]')||stOn()||(window.WasslaHome&&WasslaHome.isOn())||(window.__vodOn&&window.__vodOn())||(window.__qpOn&&window.__qpOn())||e.ctrlKey||e.altKey||e.metaKey)return;
@@ -278,10 +278,7 @@
     else if(k==='ArrowUp'||k==='ArrowDown'){stop();zapByNumber(k==='ArrowUp'?1:-1)}
     else if(e.code==='KeyI'){stop();const it=shown.find(i=>i.url===curUrl);if(it)banner(it)}
   },true);
-  window.addEventListener('wassla:playrequest',e=>{
-    const it=e.detail&&e.detail.item;
-    if(it&&on&&!(window.__vodOn&&window.__vodOn()))banner(it);
-  });
+  const _play=play;play=function(it){_play(it);if(on&&!(window.__vodOn&&window.__vodOn()))banner(it)};
   window.__rcv={set:setMode};window.__rcvState=()=>({on,open,zone});window.__rcvOpen=function(){if($('grp').value==='__fav'){$('grp').value='';render()}openL()};window.__rcvOpenFav=function(){if(!favs.size){toast('لا توجد قنوات مفضلة');return}$('grp').value='__fav';render();lastG=null;openL();toast('وضع المفضلة — رجوع للخروج منه')};window.__rcvOpenCats=function(){openL();setZone('head')};window.__rcvOpenSources=window.__rcvOpenCats;window.__rcvNumpad=function(){closeL();openNumpad()};window.__rcvClose=closeL;window.__rcvToast=toast;window.__zapNum=zapByNumber;
   window.__rcvRefresh=()=>{if(open){build();sel=Math.min(sel,Math.max(0,rows.children.length-1));mark()}};
 
