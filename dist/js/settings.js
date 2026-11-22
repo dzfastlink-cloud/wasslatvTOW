@@ -152,7 +152,7 @@
     {id:'large',label:'كبير',sub:'أوضح من مسافة أبعد'}
   ];
   function libraryLayout(keep){
-    const density=LIBRARY_DENSITIES.find(x=>x.id===LS.get('m3u_vod_density','balanced'))||LIBRARY_DENSITIES[1];
+    const density=LIBRARY_DENSITIES.find(x=>x.id===LS.get('m3u_vod_density','compact'))||LIBRARY_DENSITIES[0];
     const titleSize=LIBRARY_TITLE_SIZES.find(x=>x.id===LS.get('m3u_vod_title_size','medium'))||LIBRARY_TITLE_SIZES[1];
     show('تنظيم المكتبة',[
       {icon:'▦',label:'كثافة بطاقات المكتبة',sub:'عدد الملصقات المعروضة في الصف',val:density.label,run:()=>push(libraryDensityPick)},
@@ -160,7 +160,7 @@
     ],keep);
   }
   function libraryDensityPick(keep){
-    const current=LS.get('m3u_vod_density','balanced');
+    const current=LS.get('m3u_vod_density','compact');
     show('كثافة بطاقات المكتبة',LIBRARY_DENSITIES.map(option=>({
       sw:option.id,label:option.label,sub:option.sub,check:current===option.id,
       run:()=>{LS.set('m3u_vod_density',option.id);if(window.__applyVodAppearance)window.__applyVodAppearance();toast('تم تطبيق كثافة المكتبة: '+option.label);back()}
