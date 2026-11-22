@@ -3263,3 +3263,199 @@ body.cine-mini.vod-detail-play #vod .vdetail-player-stage #vodtrack{
   :root body #vod[data-density] .vhero b{font-size:16px}
   :root body #vod[data-density] .vhero-actions button{min-height:34px;padding:4px 12px;font-size:14px}
 }
+
+/* ===== مكتبة الأفلام: بطاقة سينمائية زجاجية وتركيز ثابت ===== */
+:root body #vod[data-density]{
+  --vc-w:clamp(94px,7.5vw,150px);
+}
+:root body #vod[data-density="balanced"]{--vc-w:clamp(112px,8.8vw,168px)}
+:root body #vod[data-density="comfortable"]{--vc-w:clamp(132px,12vw,208px)}
+:root body #vod[data-density] .vhero{
+  flex:none;
+  min-height:clamp(168px,24vh,244px);
+  margin:clamp(7px,1.2vh,14px) clamp(16px,2.4vw,36px) 8px;
+  padding:clamp(16px,2vw,24px);
+  align-items:center;
+  gap:16px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;
+  background:linear-gradient(110deg,rgba(5,19,17,.8),rgba(8,33,29,.58) 58%,rgba(5,19,17,.68));
+  box-shadow:0 16px 38px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.12);
+  -webkit-backdrop-filter:blur(16px) saturate(1.15);
+  backdrop-filter:blur(16px) saturate(1.15);
+}
+:root body #vod[data-density] .vhero::after{
+  display:block!important;
+  background:
+    linear-gradient(90deg,rgba(3,12,10,.64),rgba(3,15,13,.22) 42%,rgba(3,12,10,.7)),
+    linear-gradient(0deg,rgba(3,12,10,.58),transparent 82%);
+}
+:root body #vod[data-density] .vhero img.vhero-art:not([hidden]){
+  display:block!important;
+  opacity:.56;
+  filter:saturate(.76) blur(1px);
+  transform:scale(1.025);
+  transition:opacity .22s ease;
+}
+:root body #vod[data-density] .vhero.art-loading img.vhero-art,
+:root body #vod[data-density] .vhero.art-loading .vhero-poster{opacity:.18}
+:root body #vod[data-density] .vhero img.vhero-poster{
+  position:absolute;
+  z-index:2;
+  left:clamp(16px,2vw,30px);
+  top:50%;
+  display:block;
+  width:clamp(98px,10vw,154px);
+  height:clamp(138px,21vh,210px);
+  object-fit:cover;
+  object-position:center 25%;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:13px;
+  box-shadow:0 12px 28px rgba(0,0,0,.48);
+  transform:translateY(-50%);
+  transition:opacity .22s ease;
+}
+:root body #vod[data-density] .vhero img.vhero-poster[hidden]{display:none!important}
+:root body #vod[data-density] .vhtxt{
+  z-index:2;
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  flex-wrap:nowrap;
+  align-items:flex-start;
+  width:100%;
+  min-width:0;
+  padding-left:clamp(118px,16vw,202px);
+  padding-right:clamp(14px,2vw,28px);
+  gap:8px;
+}
+:root body #vod[data-density] .vhero b{
+  max-width:min(100%,34ch);
+  font-size:clamp(23px,2.5vw,38px);
+  line-height:1.18;
+  -webkit-line-clamp:2;
+  text-shadow:0 2px 10px rgba(0,0,0,.48);
+}
+:root body #vod[data-density] .vhero small{
+  max-width:64ch;
+  color:#e4f2ef;
+  font-size:clamp(13px,1.1vw,16px);
+  line-height:1.5;
+  -webkit-line-clamp:2;
+  text-shadow:0 1px 7px rgba(0,0,0,.42);
+}
+:root body #vod[data-density] .vhero .vcount{
+  position:absolute;
+  top:12px;
+  right:14px;
+  inset-inline-end:auto;
+  z-index:3;
+  order:0;
+  padding:4px 10px;
+  border-color:rgba(255,255,255,.2);
+  border-radius:999px;
+  background:rgba(3,13,11,.58);
+  font-size:12px;
+}
+:root body #vod[data-density] .vhero-actions{
+  flex:none;
+  margin:4px 0 0;
+  gap:8px;
+}
+:root body #vod[data-density] .vhero-actions button{
+  min-height:42px;
+  padding:8px 17px;
+  border-radius:11px;
+  box-shadow:0 5px 16px rgba(0,0,0,.2);
+  transition:filter .14s ease,box-shadow .14s ease,border-color .14s ease;
+}
+:root body #vod[data-density] .vhero-actions button:not(.alt){
+  border-color:#ffe0a6;
+  background:linear-gradient(135deg,#ffd27f,#f5b04c);
+}
+:root body #vod[data-density] .vhero-actions button.alt{
+  border-color:rgba(255,255,255,.27);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+}
+:root body #vod[data-density] .vhero-actions button.sel,
+:root body #vod[data-density] .vhero-actions button:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:2px;
+  box-shadow:0 0 0 5px rgba(245,176,76,.32);
+  transform:none;
+}
+:root body #vod[data-density] .vhero .vhero-prog{display:block}
+:root body #vod[data-density] .vdshelf-grid{gap:clamp(9px,1vw,16px);padding:7px 12px 12px}
+:root body #vod[data-density] .vdshelf-grid .vc .vn,
+:root body #vod[data-density] .vgrid .vn{
+  min-height:2.7em;
+  font-size:clamp(13px,1vw,16px);
+  line-height:1.35;
+  -webkit-line-clamp:2;
+}
+:root body #vod[data-density] .vp .vr,
+:root body #vod[data-density] .vp>i,
+:root body #vod[data-density] .vp .vwatched{display:none!important}
+:root body #vod[data-density] .vfav-btn{
+  top:8px;
+  left:8px;
+  bottom:auto;
+  width:28px;
+  height:28px;
+  border-color:rgba(255,255,255,.5);
+  background:rgba(5,15,18,.58);
+  color:#fff;
+  font-size:17px;
+  opacity:.92;
+  box-shadow:0 2px 8px rgba(0,0,0,.28);
+}
+:root body #vod[data-density] .vfav-btn.on{
+  border-color:rgba(255,130,150,.9);
+  background:rgba(42,13,22,.72);
+  color:#ff8296;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+:root body #vod[data-density] .vc:hover .vp,
+:root body #vod[data-density] .vc.sel .vp,
+:root body #vod[data-density] .vc:hover .vp,
+:root body.tv #vod[data-density] .vdshelf-grid .vc.sel .vp{
+  transform:none;
+  transition:outline-color .16s ease,box-shadow .16s ease,border-color .16s ease;
+}
+:root body #vod[data-density] .vc.sel .vp{
+  outline-width:2px;
+  outline-offset:3px;
+  box-shadow:0 0 0 4px rgba(245,176,76,.18),0 8px 18px rgba(0,0,0,.34);
+}
+:root body #vod[data-density] .vc:hover .vp{
+  outline-width:1px;
+  outline-offset:2px;
+}
+:root[data-eff="light"] body #vod[data-density] .vhero{
+  border-color:rgba(255,255,255,.55);
+  background:linear-gradient(110deg,rgba(18,34,32,.78),rgba(25,57,51,.5) 58%,rgba(18,34,32,.68));
+}
+@media(max-width:700px){
+  :root body #vod[data-density] .vhero{
+    min-height:158px;
+    margin:7px 10px 6px;
+    padding:11px;
+    border-radius:15px;
+  }
+  :root body #vod[data-density] .vhero img.vhero-poster{
+    left:11px;
+    width:82px;
+    height:120px;
+    border-radius:10px;
+  }
+  :root body #vod[data-density] .vhtxt{padding-left:98px;padding-right:3px;gap:5px}
+  :root body #vod[data-density] .vhero b{font-size:clamp(18px,5vw,24px)}
+  :root body #vod[data-density] .vhero small{font-size:12px;-webkit-line-clamp:2}
+  :root body #vod[data-density] .vhero .vcount{top:7px;right:8px;padding:3px 7px;font-size:10px}
+  :root body #vod[data-density] .vhero-actions{gap:6px}
+  :root body #vod[data-density] .vhero-actions button{min-height:34px;padding:5px 10px;font-size:12px}
+  :root body #vod[data-density] .vfav-btn{top:6px;left:6px;width:25px;height:25px;font-size:15px}
+}

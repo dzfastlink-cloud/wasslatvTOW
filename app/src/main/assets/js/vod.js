@@ -43,7 +43,7 @@
   window.__applyVodAppearance=applyLibraryAppearance;
   applyLibraryAppearance();
   window.__vodOn=()=>on;
-  let heroCard=null;
+  let heroCard=null,heroArtToken=0,heroArtTimer=0;
 
   /* ---------- التحليل والتصنيف ---------- */
   const EP1=/^(.*?)[\s._-]*[sS](\d{1,2})[\s._-]*[eE](\d{1,3})/;
@@ -171,14 +171,44 @@
   }
 
   /* ---------- الرسم ---------- */
+  function setHeroArtwork(url){
+    const hero=$('vodh'),art=$('vpimg'),poster=$('vpposter');
+    if(heroArtTimer){clearTimeout(heroArtTimer);heroArtTimer=0}
+    const token=++heroArtToken;
+    if(!url){
+      hero.classList.remove('art-loading');
+      [art,poster].forEach(image=>{image.hidden=true;image.removeAttribute('src');delete image.dataset.url});
+      return;
+    }
+    if(art.dataset.url===url&&poster.dataset.url===url){
+      art.hidden=false;poster.hidden=false;hero.classList.remove('art-loading');
+      return;
+    }
+    hero.classList.add('art-loading');
+    heroArtTimer=setTimeout(()=>{
+      heroArtTimer=0;
+      const probe=new Image();
+      probe.onload=()=>{
+        if(token!==heroArtToken)return;
+        [art,poster].forEach(image=>{image.src=url;image.dataset.url=url;image.hidden=false});
+        hero.classList.remove('art-loading');
+      };
+      probe.onerror=()=>{
+        if(token!==heroArtToken)return;
+        [art,poster].forEach(image=>{image.hidden=true;image.removeAttribute('src');delete image.dataset.url});
+        hero.classList.remove('art-loading');
+      };
+      probe.src=url;
+    },110);
+  }
   function updateHero(c){
     heroCard=c||null;
-    const hero=$('vodh'),art=$('vpimg'),action=$('vodheroaction'),detailsBtn=$('vodherodetails'),progWrap=$('vodheroprog'),progFill=$('vodherofill');
+    const hero=$('vodh'),action=$('vodheroaction'),detailsBtn=$('vodherodetails'),progWrap=$('vodheroprog'),progFill=$('vodherofill');
     hero.classList.toggle('empty',!c);
     if(!c){
       $('vpt').textContent='';$('vps').textContent='';
       action.hidden=true;if(detailsBtn)detailsBtn.hidden=true;if(progWrap)progWrap.hidden=true;
-      art.hidden=true;art.removeAttribute('src');delete art.dataset.url;
+      setHeroArtwork('');
       return;
     }
     $('vpt').textContent=niceTitle(c.title);
@@ -189,14 +219,9 @@
     const heroRating=ratingOf(c);
     $('vps').textContent=(c.kind==='series'?'مسلسل'+(c.eps.length?' · '+c.eps.length+' حلقة':''):'فيلم')+
       (heroYear?' · '+heroYear:'')+
-      (c.group?' · '+c.group:'')+(c.sourceName?' · '+c.sourceName:'')+
+      (c.group?' · '+c.group:'')+
       (heroRating?' · IMDb ★ '+heroRating.toFixed(1):'')+(canResume?' · متابعة عند '+fmt(record.position):'');
-    if(c.logo){
-      if(art.dataset.url!==c.logo){art.dataset.url=c.logo;art.src=c.logo}
-      art.hidden=false;art.onerror=()=>{art.hidden=true};
-    }else{
-      art.hidden=true;art.removeAttribute('src');delete art.dataset.url;
-    }
+    setHeroArtwork(c.logo||'');
     if(progWrap&&progFill){
       const pct=canResume&&Model?Model.progressPercent(record):0;
       progWrap.hidden=!(canResume&&pct>0);
@@ -713,7 +738,7 @@
     const favBtn=document.createElement('button');
     favBtn.type='button';
     favBtn.className='vfav-btn'+(isFav?' on':'');
-    favBtn.textContent=isFav?'★':'☆';
+    favBtn.textContent=isFav?'♥':'♡';
     favBtn.setAttribute('aria-pressed',isFav?'true':'false');
     favBtn.setAttribute('aria-label',isFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
     favBtn.title=isFav?'إزالة من المفضلة':'إضافة إلى المفضلة';
@@ -927,7 +952,7 @@
     const favCards=getFavoriteCards();
     if(!favCards.length){
       $('vcount').textContent=FL.recommended+' · 0 عنصر';
-      msgInto(main,'لا توجد أفلام في المفضلة بعد لتوليد اقتراحات مشابهة.\nاضغط على ★ في بطاقة أي فيلم أو مسلسل وسيتم اقتراح أفلام مشابهة لنوعه تلقائياً.');
+      msgInto(main,'لا توجد أفلام في المفضلة بعد لتوليد اقتراحات مشابهة.\nاضغط على ♡ في بطاقة أي فيلم أو مسلسل وسيتم اقتراح أفلام مشابهة لنوعه تلقائياً.');
       const wrap=main.querySelector('.vempty');
       if(wrap){
         const btn=addAction('🎬 تصفح الأفلام',()=>selectTab('movies',1),'vempty-btn');
@@ -1053,7 +1078,7 @@
       const hasVodCandidates=getVodCandidateSources().length>0;
       const noneSelected=hasVodCandidates&&vodSelected.length===0;
       const empty=noneSelected?'لم يتم تحديد أي مصدر للمكتبة حالياً.\nاضغط على «📂 المصادر» للتأشير على مصدر واحد أو أكثر.':
-        filter==='favorites'?(query?'لا توجد نتائج مطابقة داخل المفضلة.':'قائمة المفضلة فارغة حالياً.\nاضغط على ★ في بطاقة أي فيلم أو مسلسل لإضافته إلى المفضلة والوصول إليه بسهولة لاحقاً.'):
+        filter==='favorites'?(query?'لا توجد نتائج مطابقة داخل المفضلة.':'قائمة المفضلة فارغة حالياً.\nاضغط على ♡ في بطاقة أي فيلم أو مسلسل لإضافته إلى المفضلة والوصول إليه بسهولة لاحقاً.'):
         filter==='resume'?'لا يوجد ما تتابعه الآن.\nابدأ فيلماً أو حلقة وسيظهر هنا تلقائياً.':
         filter==='watched'?'لا توجد مواد محددة كمشاهَدة.':
         filter==='unwatched'?'لا توجد مواد غير مشاهَدة في هذا المصدر.':
@@ -1579,7 +1604,7 @@
     actions.appendChild(addPlayAction(canResume?'متابعة':'تشغيل',()=>playCard(card,canResume?rec.position:0,true)));
     const cardFav=isVodFav(card);
     const favBtn=addAction('',()=>toggleVodFav(card),'alt vfav-action'+(cardFav?' on':''));
-    const favIcon=document.createElement('span');favIcon.className='vfav-icon';favIcon.textContent=cardFav?'★':'☆';favIcon.setAttribute('aria-hidden','true');
+    const favIcon=document.createElement('span');favIcon.className='vfav-icon';favIcon.textContent=cardFav?'♥':'♡';favIcon.setAttribute('aria-hidden','true');
     favBtn.appendChild(favIcon);
     favBtn.setAttribute('aria-label',cardFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
     favBtn.setAttribute('title',cardFav?'إزالة من المفضلة':'إضافة إلى المفضلة');
@@ -1766,7 +1791,7 @@
         const btn=node.querySelector('.vfav-btn');
         if(btn){
           btn.classList.toggle('on',fav);
-          btn.textContent=fav?'★':'☆';
+          btn.textContent=fav?'♥':'♡';
           btn.setAttribute('aria-pressed',fav?'true':'false');
           btn.setAttribute('aria-label',fav?'إزالة من المفضلة':'إضافة إلى المفضلة');
           btn.title=fav?'إزالة من المفضلة':'إضافة إلى المفضلة';
@@ -1778,7 +1803,7 @@
       if(dBtn){
         dBtn.classList.toggle('on',fav);
         const icon=dBtn.querySelector('.vfav-icon');
-        if(icon)icon.textContent=fav?'★':'☆';
+        if(icon)icon.textContent=fav?'♥':'♡';
         dBtn.setAttribute('aria-label',fav?'إزالة من المفضلة':'إضافة إلى المفضلة');
         dBtn.title=fav?'إزالة من المفضلة':'إضافة إلى المفضلة';
         dBtn.setAttribute('aria-pressed',fav?'true':'false');
