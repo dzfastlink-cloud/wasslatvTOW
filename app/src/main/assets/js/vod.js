@@ -43,7 +43,7 @@
   window.__applyVodAppearance=applyLibraryAppearance;
   applyLibraryAppearance();
   window.__vodOn=()=>on;
-  let heroCard=null,heroArtToken=0,heroArtTimer=0;
+  let heroCard=null,heroArtToken=0,heroArtTimer=0,heroMetaToken=0,heroMetaTimer=0,heroMetaController=null;
 
   /* ---------- التحليل والتصنيف ---------- */
   const EP1=/^(.*?)[\s._-]*[sS](\d{1,2})[\s._-]*[eE](\d{1,3})/;
@@ -171,57 +171,97 @@
   }
 
   /* ---------- الرسم ---------- */
-  function setHeroArtwork(url){
+  function setHeroArtwork(artUrl,posterUrl){
     const hero=$('vodh'),art=$('vpimg'),poster=$('vpposter');
     if(heroArtTimer){clearTimeout(heroArtTimer);heroArtTimer=0}
     const token=++heroArtToken;
-    if(!url){
+    const urls=[artUrl||posterUrl||'',posterUrl||artUrl||''];
+    if(!urls[0]&&!urls[1]){
       hero.classList.remove('art-loading');
       [art,poster].forEach(image=>{image.hidden=true;image.removeAttribute('src');delete image.dataset.url});
       return;
     }
-    if(art.dataset.url===url&&poster.dataset.url===url){
+    if(art.dataset.url===urls[0]&&poster.dataset.url===urls[1]){
       art.hidden=false;poster.hidden=false;hero.classList.remove('art-loading');
       return;
     }
     hero.classList.add('art-loading');
     heroArtTimer=setTimeout(()=>{
       heroArtTimer=0;
-      const probe=new Image();
-      probe.onload=()=>{
-        if(token!==heroArtToken)return;
-        [art,poster].forEach(image=>{image.src=url;image.dataset.url=url;image.hidden=false});
-        hero.classList.remove('art-loading');
-      };
-      probe.onerror=()=>{
-        if(token!==heroArtToken)return;
-        [art,poster].forEach(image=>{image.hidden=true;image.removeAttribute('src');delete image.dataset.url});
-        hero.classList.remove('art-loading');
-      };
-      probe.src=url;
+      let pending=2;
+      const finish=()=>{if(--pending===0&&token===heroArtToken)hero.classList.remove('art-loading')};
+      [[art,urls[0]],[poster,urls[1]]].forEach(([image,url])=>{
+        if(!url){
+          image.hidden=true;image.removeAttribute('src');delete image.dataset.url;finish();return;
+        }
+        if(image.dataset.url===url){
+          image.hidden=false;finish();return;
+        }
+        const probe=new Image();
+        probe.onload=()=>{
+          if(token!==heroArtToken)return;
+          image.src=url;image.dataset.url=url;image.hidden=false;finish();
+        };
+        probe.onerror=()=>{
+          if(token!==heroArtToken)return;
+          image.hidden=true;image.removeAttribute('src');delete image.dataset.url;finish();
+        };
+        probe.src=url;
+      });
     },110);
+  }
+  function scheduleHeroMetadata(card){
+    if(heroMetaTimer){clearTimeout(heroMetaTimer);heroMetaTimer=0}
+    if(heroMetaController){heroMetaController.abort();heroMetaController=null}
+    const token=++heroMetaToken,key=cardId(card);
+    if(!on||!Metadata||detailCache.has(key))return;
+    const source=lists.find(list=>list.id===card.sourceId)||null;
+    if(!Metadata.requestUrl(card,source))return;
+    heroMetaTimer=setTimeout(async()=>{
+      heroMetaTimer=0;
+      const controller=typeof AbortController==='function'?new AbortController():null;
+      heroMetaController=controller;
+      try{
+        const data=await Metadata.fetchInfo(card,source,window.fetch.bind(window),controller&&controller.signal);
+        if(token!==heroMetaToken||heroCard!==card||!on)return;
+        heroMetaController=null;
+        if(data)detailCache.set(key,data);
+        updateHero(card);
+      }catch(error){
+        if(token!==heroMetaToken||error&&error.name==='AbortError')return;
+        heroMetaController=null;
+      }
+    },420);
   }
   function updateHero(c){
     heroCard=c||null;
-    const hero=$('vodh'),action=$('vodheroaction'),detailsBtn=$('vodherodetails'),progWrap=$('vodheroprog'),progFill=$('vodherofill');
+    const hero=$('vodh'),action=$('vodheroaction'),detailsBtn=$('vodherodetails'),progWrap=$('vodheroprog'),progFill=$('vodherofill'),description=$('vpdesc');
     hero.classList.toggle('empty',!c);
     if(!c){
       $('vpt').textContent='';$('vps').textContent='';
+      description.textContent='';description.classList.add('is-empty');
       action.hidden=true;if(detailsBtn)detailsBtn.hidden=true;if(progWrap)progWrap.hidden=true;
-      setHeroArtwork('');
+      if(heroMetaTimer){clearTimeout(heroMetaTimer);heroMetaTimer=0}
+      if(heroMetaController){heroMetaController.abort();heroMetaController=null}
+      heroMetaToken++;
+      setHeroArtwork('','');
       return;
     }
     $('vpt').textContent=niceTitle(c.title);
     const record=c.resumeRecord||cardRecord(c);
     const canResume=!!(record&&Model&&Model.shouldResume(record)&&!watched()[cardId(c)]);
-    const heroMeta=Metadata&&Metadata.extractFromItem?Metadata.extractFromItem(c):null;
-    const heroYear=heroMeta&&heroMeta.year?heroMeta.year:'';
-    const heroRating=ratingOf(c);
+    const localMeta=Metadata&&Metadata.extractFromItem?Metadata.extractFromItem(c):{};
+    const remoteMeta=detailCache.get(cardId(c))||{};
+    const heroYear=remoteMeta.year||localMeta.year||'';
+    const heroRating=Number(remoteMeta.imdbRating||remoteMeta.rating||localMeta.imdbRating||ratingOf(c))||0;
     $('vps').textContent=(c.kind==='series'?'مسلسل'+(c.eps.length?' · '+c.eps.length+' حلقة':''):'فيلم')+
       (heroYear?' · '+heroYear:'')+
       (c.group?' · '+c.group:'')+
       (heroRating?' · IMDb ★ '+heroRating.toFixed(1):'')+(canResume?' · متابعة عند '+fmt(record.position):'');
-    setHeroArtwork(c.logo||'');
+    const overview=remoteMeta.overview||localMeta.overview||'';
+    description.textContent=overview;
+    description.classList.toggle('is-empty',!overview);
+    setHeroArtwork(remoteMeta.backdrop||c.logo||'',remoteMeta.poster||c.logo||'');
     if(progWrap&&progFill){
       const pct=canResume&&Model?Model.progressPercent(record):0;
       progWrap.hidden=!(canResume&&pct>0);
@@ -230,6 +270,9 @@
     action.textContent=canResume?'▶ متابعة المشاهدة':'▶ تشغيل الآن';
     action.hidden=false;
     if(detailsBtn)detailsBtn.hidden=false;
+    action.onclick=()=>{if(heroCard===c)playCard(c,canResume?record.position:0,false)};
+    if(detailsBtn)detailsBtn.onclick=()=>{if(heroCard===c)showDetails(c,'home')};
+    if(!remoteMeta.overview||!remoteMeta.backdrop)scheduleHeroMetadata(c);
   }
   function getVodCandidateSources(){
     const out=[];
